@@ -108,6 +108,21 @@ const DEFAULT_SHOP_ITEMS: ShopItemData[] = [
     unlock_requirement: "Unlocks at Level 5",
   },
   {
+    id: 1041,
+    name: "NSoC '26 Winter Vanguard Crest ❄️",
+    description:
+      "Exclusive commemorative crest for Nexus Spring / Winter of Code 2026 contributors, featured on your profile and PR comments.",
+    item_type: "badge_unlock",
+    cost: 500,
+    icon_emoji: "❄️",
+    is_limited: true,
+    already_purchased: false,
+    rarity: "LEGENDARY",
+    benefit: "Profile & NSoC Crest",
+    min_level: 4,
+    unlock_requirement: "Unlocks at Level 4",
+  },
+  {
     id: 105,
     name: "Title: Master Architect 🛠️",
     description:

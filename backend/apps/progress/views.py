@@ -1475,7 +1475,7 @@ class LeaderboardView(APIView):
             )
         elif time_period == "monthly":
             start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        elif time_period.startswith("seasonal"):
+        elif time_period == "nsoc" or time_period.startswith("seasonal"):
             season = Season.objects.filter(is_active=True).first()
             if season is not None and season.start_date:
                 start_date = timezone.make_aware(

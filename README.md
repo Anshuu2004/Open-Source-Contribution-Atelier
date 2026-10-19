@@ -8,8 +8,6 @@ app_port: 7860
 pinned: false
 ---
 
-
-
 <br />
 
 <div align="center">
@@ -53,15 +51,18 @@ pinned: false
 </div>
 
 ### 💖 A Heartfelt Community Journey
-> *"From a humble repository to a top-ranked open-source powerhouse: together we learned, mentored, solved bugs, and proved that anyone can become an open-source hero."*
+
+> _"From a humble repository to a top-ranked open-source powerhouse: together we learned, mentored, solved bugs, and proved that anyone can become an open-source hero."_
 
 During the 2026 Open Source Season, **Open-Source Contribution Atelier** achieved historic milestones thanks to an incredible community of contributors, reviewers, and mentors:
+
 - ❄️ **NSoC '26 (Nexus Spring / Winter of Code)** — Official participating project! Active 45-day open-source sprint.
 - 🥈 **SSSoC '26 (Summer Season of Code)** — Finished **Top 2nd Overall** across all participating national projects!
 - 🏅 **ECSoC '26 (Elite Coder Summer of Code)** — Finished **Top 14th Overall** in an intensely competitive season!
 - 🌟 **Hundreds of PRs merged**, dozens of first-time open-source contributors mentored, and lifelong developer friendships created.
 
 Explore our full honors, rankings, and legacy badges:
+
 - 📊 **[Official Hall of Fame & Contributor Leaderboard](LEADERBOARD.md)**
 - 🤝 **[Community Contributing Guidelines](CONTRIBUTING.md)**
 - 🔒 **[Security Policy](SECURITY.md)**
@@ -290,12 +291,12 @@ We welcome contributions of all levels and long-term participation!
 
 ### Quick Links
 
-| Resource                                            | Description                                                          |
-| --------------------------------------------------- | -------------------------------------------------------------------- |
-| 📋 [CONTRIBUTING.md](CONTRIBUTING.md)               | Forking, branching guidelines, commit conventions, and review cycles |
-| 💬 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)         | Community participation guidelines                                   |
-| 🔒 [SECURITY.md](SECURITY.md)                       | Responsible vulnerability disclosure policy                          |
-| 📖 [Content Guide](docs/CONTENT_GUIDE.md)           | How to add lessons, modules, and quizzes (zero code changes!)        |
+| Resource                                    | Description                                                          |
+| ------------------------------------------- | -------------------------------------------------------------------- |
+| 📋 [CONTRIBUTING.md](CONTRIBUTING.md)       | Forking, branching guidelines, commit conventions, and review cycles |
+| 💬 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community participation guidelines                                   |
+| 🔒 [SECURITY.md](SECURITY.md)               | Responsible vulnerability disclosure policy                          |
+| 📖 [Content Guide](docs/CONTENT_GUIDE.md)   | How to add lessons, modules, and quizzes (zero code changes!)        |
 
 ---
 

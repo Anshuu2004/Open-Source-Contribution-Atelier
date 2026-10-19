@@ -50,6 +50,6 @@ def test_valid_time_periods_return_200():
     """Valid time_period parameters must return 200 OK."""
     cache.clear()
     client = APIClient()
-    for period in ["all_time", "weekly", "monthly", "seasonal", "cohort_1"]:
+    for period in ["all_time", "weekly", "monthly", "seasonal", "nsoc", "cohort_1"]:
         response = client.get(f"/api/progress/leaderboard/?time_period={period}")
         assert response.status_code == 200

@@ -384,6 +384,9 @@ export function LeaderboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-xl">
             <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-black text-xs bg-cyan-300 text-black px-4 py-2 rounded-full border-2 border-black inline-block shadow-card-sm flex items-center gap-1.5">
+                <span>❄️</span> NSoC '26 Active Project
+              </span>
               <span className="font-black text-xs bg-amber-300 text-black px-4 py-2 rounded-full border-2 border-black inline-block shadow-card-sm">
                 🥈 SSSoC '26 Rank #2 Overall
               </span>
@@ -405,7 +408,7 @@ export function LeaderboardPage() {
             </h1>
 
             <p className="text-white/90 font-bold text-base sm:text-lg leading-relaxed">
-              Celebrating our historic SSSoC '26 &amp; ECSoC '26 victories! Earn points by merging Pull Requests, completing curriculum
+              Official participating project for NSoC '26 &amp; celebrating our historic SSSoC '26 &amp; ECSoC '26 victories! Earn points by merging Pull Requests with NSOC26 &amp; LEVEL1/2/3 labels, completing curriculum
               modules, and building open source together!
             </p>
           </div>
@@ -578,6 +581,7 @@ export function LeaderboardPage() {
           <div className="flex items-center gap-2 flex-wrap">
             {[
               { id: "all_time", label: "All Time 🏆" },
+              { id: "nsoc",     label: "❄️ NSoC '26 Active" },
               { id: "seasonal", label: "SSSoC & ECSoC '26 Legacy ⚡" },
               { id: "weekly",   label: "Weekly 🔥" },
             ].map((tp) => (
@@ -596,6 +600,34 @@ export function LeaderboardPage() {
           </div>
         )}
       </section>
+
+      {/* ── NSoC '26 Active Program Banner ── */}
+      {timePeriod === "nsoc" && (
+        <div className="rounded-[1.5rem] border-4 border-black bg-cyan-100 dark:bg-cyan-950/60 dark:border-cyan-500/50 p-4 sm:p-5 shadow-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black bg-cyan-400 text-black px-2.5 py-0.5 rounded-full border border-black uppercase tracking-wider">
+                Program Active
+              </span>
+              <span className="text-xs font-bold text-cyan-900 dark:text-cyan-200">
+                Nexus Spring / Winter of Code 2026
+              </span>
+            </div>
+            <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+              Mandatory tag: <code className="bg-white dark:bg-black px-1.5 py-0.5 rounded border border-black text-xs font-black">NSOC26</code> ·
+              Points: <span className="text-emerald-700 dark:text-emerald-400 font-black">LEVEL1: 10 pts</span> · <span className="text-amber-700 dark:text-amber-400 font-black">LEVEL2: 25 pts</span> · <span className="text-red-700 dark:text-red-400 font-black">LEVEL3: 50 pts</span>
+            </p>
+          </div>
+          <a
+            href="https://www.nsoc.in/projects"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-black bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-full border-2 border-black shadow-card-sm hover:scale-105 transition-transform shrink-0"
+          >
+            Explore NSoC Portal ↗
+          </a>
+        </div>
+      )}
 
       {/* ── Main Layout: Table + Ticker Side-by-Side ── */}
       <div className="flex flex-col xl:flex-row gap-6 items-start">

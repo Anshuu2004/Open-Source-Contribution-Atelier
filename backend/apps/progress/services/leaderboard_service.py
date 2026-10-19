@@ -133,8 +133,8 @@ class LeaderboardService:
             key = cls.get_weekly_key()
         elif time_period == "monthly":
             key = cls.get_monthly_key()
-        elif time_period.startswith("seasonal"):
-            key = cls.get_seasonal_key("summer_2026")
+        elif time_period == "nsoc" or time_period.startswith("seasonal"):
+            key = cls.get_seasonal_key("nsoc_2026")
         elif time_period.startswith("cohort_"):
             # e.g., cohort_summer_2026 -> summer_2026
             cohort_name = time_period.replace("cohort_", "")
@@ -197,8 +197,8 @@ class LeaderboardService:
             key = cls.get_weekly_key()
         elif time_period == "monthly":
             key = cls.get_monthly_key()
-        elif time_period.startswith("seasonal"):
-            key = cls.get_seasonal_key("summer_2026")
+        elif time_period == "nsoc" or time_period.startswith("seasonal"):
+            key = cls.get_seasonal_key("nsoc_2026")
         elif time_period.startswith("cohort_"):
             cohort_name = time_period.replace("cohort_", "")
             key = cls.get_cohort_key(cohort_name)
