@@ -9,8 +9,6 @@ pinned: false
 ---
 
 
-![CI](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/actions/workflows/ci.yml/badge.svg)
-
 
 <br />
 
