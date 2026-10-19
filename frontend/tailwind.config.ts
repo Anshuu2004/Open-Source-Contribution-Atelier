@@ -27,6 +27,16 @@ export default {
           muted: "#a1a1aa",
         },
       },
+      animation: {
+        "spin-slow": "spin 6s linear infinite",
+        "scale-up": "scaleUp 0.3s ease-out forwards",
+      },
+      keyframes: {
+        scaleUp: {
+          "0%": { opacity: "0", transform: "scale(0.9)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+      },
     },
   },
   plugins: [],
