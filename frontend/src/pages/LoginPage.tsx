@@ -463,9 +463,13 @@ export function LoginPage() {
                   <GoogleMark />
                   Continue with Google
                 </button>
-                <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 dark:border-indigo-400/15 dark:bg-indigo-500/[0.07]">
+                <div className="mt-4 hidden rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 dark:border-indigo-400/15 dark:bg-indigo-500/[0.07] lg:block">
                   <div className="flex items-center gap-2 text-xs font-medium text-indigo-900 dark:text-indigo-200">
-                    <Sparkles size={14} className="text-indigo-500" aria-hidden="true" />
+                    <Sparkles
+                      size={14}
+                      className="text-indigo-500"
+                      aria-hidden="true"
+                    />
                     Pick today&apos;s contribution spark
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
@@ -484,7 +488,10 @@ export function LoginPage() {
                       );
                     })}
                   </div>
-                  <p aria-live="polite" className="mt-2 text-xs text-indigo-700/80 dark:text-indigo-200/70">
+                  <p
+                    aria-live="polite"
+                    className="mt-2 text-xs text-indigo-700/80 dark:text-indigo-200/70"
+                  >
                     {contributionSparks[activeSpark].reply}
                   </p>
                 </div>
