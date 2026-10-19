@@ -152,8 +152,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#fafafa] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(99,102,241,0.12),transparent_28rem),radial-gradient(circle_at_88%_88%,rgba(16,185,129,0.08),transparent_25rem)] dark:bg-[radial-gradient(circle_at_12%_10%,rgba(99,102,241,0.16),transparent_28rem),radial-gradient(circle_at_88%_88%,rgba(16,185,129,0.10),transparent_25rem)]" />
+    <div className="min-h-screen overflow-hidden bg-[#f2f1ec] text-slate-900 dark:bg-[#11131a] dark:text-slate-100">
       <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
         <Link
           to="/"
@@ -167,7 +166,7 @@ export function LoginPage() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:text-white"
+          className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300/80 bg-white/70 text-slate-600 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-white"
           aria-label={
             theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
           }
@@ -175,217 +174,228 @@ export function LoginPage() {
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </header>
-      <main className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-10 pt-8 sm:px-8 lg:min-h-[calc(100vh-76px)] lg:grid-cols-[1fr_25rem] lg:py-12">
-        <section className="hidden max-w-xl lg:block">
-          <p className="mb-5 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-            Build in public, with confidence.
-          </p>
-          <h1 className="text-5xl font-semibold leading-[1.08] tracking-tight text-slate-950 dark:text-white">
-            A better place to learn open source.
-          </h1>
-          <p className="mt-6 max-w-md text-base leading-7 text-slate-600 dark:text-slate-400">
-            Practice the workflow, contribute thoughtfully, and grow alongside a
-            community that cares about good code.
-          </p>
-          <div className="mt-9 flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-              <ShieldCheck size={16} aria-hidden="true" />
+      <main className="mx-auto w-full max-w-6xl px-5 pb-10 pt-4 sm:px-8 lg:flex lg:min-h-[calc(100vh-76px)] lg:items-center lg:py-12">
+        <div className="relative w-full overflow-hidden rounded-[28px] border border-slate-900/10 bg-[#171923] shadow-[0_28px_80px_rgba(15,23,42,0.18)] dark:border-white/10">
+          <div className="absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(255,255,255,.38)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.38)_1px,transparent_1px)] [background-size:32px_32px]" />
+          <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3 font-mono text-[11px] text-slate-400 sm:px-6">
+            <span className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              atelier / workspace
             </span>
-            Your workspace and progress are waiting for you.
+            <span className="hidden sm:block">main · clean</span>
           </div>
-        </section>
-        <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/[0.05] sm:p-8 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20">
-          <div className="mb-7">
-            <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-              Welcome back
+          <div className="pointer-events-none absolute bottom-0 left-0 top-[45px] hidden w-[42%] border-r border-white/10 lg:block">
+            <div className="absolute left-[18%] top-[18%] h-[54%] w-px bg-gradient-to-b from-transparent via-indigo-400/70 to-transparent" />
+            <div className="absolute left-[18%] top-[27%] h-px w-[35%] bg-indigo-400/70" />
+            <div className="absolute left-[53%] top-[27%] h-[18%] w-px bg-indigo-400/70" />
+            <div className="absolute left-[18%] top-[54%] h-px w-[24%] bg-emerald-400/70" />
+            <span className="absolute left-[calc(18%-5px)] top-[calc(27%-5px)] h-3 w-3 rounded-full border-2 border-[#171923] bg-indigo-400" />
+            <span className="absolute left-[calc(53%-5px)] top-[calc(45%-5px)] h-3 w-3 rounded-full border-2 border-[#171923] bg-indigo-400" />
+            <span className="absolute left-[calc(42%-5px)] top-[calc(54%-5px)] h-3 w-3 rounded-full border-2 border-[#171923] bg-emerald-400" />
+            <p className="absolute left-[18%] top-[31%] font-mono text-xs text-indigo-200/80">
+              learn the flow
             </p>
-            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
-              Sign in to your account
-            </h2>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              Pick up right where you left off.
+            <p className="absolute left-[42%] top-[58%] font-mono text-xs text-emerald-200/80">
+              ship with care
             </p>
-          </div>
-          {error && (
-            <div
-              role="alert"
-              className="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200"
-            >
-              <span className="min-w-0 flex-1">{error}</span>
-              <button
-                type="button"
-                onClick={() => setError("")}
-                className="rounded p-0.5 hover:bg-rose-100 dark:hover:bg-rose-500/10"
-                aria-label="Dismiss error"
-              >
-                <X size={15} />
-              </button>
+            <div className="absolute bottom-10 left-[18%] flex items-center gap-2 text-xs text-slate-400">
+              <ShieldCheck size={14} className="text-emerald-400" />
+              Your progress is ready.
             </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {requires2FA ? (
-              <>
-                <div>
-                  <label
-                    htmlFor="totp_code"
-                    className="text-sm font-medium text-slate-700 dark:text-slate-200"
-                  >
-                    Verification code
-                  </label>
-                  <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                    Enter the six-digit code from your authenticator app.
-                  </p>
-                  <input
-                    id="totp_code"
-                    name="totp_code"
-                    autoFocus
-                    autoComplete={useBackupCode ? "off" : "one-time-code"}
-                    inputMode={useBackupCode ? "text" : "numeric"}
-                    maxLength={useBackupCode ? 10 : 6}
-                    placeholder={useBackupCode ? "a1b2-c3d4" : "123456"}
-                    value={totpCode}
-                    onChange={(event) => setTotpCode(event.target.value)}
-                    className="mt-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-center font-mono tracking-[0.25em] text-slate-950 outline-none transition placeholder:tracking-normal focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                    required
-                  />
+          </div>
+          <section className="relative ml-auto w-full max-w-[29rem] border-white/10 bg-white p-6 sm:p-8 lg:min-h-[600px] lg:border-l dark:bg-[#20232f]">
+            <div className="mb-7">
+              <p className="font-mono text-xs text-indigo-600 dark:text-indigo-300">
+                $ atelier resume
+              </p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                Continue your work.
+              </h1>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                Sign in to return to your contribution workspace.
+              </p>
+            </div>
+            {error && (
+              <div
+                role="alert"
+                className="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200"
+              >
+                <span className="min-w-0 flex-1">{error}</span>
+                <button
+                  type="button"
+                  onClick={() => setError("")}
+                  className="rounded p-0.5 hover:bg-rose-100 dark:hover:bg-rose-500/10"
+                  aria-label="Dismiss error"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {requires2FA ? (
+                <>
+                  <div>
+                    <label
+                      htmlFor="totp_code"
+                      className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                    >
+                      Verification code
+                    </label>
+                    <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                      Enter the six-digit code from your authenticator app.
+                    </p>
+                    <input
+                      id="totp_code"
+                      name="totp_code"
+                      autoFocus
+                      autoComplete={useBackupCode ? "off" : "one-time-code"}
+                      inputMode={useBackupCode ? "text" : "numeric"}
+                      maxLength={useBackupCode ? 10 : 6}
+                      placeholder={useBackupCode ? "a1b2-c3d4" : "123456"}
+                      value={totpCode}
+                      onChange={(event) => setTotpCode(event.target.value)}
+                      className="mt-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-center font-mono tracking-[0.25em] text-slate-950 outline-none transition placeholder:tracking-normal focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseBackupCode(!useBackupCode);
+                        setTotpCode("");
+                      }}
+                      className="mt-3 text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    >
+                      {useBackupCode
+                        ? "Use an authenticator code"
+                        : "Use a backup code"}
+                    </button>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
-                      setUseBackupCode(!useBackupCode);
+                      setRequires2FA(false);
                       setTotpCode("");
                     }}
-                    className="mt-3 text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    className="text-sm text-slate-500 underline-offset-4 hover:text-slate-800 hover:underline dark:hover:text-slate-200"
                   >
-                    {useBackupCode
-                      ? "Use an authenticator code"
-                      : "Use a backup code"}
+                    Back to sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label
+                      htmlFor="username"
+                      className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                    >
+                      Username or email
+                    </label>
+                    <input
+                      id="username"
+                      name="username"
+                      autoComplete="username"
+                      spellCheck={false}
+                      placeholder="the_smartest@kid.com"
+                      value={username}
+                      onChange={(event) => setUsername(event.target.value)}
+                      className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="login-password"
+                      className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                    >
+                      Password
+                    </label>
+                    <PasswordInput
+                      id="login-password"
+                      name="password"
+                      autoComplete="current-password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      className="mt-2 rounded-lg border-slate-300 bg-white py-2.5 text-sm text-slate-950 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
+                      required
+                    />
+                  </div>
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(event) => setRememberMe(event.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-950"
+                    />
+                    Remember me for 30 days
+                  </label>
+                </>
+              )}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-900"
+              >
+                {isLoading
+                  ? requires2FA
+                    ? "Verifying…"
+                    : "Signing in…"
+                  : requires2FA
+                    ? "Verify and continue"
+                    : "Let Me In!"}
+                {!isLoading && <ArrowRight size={16} aria-hidden="true" />}
+              </button>
+            </form>
+            {!requires2FA && (
+              <>
+                <div className="my-6 flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+                  or continue with
+                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => googleLogin()}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <GoogleMark />
+                    Google
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleGithubSignIn}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <GitBranch size={16} aria-hidden="true" />
+                    Sign in with GitHub
                   </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRequires2FA(false);
-                    setTotpCode("");
-                  }}
-                  className="text-sm text-slate-500 underline-offset-4 hover:text-slate-800 hover:underline dark:hover:text-slate-200"
-                >
-                  Back to sign in
-                </button>
-              </>
-            ) : (
-              <>
-                <div>
-                  <label
-                    htmlFor="username"
-                    className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                <DemoLoginButton
+                  label="Explore a demo workspace"
+                  className="mt-3 w-full rounded-lg border border-dashed border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-indigo-500/60 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300"
+                />
+                <div className="mt-6 flex items-center justify-between text-sm">
+                  <Link
+                    to="/reset-password"
+                    className="text-slate-500 underline-offset-4 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-white"
                   >
-                    Username or email
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    autoComplete="username"
-                    spellCheck={false}
-                    placeholder="the_smartest@kid.com"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
-                    required
-                  />
+                    Forgot password?
+                  </Link>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    New here?{" "}
+                    <Link
+                      to="/signup"
+                      className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    >
+                      Create an account
+                    </Link>
+                  </span>
                 </div>
-                <div>
-                  <label
-                    htmlFor="login-password"
-                    className="text-sm font-medium text-slate-700 dark:text-slate-200"
-                  >
-                    Password
-                  </label>
-                  <PasswordInput
-                    id="login-password"
-                    name="password"
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    className="mt-2 rounded-lg border-slate-300 bg-white py-2.5 text-sm text-slate-950 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
-                    required
-                  />
-                </div>
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(event) => setRememberMe(event.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-950"
-                  />
-                  Remember me for 30 days
-                </label>
               </>
             )}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-900"
-            >
-              {isLoading
-                ? requires2FA
-                  ? "Verifying…"
-                  : "Signing in…"
-                : requires2FA
-                  ? "Verify and continue"
-                  : "Let Me In!"}
-              {!isLoading && <ArrowRight size={16} aria-hidden="true" />}
-            </button>
-          </form>
-          {!requires2FA && (
-            <>
-              <div className="my-6 flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
-                <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-                or continue with
-                <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => googleLogin()}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  <GoogleMark />
-                  Google
-                </button>
-                <button
-                  type="button"
-                  onClick={handleGithubSignIn}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  <GitBranch size={16} aria-hidden="true" />
-                  Sign in with GitHub
-                </button>
-              </div>
-              <DemoLoginButton
-                label="Explore a demo workspace"
-                className="mt-3 w-full rounded-lg border border-dashed border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-indigo-500/60 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300"
-              />
-              <div className="mt-6 flex items-center justify-between text-sm">
-                <Link
-                  to="/reset-password"
-                  className="text-slate-500 underline-offset-4 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-white"
-                >
-                  Forgot password?
-                </Link>
-                <span className="text-slate-500 dark:text-slate-400">
-                  New here?{" "}
-                  <Link
-                    to="/signup"
-                    className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
-                  >
-                    Create an account
-                  </Link>
-                </span>
-              </div>
-            </>
-          )}
-        </section>
+          </section>
+        </div>
       </main>
     </div>
   );
