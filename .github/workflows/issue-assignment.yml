@@ -27,6 +27,50 @@ jobs:
             const title = (issue.title || '').trim();
             const body = (issue.body || '').trim();
 
+            // NSoC '26 Auto-Labeling (Compulsory: NSOC26 and LEVEL1/LEVEL2/LEVEL3)
+            const isNsoc = /\[?nsoc26\]?/i.test(title) || /\bnsoc\b/i.test(title) || /\bnsoc\b/i.test(body);
+            if (isNsoc) {
+              const labelsToAdd = ['NSOC26'];
+
+              // Detect level
+              if (/\b(level-?1|beginner)\b/i.test(body) || /\b(level-?1)\b/i.test(title)) {
+                labelsToAdd.push('LEVEL1');
+              } else if (/\b(level-?3|advanced)\b/i.test(body) || /\b(level-?3)\b/i.test(title)) {
+                labelsToAdd.push('LEVEL3');
+              } else if (/\b(level-?2|intermediate)\b/i.test(body) || /\b(level-?2)\b/i.test(title)) {
+                labelsToAdd.push('LEVEL2');
+              }
+
+              // Ensure labels exist
+              for (const lbl of labelsToAdd) {
+                try {
+                  await github.rest.issues.getLabel({ owner, repo, name: lbl });
+                } catch (e) {
+                  const colors = {
+                    NSOC26: '0075ca',
+                    LEVEL1: '0e8a16',
+                    LEVEL2: 'fbca04',
+                    LEVEL3: 'd93f0b'
+                  };
+                  await github.rest.issues.createLabel({
+                    owner,
+                    repo,
+                    name: lbl,
+                    color: colors[lbl] || '5319e7',
+                    description: `NSoC '26 official label: ${lbl}`
+                  });
+                }
+              }
+
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issue.number,
+                labels: labelsToAdd
+              });
+              console.log(`Labeled issue #${issue.number} with NSoC labels: ${labelsToAdd.join(', ')}`);
+            }
+
             // Low-Quality Issue Auto-Triage Check
             if (title.length < 10 || body.length < 30) {
               try {
@@ -139,19 +183,63 @@ jobs:
                 assignees: [commenter]
               });
 
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: issue.number,
-                body: [
+              const issueLabels = (issue.labels || []).map(l => (typeof l === 'string' ? l : l.name));
+              const isNsocIssue = issueLabels.includes('NSOC26');
+              let levelBadge = '';
+              let pointsText = '';
+
+              if (issueLabels.includes('LEVEL3')) {
+                levelBadge = '🔴 `LEVEL3`';
+                pointsText = '50 XP / Points';
+              } else if (issueLabels.includes('LEVEL2')) {
+                levelBadge = '🟡 `LEVEL2`';
+                pointsText = '25 XP / Points';
+              } else if (issueLabels.includes('LEVEL1')) {
+                levelBadge = '🟢 `LEVEL1`';
+                pointsText = '10 XP / Points';
+              }
+
+              let assignmentBody;
+              if (isNsocIssue) {
+                assignmentBody = [
+                  `### ❄️ Assigned to @${commenter} for NSoC '26! 🚀`,
+                  ``,
+                  `Hey @${commenter}, this issue has been successfully assigned to you for **Nexus Spring / Winter of Code 2026**!`,
+                  ``,
+                  `| Metric | Details |`,
+                  `|---|---|`,
+                  `| **Program** | ❄️ NSoC '26 (\`NSOC26\`) |`,
+                  `| **Difficulty Tier** | ${levelBadge || 'General'} |`,
+                  `| **Reward Value** | ${pointsText || 'Standard Points'} |`,
+                  `| **Activity Policy** | ⏰ First update or draft PR within **48 hours** |`,
+                  ``,
+                  `#### 📋 NSoC Contributor Checklist:`,
+                  `1. **Create Branch**: \`git checkout -b feat/nsoc-${issue.number}-<short-name>\``,
+                  `2. **Verify Locally**: \`pytest\` in \`backend/\` and \`npm test && npm run build\` in \`frontend/\``,
+                  `3. **Link Issue in PR**: Include \`Fixes #${issue.number}\` in your PR description so points are auto-awarded upon merge.`,
+                  `4. **Active Rotation**: If no update is received within 72 hours, the issue will automatically unassign to allow others to participate.`,
+                  ``,
+                  `Need help? Join the [Community Discussions](https://github.com/${owner}/${repo}/discussions) or ask right here! 💡`,
+                  ``,
+                  `Happy coding! ✨ — @${owner}`
+                ].join('\n');
+              } else {
+                assignmentBody = [
                   `### 🚀 Assigned to @${commenter}! 🎉`,
                   ``,
                   `Issue successfully assigned to @${commenter}!`,
                   `1. Please link this issue in your Pull Request description using \`Fixes #${issue.number}\`.`,
-                  `2. Run local tests before requesting review.`,
+                  `2. Run local tests before requesting review (\`pytest\` / \`npm test\`).`,
                   ``,
                   `Happy coding! 🎉 — @${owner}`
-                ].join('\n')
+                ].join('\n');
+              }
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: issue.number,
+                body: assignmentBody
               });
             } catch (err) {
               console.error(`Failed to assign issue #${issue.number} to ${commenter}:`, err);

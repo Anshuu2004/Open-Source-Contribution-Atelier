@@ -47,6 +47,7 @@ pinned: false
 
 <div align="center">
 
+[![NSoC '26 Active](https://img.shields.io/badge/NSoC_'26-Active_Project_❄️-00b4d8?style=for-the-badge&logo=codeforces&logoColor=white)](https://www.nsoc.in/projects)
 [![SSSoC 2026 Top 2](https://img.shields.io/badge/SSSoC_'26-Rank_%232_🥈-FFD700?style=for-the-badge&logo=trophy&logoColor=black)](LEADERBOARD.md)
 [![ECSoC 2026 Top 14](https://img.shields.io/badge/ECSoC_'26-Rank_%2314_🏅-8A2BE2?style=for-the-badge&logo=github)](LEADERBOARD.md)
 [![Hall of Fame](https://img.shields.io/badge/Hall_of_Fame-Leaderboard_🏆-4ECDC4?style=for-the-badge&logo=github)](LEADERBOARD.md)
@@ -57,6 +58,7 @@ pinned: false
 > *"From a humble repository to a top-ranked open-source powerhouse: together we learned, mentored, solved bugs, and proved that anyone can become an open-source hero."*
 
 During the 2026 Open Source Season, **Open-Source Contribution Atelier** achieved historic milestones thanks to an incredible community of contributors, reviewers, and mentors:
+- ❄️ **NSoC '26 (Nexus Spring / Winter of Code)** — Official participating project! Active 45-day open-source sprint.
 - 🥈 **SSSoC '26 (Summer Season of Code)** — Finished **Top 2nd Overall** across all participating national projects!
 - 🏅 **ECSoC '26 (Elite Coder Summer of Code)** — Finished **Top 14th Overall** in an intensely competitive season!
 - 🌟 **Hundreds of PRs merged**, dozens of first-time open-source contributors mentored, and lifelong developer friendships created.
@@ -292,9 +294,9 @@ We welcome contributions of all levels and long-term participation!
 
 | Resource                                            | Description                                                          |
 | --------------------------------------------------- | -------------------------------------------------------------------- |
-| 📋 [CONTRIBUTING.md](.github/CONTRIBUTING.md)       | Forking, branching guidelines, commit conventions, and review cycles |
-| 💬 [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) | Community participation guidelines                                   |
-| 🔒 [SECURITY.md](.github/SECURITY.md)               | Responsible vulnerability disclosure policy                          |
+| 📋 [CONTRIBUTING.md](CONTRIBUTING.md)               | Forking, branching guidelines, commit conventions, and review cycles |
+| 💬 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)         | Community participation guidelines                                   |
+| 🔒 [SECURITY.md](SECURITY.md)                       | Responsible vulnerability disclosure policy                          |
 | 📖 [Content Guide](docs/CONTENT_GUIDE.md)           | How to add lessons, modules, and quizzes (zero code changes!)        |
 
 ---
@@ -309,7 +311,7 @@ Thanks to all the amazing people who have contributed to this project! 💜
 
 <br/>
 
-> Want to see your avatar here? Check the [Contributing Guide](.github/CONTRIBUTING.md) and pick an issue to get started!
+> Want to see your avatar here? Check the [Contributing Guide](CONTRIBUTING.md) and pick an issue to get started!
 
 ---
 

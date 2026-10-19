@@ -14,6 +14,12 @@ Fixes #<!-- issue number -->
 - [ ] ⚡ Performance optimization
 - [ ] 🛠️ Refactoring (no functional changes)
 
+## Program Track
+
+- [ ] ❄️ **NSoC '26 (Nexus Spring / Winter of Code)**
+  - Linked issue has compulsory label: `NSOC26`
+  - Linked issue has difficulty label: `LEVEL1` (10 pts) | `LEVEL2` (25 pts) | `LEVEL3` (50 pts)
+
 ## Screenshots / Recordings
 
 <!-- For UI changes, paste before/after screenshots or screen recordings here. Delete this section if not applicable. -->
@@ -37,12 +43,12 @@ Fixes #<!-- issue number -->
 ## Pre-Push Checklist
 
 > [!IMPORTANT]
-> **All items below must be checked before requesting a review.** Our CI bot and CodeRabbit AI will automatically run build/test checks and review your PR. If CI fails, you will receive a comment explaining what went wrong.
+> **All items below must be checked before requesting a review.** Automated CI workflows and maintainers will review your pull request once all automated checks pass.
 
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
+- [ ] Code is cleanly formatted and self-documenting
+- [ ] I have made corresponding changes to the documentation (if applicable)
 - [ ] My changes generate no new warnings or console errors
 - [ ] I have run `npm run build` in `frontend/` and it completes with **0 errors**
 - [ ] I have run `pytest` in `backend/` and all tests pass
@@ -54,3 +60,4 @@ Fixes #<!-- issue number -->
 > This project is deployed on **Vercel** (Frontend) and **Hugging Face** (Backend). The CI workflow simulates both deployment environments. If your PR passes CI, it is safe to merge.
 
 <!-- Add any notes about deployment considerations, environment variables, or migration steps needed -->
+

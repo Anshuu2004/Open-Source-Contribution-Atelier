@@ -10,6 +10,20 @@ During the 2026 Open Source Season, our community embarked on an extraordinary j
 
 <div align="center">
 
+### ❄️ **NSoC '26 (Nexus Spring / Winter of Code)**
+
+# **🚀 ACTIVE PARTICIPATING PROJECT**
+
+_Official project listing: [nsoc.in/projects](https://www.nsoc.in/projects) · 45-Day Open Source Sprint_
+
+[![NSoC '26](https://img.shields.io/badge/Program-NSoC_'26_❄️-00b4d8?style=for-the-badge&logo=codeforces&logoColor=white)](https://www.nsoc.in/projects)
+[![Mandatory Label](https://img.shields.io/badge/Mandatory_Label-NSOC26-0075ca?style=for-the-badge)](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/NSOC26)
+[![Level 1](https://img.shields.io/badge/LEVEL1-10_Points-0e8a16?style=for-the-badge)](#)
+[![Level 2](https://img.shields.io/badge/LEVEL2-25_Points-fbca04?style=for-the-badge)](#)
+[![Level 3](https://img.shields.io/badge/LEVEL3-50_Points-d93f0b?style=for-the-badge)](#)
+
+<br/>
+
 ### 🥈 **SSSoC '26 (Summer Season of Code 2026)**
 
 # **🏆 TOP 2nd PROJECT OVERALL**
@@ -73,6 +87,21 @@ Below is the honored honor roll of standout contributors who powered our histori
 |  **🥇 Gold Contributor**   |      5+ Merged PRs      | `![Gold](https://img.shields.io/badge/Tier-Gold_🥇-ffd700?style=for-the-badge)`                |
 | **💎 Diamond Contributor** |     10+ Merged PRs      | `![Diamond](https://img.shields.io/badge/Tier-Diamond_💎-b9f2ff?style=for-the-badge)`          |
 |     **⚡ Hot Streak**      | 2+ PRs merged in 7 days | `![Streak](https://img.shields.io/badge/Streak-⚡_Hot_Contributor-ff4500?style=for-the-badge)` |
+
+---
+
+## ❄️ NSoC '26 Mandatory Labels & Points System
+
+All tasks under **Nexus Spring / Winter of Code 2026** use the following mandatory tagging and scoring structure:
+
+| Label | Description | Points Awarded | Scope Examples |
+|:---:|---|:---:|---|
+| **`NSOC26`** | **Compulsory Program Label** | — | Must be present on all participating issues & PRs |
+| **`LEVEL1`** | **Beginner Tier** | **10 Points** | Documentation updates, typo/link fixes, simple UI tweaks, basic unit tests |
+| **`LEVEL2`** | **Intermediate Tier** | **25 Points** | Feature additions, API endpoint extensions, new reusable components, bug fixes |
+| **`LEVEL3`** | **Advanced Tier** | **50 Points** | Core architecture refactoring, complex modules, security hardening, full-stack pipelines |
+
+> 💡 **Automated Scoring**: When your Pull Request linking a `NSOC26` issue with `Fixes #<number>` is merged, our bot calculates your points and awards your commemorative NSoC '26 contributor badge!
 
 ---
 

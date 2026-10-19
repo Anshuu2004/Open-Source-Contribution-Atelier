@@ -31,18 +31,34 @@ jobs:
             const userPrCount = searchRes.data.total_count || 0;
 
             if (userPrCount <= 1) {
+              const bodyText = (pr.body || '').toLowerCase();
+              const titleText = (pr.title || '').toLowerCase();
+              const isNsoc = bodyText.includes('nsoc') || titleText.includes('nsoc');
+
+              const nsocSection = isNsoc
+                ? [
+                    ``,
+                    `### ❄️ NSoC '26 (Nexus Spring / Winter of Code) Detected!`,
+                    `Awesome work participating in **NSoC '26**!`,
+                    `- **Mandatory Program Label:** Ensure the linked issue has \`NSOC26\`.`,
+                    `- **Scoring Tiers:** Ensure your issue is labeled with \`LEVEL1\` (10 pts), \`LEVEL2\` (25 pts), or \`LEVEL3\` (50 pts).`,
+                    `- **Points Tracking:** Once merged, your points and badges are recorded directly to our [Hall of Fame Leaderboard](https://github.com/${owner}/${repo}/blob/main/LEADERBOARD.md)!`,
+                  ].join('\n')
+                : '';
+
               const welcomeBody = [
                 `## 🌟 Welcome to Open-Source Contribution Atelier, @${author}! 🎉`,
                 ``,
                 `Thank you for opening your **very first Pull Request** in this repository! We are thrilled to welcome you to the **Open-Source Contribution Atelier** community! 🚀`,
+                nsocSection,
                 ``,
                 `### 🛠️ Quick Checklist for Your First Contribution:`,
                 `1. 🧪 **Pre-Push Checks**: Verify tests pass locally (\`pytest\` for backend, \`npm test\` for frontend).`,
-                `2. 🔗 **Link Issue**: Ensure your PR description includes \`Fixes #issue_number\`.`,
+                `2. 🔗 **Link Issue**: Ensure your PR description includes \`Fixes #<issue_number>\` so it automatically tracks your contribution.`,
                 `3. 💬 **Need Help?**: Comment directly on this PR or join our [Community Discussions](https://github.com/${owner}/${repo}/discussions).`,
                 ``,
-                `> 🚀 Thank you for taking your first step in open source with us!`
-              ].join('\n');
+                `> 🚀 Thank you for taking your open source leap with us! We can't wait to review your work.`
+              ].filter(Boolean).join('\n');
 
               await github.rest.issues.createComment({
                 owner,

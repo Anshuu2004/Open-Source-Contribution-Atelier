@@ -1,5 +1,9 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Community Discussions
+  - name: ❄️ NSoC '26 Project Portal
+    url: https://www.nsoc.in/projects
+    about: Official Nexus Spring / Winter of Code repository listing & project guidelines.
+  - name: 💬 Community Discussions
     url: https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/discussions
-    about: Ask questions or discuss ideas with the community.
+    about: Ask questions, get help, or brainstorm features with mentors and contributors.
+

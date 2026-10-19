@@ -1,0 +1,73 @@
+name: "❄️ NSoC '26 Task"
+description: Create a task or feature issue for Nexus Spring / Winter of Code 2026 contributors
+title: "[NSOC26]: "
+labels:
+  - "NSOC26"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### ❄️ NSoC '26 (Nexus Spring / Winter of Code) Official Task
+        This issue is part of the **NSoC '26** open-source program.
+        - **Compulsory Label:** `NSOC26`
+        - **Difficulty Levels:** `LEVEL1` (10 pts), `LEVEL2` (25 pts), `LEVEL3` (50 pts)
+        - To claim this issue, comment `/claim` or `/assign`.
+
+  - type: dropdown
+    id: level
+    attributes:
+      label: Difficulty Level (Points)
+      description: Select the difficulty level according to NSoC guidelines.
+      options:
+        - "LEVEL1 - Beginner (10 Points)"
+        - "LEVEL2 - Intermediate (25 Points)"
+        - "LEVEL3 - Advanced (50 Points)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain / Stack
+      description: Which area of the codebase does this issue touch?
+      options:
+        - "Frontend (React 19 + TypeScript + Tailwind)"
+        - "Backend (Django REST + PostgreSQL + Channels)"
+        - "Full-stack (Frontend & Backend integration)"
+        - "Documentation & Curriculum (Markdown + JSON)"
+        - "DevOps / CI/CD (Docker, GitHub Actions)"
+        - "Testing & Quality (Vitest, Pytest, Playwright)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: Detailed description of what needs to be implemented or resolved.
+      placeholder: Describe the problem, user story, or feature scope.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be satisfied for this issue to be closed?
+      placeholder: |
+        - [ ] Feature / fix works as specified
+        - [ ] Automated tests pass (`npm test` / `pytest`)
+        - [ ] PR links this issue with `Fixes #<number>`
+    validations:
+      required: true
+
+  - type: textarea
+    id: pointers
+    attributes:
+      label: Code Pointers & Resources
+      description: Relevant files, components, or documentation links to help the contributor get started.
+      placeholder: |
+        - Files: `frontend/src/pages/...` or `backend/apps/...`
+        - Docs: `docs/CONTRIBUTING.md`
+    validations:
+      required: false

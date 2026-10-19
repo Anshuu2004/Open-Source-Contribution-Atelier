@@ -19,3 +19,15 @@ body:
       description: Mention specific doc files or README sections affected.
     validations:
       required: false
+
+  - type: dropdown
+    id: program
+    attributes:
+      label: Open Source Program Track
+      description: Is this documentation request part of a seasonal open source program?
+      options:
+        - "None / General Community"
+        - "❄️ NSoC '26 (Nexus Spring / Winter of Code)"
+    validations:
+      required: false
+

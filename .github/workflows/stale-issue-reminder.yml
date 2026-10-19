@@ -50,7 +50,7 @@ jobs:
                     owner,
                     repo,
                     issue_number: issue.number,
-                    body: `🛠️ @${user} has been automatically **unassigned** from Issue #${issue.number} due to 72 hours of inactivity.\n\nThis issue is now open for other contributors to claim! Use \`/claim\` or \`/assign\` to claim it.`
+                    body: `🛠️ @${user} has been automatically **unassigned** from Issue #${issue.number} due to 72 hours of inactivity without a PR or status update.\n\nTo ensure fair opportunity during the **NSoC '26** sprint, this issue is now open for other contributors to claim! Use \`/claim\` or \`/assign\` to claim it.`
                   });
                   console.log(`Unassigned ${user} from issue #${issue.number}`);
                 }
@@ -62,7 +62,7 @@ jobs:
                   owner,
                   repo,
                   issue_number: issue.number,
-                  body: `⏰ Friendly reminder ${mentions}! You have been assigned to this issue for over **48 hours**.\n\nPlease submit a Pull Request or post an update within 24 hours to retain your assignment!`
+                  body: `⏰ Friendly reminder ${mentions}! You have been assigned to this issue for over **48 hours**.\n\nPlease submit a draft Pull Request or post an update within 24 hours to retain your assignment under our NSoC '26 active rotation guidelines!`
                 });
                 console.log(`Sent 48h reminder to ${mentions} on issue #${issue.number}`);
               }

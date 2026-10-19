@@ -1,18 +1,16 @@
 {
+  "name": "open-source-contribution-atelier",
+  "private": true,
   "engines": {
     "node": ">=20.0.0"
   },
-  "dependencies": {
-    "@tanstack/react-virtual": "^3.14.3",
-    "axios": "^1.18.1",
-    "framer-motion": "^12.41.0",
-    "html-to-image": "^1.11.13",
-    "react-i18next": "^17.0.8",
-    "zxcvbn": "^4.4.2"
+  "scripts": {
+    "check-barrels": "tsx scripts/check-barrel-imports.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
-    "@types/zxcvbn": "^4.4.5"
+    "tsx": "^4.23.1"
   }
 }
+

@@ -53,6 +53,23 @@ jobs:
 
             const isHotStreak = recentMergedCount >= 2;
 
+            // Check PR labels or content for NSoC '26
+            const prLabels = (pr.labels || []).map(l => (typeof l === 'string' ? l : l.name));
+            const isNsoc = prLabels.includes('NSOC26') || /nsoc26/i.test(pr.title || '') || /nsoc26/i.test(pr.body || '');
+            let nsocLevel = '';
+            let earnedPoints = 25;
+
+            if (prLabels.includes('LEVEL3') || /LEVEL3/i.test(pr.body || '') || /LEVEL3/i.test(pr.title || '')) {
+              nsocLevel = 'LEVEL3';
+              earnedPoints = 50;
+            } else if (prLabels.includes('LEVEL2') || /LEVEL2/i.test(pr.body || '') || /LEVEL2/i.test(pr.title || '')) {
+              nsocLevel = 'LEVEL2';
+              earnedPoints = 25;
+            } else if (prLabels.includes('LEVEL1') || /LEVEL1/i.test(pr.body || '') || /LEVEL1/i.test(pr.title || '')) {
+              nsocLevel = 'LEVEL1';
+              earnedPoints = 10;
+            }
+
             // Determine Contributor Tier
             let tierName = '🥉 Bronze Contributor';
             let tierBadge = 'https://img.shields.io/badge/Contributor_Tier-Bronze_🥉-cd7f32?style=for-the-badge&logo=github&logoColor=white';
@@ -76,6 +93,15 @@ jobs:
               ? `\n🔥 **7-Day Hot Streak Active!** You've merged **${recentMergedCount} PRs** in the past 7 days! Keep up the momentum!`
               : '';
 
+            const nsocBadge = isNsoc
+              ? `  [![NSoC '26](https://img.shields.io/badge/NSoC_'26-Verified_Contributor-00b4d8?style=for-the-badge&logo=codeforces&logoColor=white)](https://www.nsoc.in/projects)` +
+                (nsocLevel ? `  [![${nsocLevel}](https://img.shields.io/badge/NSoC_Difficulty-${nsocLevel}-0e8a16?style=for-the-badge)](https://www.nsoc.in/projects)` : '')
+              : '';
+
+            const nsocNotice = isNsoc
+              ? `\n❄️ **NSoC '26 Contribution Verified!** Awarded **${earnedPoints} Points** (\`${nsocLevel || 'General'}\`) for Nexus Spring / Winter of Code 2026!`
+              : '';
+
             const tweetText = encodeURIComponent(`🎉 Excited to share that my Pull Request #${pr.number} ("${pr.title}") has been merged into Open-Source Contribution Atelier! 🚀\n\nCheck out the project: https://github.com/${owner}/${repo}`);
             const linkedinText = encodeURIComponent(`https://github.com/${owner}/${repo}/pull/${pr.number}`);
 
@@ -86,9 +112,9 @@ jobs:
               ``,
               `### 📜 Contributor Badge & Certificate`,
               ``,
-              `[![Open Source Contributor](https://img.shields.io/badge/Open_Source-Contributor-4ECDC4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/${owner}/${repo}/pull/${pr.number})  [![${tierName}](${tierBadge})](https://github.com/${owner}/${repo}/blob/main/LEADERBOARD.md)${streakBadge}`,
+              `[![Open Source Contributor](https://img.shields.io/badge/Open_Source-Contributor-4ECDC4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/${owner}/${repo}/pull/${pr.number})  [![${tierName}](${tierBadge})](https://github.com/${owner}/${repo}/blob/main/LEADERBOARD.md)${streakBadge}${nsocBadge}`,
               ``,
-              `**Current Tier**: **${tierName}** (${mergedCount} merged PRs)${streakNotice}`,
+              `**Current Tier**: **${tierName}** (${mergedCount} merged PRs)${streakNotice}${nsocNotice}`,
               ``,
               `<details>`,
               `<summary>📋 Copy Markdown snippet for your README / Portfolio</summary>`,
@@ -96,6 +122,7 @@ jobs:
               `\`\`\`markdown`,
               `[![Open Source Contributor](https://img.shields.io/badge/Open_Source-Contributor-4ECDC4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/${owner}/${repo}/pull/${pr.number})`,
               `[![${tierName}](${tierBadge})](https://github.com/${owner}/${repo}/blob/main/LEADERBOARD.md)`,
+              isNsoc ? `[![NSoC '26 Contributor](https://img.shields.io/badge/NSoC_'26-Verified_Contributor-00b4d8?style=for-the-badge&logo=codeforces&logoColor=white)](https://www.nsoc.in/projects)` : '',
               `\`\`\``,
               ``,
               `</details>`,
@@ -108,7 +135,7 @@ jobs:
               `- 💼 **[Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=${linkedinText})**`,
               ``,
               `> Thank you for making **Open-Source Contribution Atelier** better! Pick another issue to keep your streak going! 🚀`
-            ].join('\n');
+            ].filter(Boolean).join('\n');
 
             await github.rest.issues.createComment({
               owner,
@@ -116,13 +143,13 @@ jobs:
               issue_number: pr.number,
               body: certBody
             });
-            console.log(`Posted merged PR certificate for @${author} with Tier ${tierName} and Streak=${isHotStreak}`);
+            console.log(`Posted merged PR certificate for @${author} with Tier ${tierName}, Streak=${isHotStreak}, NSoC=${isNsoc}`);
 
             // Update LEADERBOARD.md
             try {
               let content = fs.readFileSync('LEADERBOARD.md', 'utf8');
               const today = new Date().toISOString().split('T')[0];
-              const points = mergedCount * 25; // Default 25 pts per PR
+              const points = mergedCount * 25;
               const streakText = isHotStreak ? '⚡ Hot Streak' : 'Active';
 
               if (content.includes(`@${author}`)) {

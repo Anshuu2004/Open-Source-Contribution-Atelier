@@ -6,10 +6,38 @@ We welcome all kinds of contributions: code improvements, new features, bug fixe
 
 ---
 
+## ❄️ Contributing via NSoC '26 (Nexus Spring / Winter of Code)
+
+We are thrilled to participate in **NSoC '26**! If you are participating as an NSoC contributor:
+
+1. **Mandatory Issue Labels**:
+   - Every eligible task must have the compulsory label: **`NSOC26`**
+   - Difficulty tiers determining your points:
+     - 🟢 **`LEVEL1` (10 Points)**: Beginner-friendly fixes, documentation polish, simple UI adjustments, test additions.
+     - 🟡 **`LEVEL2` (25 Points)**: Feature enhancements, new components, API endpoint enhancements, bug fixes.
+     - 🔴 **`LEVEL3` (50 Points)**: Architecture refactoring, complex full-stack features, security improvements, performance optimizations.
+
+2. **Claiming an Issue**:
+   - Find issues labeled [`NSOC26`](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/NSOC26).
+   - Comment `/claim` or `/assign` to be automatically assigned by our bot.
+   - **48-Hour Inactivity Policy**: To ensure fair participation during the sprint, please submit a draft PR or progress update within **48 hours**. Issues inactive after **72 hours** will be automatically unassigned.
+   - Maximum **5 active assigned issues** per contributor.
+
+3. **Branch & Commit Conventions**:
+   - Branch: `feat/nsoc-<issue-number>-<short-name>` or `fix/nsoc-...`
+   - Commit message: `feat(nsoc): <short summary>` (e.g. `feat(nsoc): implement visual progress indicator`)
+
+4. **Pull Request Submission**:
+   - In your PR body, include **`Fixes #<issue-number>`**.
+   - Ensure backend (`pytest`) and frontend (`npm test && npm run build`) checks pass locally.
+   - Once merged, our bot awards your NSoC Contributor Certificate and adds your points to the [Hall of Fame Leaderboard](LEADERBOARD.md)!
+
+---
+
 ## 🚀 Quick Start Guide
 
 1. **Find an Issue**:
-   - Check out issues tagged with [`good first issue`](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/good%20first%20issue) or [`help wanted`](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/help%20wanted).
+   - Check out issues tagged with [`NSOC26`](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/NSOC26), [`good first issue`](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/good%20first%20issue), or [`help wanted`](https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier/labels/help%20wanted).
    - Comment `/claim` or `/assign` on any unassigned issue to have our bot assign it to you.
 
 2. **Set Up Locally**:

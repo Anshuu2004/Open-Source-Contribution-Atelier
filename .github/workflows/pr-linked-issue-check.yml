@@ -30,7 +30,7 @@ jobs:
                 owner,
                 repo,
                 issue_number: pr.number,
-                body: `⚠️ @${pr.user.login}, thank you for opening this Pull Request! Please link your assigned issue in the description using \`Fixes #<issue_number>\` (e.g. \`Fixes #2800\`) so the issue automatically closes when merged!`
+                body: `⚠️ @${pr.user.login}, thank you for opening this Pull Request! Please link your assigned issue in the description using \`Fixes #<issue_number>\` (e.g. \`Fixes #2800\`) so the issue automatically closes and your NSoC '26 points / leaderboard badges are credited upon merge!`
               });
               console.log(`Prompted @${pr.user.login} to link issue on PR #${pr.number}`);
             }
