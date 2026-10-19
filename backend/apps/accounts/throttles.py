@@ -264,7 +264,7 @@ class StrictIdentityLoginThrottle(SlidingWindowAnonThrottle):
     scope = "auth_login"
 
     def get_ident(self, request):
-        identity = request.data.get("email") or request.data.get("username")
+        identity = request.data.get("username")
         if identity:
             return str(identity).strip().lower()
         return _get_real_ip(request)

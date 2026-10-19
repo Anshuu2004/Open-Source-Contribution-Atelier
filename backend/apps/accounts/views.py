@@ -139,42 +139,7 @@ class SignupView(generics.CreateAPIView):
     throttle_classes = [SignupThrottle]
 
 
-@extend_schema(
-    summary="Register a new user",
-    description="Create a new user account with username, email, and password",
-    request=UserCreateSchema,
-    responses={
-        201: OpenApiResponse(description="User created successfully"),
-        400: OpenApiResponse(description="Validation error"),
-    },
-    examples=[
-        OpenApiExample(
-            name="Valid Registration",
-            value={
-                "username": "johndoe",
-                "email": "john@example.com",
-                "password": "SecurePass123",
-            },
-        )
-    ],
-)
-def register(request):
-    pass
 
-
-@extend_schema(
-    summary="Login user",
-    description="Authenticate user and return JWT token",
-    request=UserLoginSchema,
-    responses={
-        200: OpenApiResponse(
-            description="Login successful", response=LoginResponseSchema
-        ),
-        401: OpenApiResponse(description="Invalid credentials"),
-    },
-)
-def login(request):
-    pass
 
 
 @extend_schema(
@@ -576,16 +541,14 @@ class GoogleLoginView(APIView):
                 return payload
 
         if dev_mode:
-            # Dev escape hatch: never allow signing in as an arbitrary email —
-            # only explicit dev credentials (fake / dev-*) may choose the account,
-            # DEBUG builds fall back to the local dev account.
-            explicit_dev = probe in GOOGLE_DEV_TOKENS or probe.startswith("dev-")
+            # Dev escape hatch: never allow signing in as an arbitrary email.
+            # Only DEBUG builds may pick an account via the email field.
+            # Dev tokens (fake / dev-*) without DEBUG always use the fixed dev email.
             requested_email = request.data.get("email")
-            email = (
-                requested_email
-                if explicit_dev and isinstance(requested_email, str) and requested_email
-                else "google_dev@example.com"
-            )
+            if settings.DEBUG and isinstance(requested_email, str) and requested_email:
+                email = requested_email.strip().lower()
+            else:
+                email = "google_dev@example.com"
             logger.warning(
                 "Google identity could not be verified; using local dev account."
             )
@@ -815,17 +778,14 @@ class GitHubOAuthCallbackView(APIView):
 
             user = User.objects.filter(email__iexact=email).first()
             username_source = github_user.get("login") or email
-            github_username = username_from_value(username_source)
 
-            username_conflict = User.objects.filter(username__iexact=github_username)
+            # If the email-matched user already exists, use their username.
+            # Otherwise derive a free username (numeric suffix if needed) so a
+            # taken GitHub username never blocks social sign-up.
             if user is not None:
-                username_conflict = username_conflict.exclude(pk=user.pk)
-
-            if username_conflict.exists():
-                return Response(
-                    {"detail": "Username is already taken."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                github_username = user.username
+            else:
+                github_username = available_username_from_value(username_source)
 
             if not user:
                 user = User.objects.create_user(
@@ -987,8 +947,7 @@ class PasswordResetConfirmView(APIView):
         user = reset_token.user
         user.set_password(new_password)
         if hasattr(user, "user_profile"):
-            user.user_profile.last_password_change = timezone.now()
-            user.user_profile.save(update_fields=["last_password_change"])
+            user.user_profile.increment_jwt_version()
         user.save()
 
         PasswordResetToken.objects.filter(user=user, is_used=False).update(is_used=True)
@@ -1197,6 +1156,11 @@ class MagicLinkVerifyView(APIView):
         magic_token.is_used = True
         magic_token.save(update_fields=["is_used"])
 
+        # Invalidate any existing JWTs for this user so a stolen access token
+        # cannot be reused after a magic-link login.
+        if hasattr(user, "user_profile"):
+            user.user_profile.increment_jwt_version()
+
         refresh = RefreshToken.for_user(user)
 
         return Response(
@@ -1263,8 +1227,12 @@ class LogoutView(APIView):
                 {"error": "Invalid or expired refresh token."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            logger.exception("Logout failed unexpectedly")
+            return Response(
+                {"error": "Logout failed. Please try again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 from django.http import HttpResponse, JsonResponse
