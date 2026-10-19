@@ -24,9 +24,7 @@ from apps.dashboard.routing import websocket_urlpatterns as dashboard_ws  # noqa
 from apps.feed.routing import websocket_urlpatterns as feed_ws  # noqa: E402
 from apps.monitoring.routing import websocket_urlpatterns as monitoring_ws  # noqa: E402
 from apps.notifications.middleware import JWTAuthMiddleware  # noqa: E402
-from apps.notifications.routing import (  # noqa: E402
-    websocket_urlpatterns as notifications_ws,
-)
+from apps.notifications.routing import websocket_urlpatterns as notifications_ws  # noqa
 from apps.sandbox.routing import websocket_urlpatterns as sandbox_ws  # noqa: E402
 
 combined_websocket_urlpatterns = (

@@ -139,9 +139,6 @@ class SignupView(generics.CreateAPIView):
     throttle_classes = [SignupThrottle]
 
 
-
-
-
 @extend_schema(
     summary="Get user profile",
     description="Returns current user profile information",
@@ -353,7 +350,9 @@ class GoogleLoginView(APIView):
             )
 
         if not resp.ok:
-            logger.warning("Google rejected the authorization code: %s", resp.status_code)
+            logger.warning(
+                "Google rejected the authorization code: %s", resp.status_code
+            )
             raise GoogleLoginError(
                 "Google rejected the sign-in code. Please try again.",
                 code="google_code_rejected",
@@ -371,7 +370,9 @@ class GoogleLoginView(APIView):
             )
         return data
 
-    def _id_token_payload(self, id_token: str, dev_mode: bool = False) -> Optional[dict]:
+    def _id_token_payload(
+        self, id_token: str, dev_mode: bool = False
+    ) -> Optional[dict]:
         """Verify a Google ID token and return its profile payload.
 
         Google's tokeninfo endpoint validates the signature server-side and
@@ -518,7 +519,9 @@ class GoogleLoginView(APIView):
         # Explicit local credentials (and DEBUG builds) skip the extra Google
         # round trips once the first verification attempt comes back empty.
         dev_mode = (
-            probe in GOOGLE_DEV_TOKENS or probe.startswith("dev-") or bool(settings.DEBUG)
+            probe in GOOGLE_DEV_TOKENS
+            or probe.startswith("dev-")
+            or bool(settings.DEBUG)
         )
 
         if code:
@@ -622,12 +625,37 @@ class GoogleLoginView(APIView):
         )
 
 
+def _github_oauth_credentials():
+    """Resolve GitHub OAuth credentials at request time.
+
+    ``settings.GITHUB_CLIENT_ID`` / ``GITHUB_CLIENT_SECRET`` are snapshotted
+    from the environment when ``config.settings`` is imported. Re-check the
+    environment here so OAuth keeps working when credentials are provided
+    after import (container entrypoints, test runners, runtime reconfiguration).
+    The dedicated ``GITHUB_OAUTH_*`` names win over the generic ``GITHUB_*``
+    ones, mirroring ``config.settings``.
+    """
+    client_id = (
+        getattr(settings, "GITHUB_OAUTH_CLIENT_ID", None)
+        or getattr(settings, "GITHUB_CLIENT_ID", None)
+        or os.getenv("GITHUB_OAUTH_CLIENT_ID")
+        or os.getenv("GITHUB_CLIENT_ID")
+    )
+    client_secret = (
+        getattr(settings, "GITHUB_OAUTH_CLIENT_SECRET", None)
+        or getattr(settings, "GITHUB_CLIENT_SECRET", None)
+        or os.getenv("GITHUB_OAUTH_CLIENT_SECRET")
+        or os.getenv("GITHUB_CLIENT_SECRET")
+    )
+    return client_id, client_secret
+
+
 class GitHubOAuthStartView(APIView):
     permission_classes = [permissions.AllowAny]
     throttle_classes = [OAuthThrottle]
 
     def get(self, request):
-        client_id = settings.GITHUB_CLIENT_ID
+        client_id, _client_secret = _github_oauth_credentials()
         if not client_id:
             return Response(
                 {"detail": "GitHub OAuth is not configured."},
@@ -677,8 +705,7 @@ class GitHubOAuthCallbackView(APIView):
                 frontend_url("/", {"auth_error": "GitHub authorization was cancelled."})
             )
 
-        client_id = settings.GITHUB_CLIENT_ID
-        client_secret = settings.GITHUB_CLIENT_SECRET
+        client_id, client_secret = _github_oauth_credentials()
         if not client_id or not client_secret:
             return redirect(
                 frontend_url("/", {"auth_error": "GitHub OAuth is not configured."})

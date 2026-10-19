@@ -89,7 +89,6 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
             }
         ],
     },
-
     # =========================================================================
     # LEVEL 2: GIT FUNDAMENTALS
     # =========================================================================
@@ -219,7 +218,6 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
             }
         ],
     },
-
     # =========================================================================
     # LEVEL 3: GITHUB MECHANICS & ECOSYSTEM
     # =========================================================================
@@ -305,7 +303,6 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
             }
         ],
     },
-
     # =========================================================================
     # LEVEL 4: FINDING YOUR FIRST CONTRIBUTION
     # =========================================================================
@@ -317,7 +314,7 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
         "summary": "Learn how to filter issues, evaluate whether a task is within your current skillset, and claim it politely.",
         "content": (
             "### How to Find Good First Issues\n"
-            "1. Search GitHub using filters: `is:issue is:open label:\"good first issue\" no:assignee`\n"
+            '1. Search GitHub using filters: `is:issue is:open label:"good first issue" no:assignee`\n'
             "2. Read the issue description thoroughly:\n"
             "   - Is the problem clearly explained?\n"
             "   - Are steps to reproduce provided?\n"
@@ -342,14 +339,13 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
         "exercises": [
             {
                 "title": "Filter Issues by Label",
-                "prompt": "What standard GitHub label filter helps beginners find well-scoped first tasks? (label:\"good first issue\" / label:urgent / label:wontfix)",
+                "prompt": 'What standard GitHub label filter helps beginners find well-scoped first tasks? (label:"good first issue" / label:urgent / label:wontfix)',
                 "expected_command": 'label:"good first issue"',
-                "explanation": "Searching for label:\"good first issue\" returns tasks curated specifically for newcomers.",
+                "explanation": 'Searching for label:"good first issue" returns tasks curated specifically for newcomers.',
                 "points": 20,
             }
         ],
     },
-
     # =========================================================================
     # LEVEL 5: THE COMPLETE CONTRIBUTION WORKFLOW
     # =========================================================================
@@ -393,7 +389,6 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
             }
         ],
     },
-
     # =========================================================================
     # LEVEL 6: PULL REQUESTS & CODE REVIEW
     # =========================================================================
@@ -483,7 +478,6 @@ CURRICULUM_LESSONS: List[Dict[str, Any]] = [
             }
         ],
     },
-
     # =========================================================================
     # LEVEL 7: REAL-WORLD OPEN SOURCE SKILLS
     # =========================================================================
@@ -571,7 +565,9 @@ class Command(BaseCommand):
     help = "Seed the focused 7-Level AI Tutor curriculum for Open-Source Contribution Atelier"
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.NOTICE("Seeding 7-Level Open Source AI Tutor curriculum..."))
+        self.stdout.write(
+            self.style.NOTICE("Seeding 7-Level Open Source AI Tutor curriculum...")
+        )
 
         created_count = 0
         updated_count = 0

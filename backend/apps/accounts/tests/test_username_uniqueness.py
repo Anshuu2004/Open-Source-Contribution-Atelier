@@ -58,11 +58,13 @@ def test_database_rejects_case_insensitive_duplicate_username():
 @pytest.mark.django_db
 @patch("apps.accounts.views.http_requests.get")
 @patch("apps.accounts.views.http_requests.post")
-def test_github_callback_returns_400_when_username_is_taken(
+def test_github_callback_derives_free_username_when_taken(
     mock_post,
     mock_get,
     settings,
 ):
+    """A GitHub login whose preferred username is taken still signs the user
+    up under a derived free username instead of failing with HTTP 400."""
     settings.CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
     settings.GITHUB_CLIENT_ID = "client-id"
     settings.GITHUB_CLIENT_SECRET = "client-secret"
@@ -97,9 +99,13 @@ def test_github_callback_returns_400_when_username_is_taken(
 
     response = client.get("/api/auth/github/callback/?code=test-code&state=test-state")
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data == {"detail": "Username is already taken."}
-    assert User.objects.filter(email="different@example.com").exists() is False
+    assert response.status_code == status.HTTP_302_FOUND
+    created = User.objects.get(email="different@example.com")
+    # Preferred name "github-user" is owned by someone else → derived instead.
+    assert created.username != "github-user"
+    assert User.objects.filter(username=created.username).count() == 1
+    # The original owner's account is untouched.
+    assert User.objects.filter(email="owner@example.com").exists()
 
 
 @pytest.mark.django_db

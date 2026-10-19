@@ -26,7 +26,13 @@ SOCRATIC_KNOWLEDGE_BASE: Dict[str, Dict[str, Any]] = {
         ],
     },
     "licenses": {
-        "keywords": [r"\blicense\b", r"\blicensing\b", r"\bmit\b", r"\bgpl\b", r"\bapache\b"],
+        "keywords": [
+            r"\blicense\b",
+            r"\blicensing\b",
+            r"\bmit\b",
+            r"\bgpl\b",
+            r"\bapache\b",
+        ],
         "concept": "Open Source Licenses",
         "socratic_prompt": "If you put your code on GitHub without a license, does that mean anyone can legally use it in their commercial project? What protects your intentions?",
         "explanation": (
@@ -87,7 +93,12 @@ SOCRATIC_KNOWLEDGE_BASE: Dict[str, Dict[str, Any]] = {
         ],
     },
     "merge_conflicts": {
-        "keywords": [r"\bconflict\b", r"\bmerge conflict\b", r"\bconflicts\b", r"\brebase\b"],
+        "keywords": [
+            r"\bconflict\b",
+            r"\bmerge conflict\b",
+            r"\bconflicts\b",
+            r"\brebase\b",
+        ],
         "concept": "Merge Conflicts & Resolution",
         "socratic_prompt": "What happens if both you and another developer edit line 25 of `app.py` in different ways and try to merge into `main`? How does Git know which version is right?",
         "explanation": (
@@ -103,7 +114,13 @@ SOCRATIC_KNOWLEDGE_BASE: Dict[str, Dict[str, Any]] = {
     },
     # Level 3: GitHub Ecosystem & Fork vs Clone
     "fork_vs_clone": {
-        "keywords": [r"\bfork\b", r"\bclone\b", r"\bfork vs clone\b", r"\bremote\b", r"\bupstream\b"],
+        "keywords": [
+            r"\bfork\b",
+            r"\bclone\b",
+            r"\bfork vs clone\b",
+            r"\bremote\b",
+            r"\bupstream\b",
+        ],
         "concept": "Fork vs Clone Workflow",
         "socratic_prompt": "If you don't have direct write access to a popular open-source repository on GitHub, where do you push your branch before opening a Pull Request?",
         "explanation": (
@@ -122,7 +139,13 @@ SOCRATIC_KNOWLEDGE_BASE: Dict[str, Dict[str, Any]] = {
         ],
     },
     "issues_and_templates": {
-        "keywords": [r"\bissue\b", r"\bissues\b", r"\bcontributing\b", r"\btemplate\b", r"\bcode of conduct\b"],
+        "keywords": [
+            r"\bissue\b",
+            r"\bissues\b",
+            r"\bcontributing\b",
+            r"\btemplate\b",
+            r"\bcode of conduct\b",
+        ],
         "concept": "Issues & Project Governance",
         "socratic_prompt": "Before opening a PR with a major code overhaul, why should you check existing issues or start a discussion with the maintainers first?",
         "explanation": (
@@ -140,7 +163,12 @@ SOCRATIC_KNOWLEDGE_BASE: Dict[str, Dict[str, Any]] = {
     },
     # Level 4: Finding Your First Contribution
     "first_contribution": {
-        "keywords": [r"\bgood first issue\b", r"\bhelp wanted\b", r"\bfirst contribution\b", r"\bfind issue\b"],
+        "keywords": [
+            r"\bgood first issue\b",
+            r"\bhelp wanted\b",
+            r"\bfirst contribution\b",
+            r"\bfind issue\b",
+        ],
         "concept": "Finding Beginner-Friendly Issues",
         "socratic_prompt": "When browsing a 50,000-line repository for the first time, what issue labels should you search for to find scoped, maintainer-vetted tasks?",
         "explanation": (
@@ -256,10 +284,17 @@ class AiTutorService:
             hint = "Think about which action creates your personal copy on GitHub's servers first."
 
         # Mistake 2: Missing branch flag in switch / checkout
-        elif ("git checkout" in user_clean or "git switch" in user_clean) and "-b" not in user_clean and "-c" not in user_clean and ("-c" in expected_clean or "-b" in expected_clean):
+        elif (
+            ("git checkout" in user_clean or "git switch" in user_clean)
+            and "-b" not in user_clean
+            and "-c" not in user_clean
+            and ("-c" in expected_clean or "-b" in expected_clean)
+        ):
             mistake = "Missing new branch creation flag"
             feedback = "Good start, but running `git switch <name>` without `-c` tries to switch to an *existing* branch. To create a new branch at the same time, you need the creation flag."
-            hint = "Use `git switch -c <branch-name>` or `git checkout -b <branch-name>`."
+            hint = (
+                "Use `git switch -c <branch-name>` or `git checkout -b <branch-name>`."
+            )
 
         # Mistake 3: Committing on main
         elif "main" in user_clean.lower() and "feature" in expected_clean.lower():
@@ -271,13 +306,15 @@ class AiTutorService:
         elif "git commit" in user_clean and "-m" not in user_clean:
             mistake = "Missing commit message flag (-m)"
             feedback = "You ran `git commit`, but you didn't provide a commit message. Maintainers require clear descriptions of every change."
-            hint = "Add `-m \"your descriptive commit message\"` to your command."
+            hint = 'Add `-m "your descriptive commit message"` to your command.'
 
         # Mistake 5: Missing git add
         elif "git commit" in user_clean and "git add" in expected_clean:
             mistake = "Committed before staging"
             feedback = "Before Git can commit changes, you need to stage them so Git knows which files to include in the snapshot."
-            hint = "Use `git add <filename>` or `git add .` to stage your changes first."
+            hint = (
+                "Use `git add <filename>` or `git add .` to stage your changes first."
+            )
 
         else:
             feedback = f"Not quite. You entered `{user_clean}`, but think about what the lesson requires."
@@ -302,7 +339,11 @@ class AiTutorService:
         if topic_data and "hints" in topic_data:
             hints = topic_data["hints"]
             index = min(max(0, hint_level - 1), len(hints) - 1)
-            level_labels = ["💡 Guiding Question (Hint 1)", "🔍 Practical Clue (Hint 2)", "🎯 Targeted Solution (Hint 3)"]
+            level_labels = [
+                "💡 Guiding Question (Hint 1)",
+                "🔍 Practical Clue (Hint 2)",
+                "🎯 Targeted Solution (Hint 3)",
+            ]
             return f"**{level_labels[index]}**:\n{hints[index]}"
 
         if hint_level == 1:
@@ -325,7 +366,9 @@ class AiTutorService:
             return "Please ask a question! I'm here to help you master open source contribution."
 
         if getattr(settings, "OPENAI_API_KEY", None):
-            return cls._llm_response(question, lesson_context, history or [], tutor_context)
+            return cls._llm_response(
+                question, lesson_context, history or [], tutor_context
+            )
 
         return cls._fallback_socratic_response(question, lesson_context, tutor_context)
 
@@ -353,8 +396,12 @@ class AiTutorService:
                 messages = [{"role": "system", "content": system_prompt}]
 
                 for entry in (history or [])[-6:]:
-                    messages.append({"role": "user", "content": entry.get("question", "")})
-                    messages.append({"role": "assistant", "content": entry.get("answer", "")})
+                    messages.append(
+                        {"role": "user", "content": entry.get("question", "")}
+                    )
+                    messages.append(
+                        {"role": "assistant", "content": entry.get("answer", "")}
+                    )
 
                 messages.append({"role": "user", "content": question})
 
@@ -377,7 +424,9 @@ class AiTutorService:
                 logger.warning("AI tutor streaming LLM call failed: %s", e)
 
         # Fallback streaming
-        fallback_text = cls._fallback_socratic_response(question, lesson_context, tutor_context)
+        fallback_text = cls._fallback_socratic_response(
+            question, lesson_context, tutor_context
+        )
         tokens = re.findall(r"\S+|\s+", fallback_text)
         for token in tokens:
             yield f"data: {json.dumps({'text': token})}\n\n"
@@ -459,7 +508,9 @@ class AiTutorService:
 
             for entry in history[-6:]:
                 messages.append({"role": "user", "content": entry.get("question", "")})
-                messages.append({"role": "assistant", "content": entry.get("answer", "")})
+                messages.append(
+                    {"role": "assistant", "content": entry.get("answer", "")}
+                )
 
             messages.append({"role": "user", "content": question})
 
@@ -472,4 +523,6 @@ class AiTutorService:
             return response.choices[0].message.content.strip()
         except Exception as e:
             logger.warning("AI tutor LLM call failed: %s", e)
-            return cls._fallback_socratic_response(question, lesson_context, tutor_context)
+            return cls._fallback_socratic_response(
+                question, lesson_context, tutor_context
+            )

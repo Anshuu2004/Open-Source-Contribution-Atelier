@@ -8,12 +8,37 @@ Verifies that:
   - Each IP has its own independent throttle counter.
 """
 
+import pytest
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
 User = get_user_model()
+
+# Captured at import time — before any fixture can relax the rates.
+REAL_SIGNUP_RATE = __import__(
+    "django.conf", fromlist=["settings"]
+).settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["auth_signup"]
+
+
+@pytest.fixture(autouse=True)
+def _strict_throttle_state(settings, _disable_auth_throttle):
+    """Reinstate the real signup throttle and start each test with a clean cache.
+
+    The root conftest relaxes ``auth_signup`` to 10000/hour so ordinary tests
+    never trip it, but this module asserts the real limit. Throttle history is
+    also process-global (LocMemCache), so it must be reset per test — otherwise
+    counters from earlier tests leak into later ones and make "below the
+    threshold" checks fail depending on test order.
+    """
+    rates = settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]
+    rates["auth_signup"] = REAL_SIGNUP_RATE
+    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = rates
+    cache.clear()
+    yield
+    cache.clear()
 
 
 def _client(ip="203.0.113.1"):
@@ -162,17 +187,20 @@ class IpIsolationTests(TestCase):
 
     def test_password_reset_ips_are_independent(self):
         url = "/api/auth/password-reset/"
-        data = {"email": "test@example.com"}
 
         c1 = _client("203.0.113.10")
         c2 = _client("203.0.113.20")
 
+        # Password reset is throttled on two dimensions: per-IP
+        # (PasswordResetThrottle) and per-identity (StrictIdentityPasswordResetThrottle,
+        # keyed by email). Use distinct emails so only the IP dimension is
+        # exercised — otherwise c2 would hit the shared email counter.
         # Exhaust c1 (limit is 3)
-        _hit(c1, url, data, n=3)
-        resp_c1 = _hit(c1, url, data)  # 4th — throttled
+        _hit(c1, url, {"email": "ip-one@example.com"}, n=3)
+        resp_c1 = _hit(c1, url, {"email": "ip-one@example.com"})  # 4th — throttled
 
         # c2 still has fresh quota
-        resp_c2 = _hit(c2, url, data)  # 1st — should pass
+        resp_c2 = _hit(c2, url, {"email": "ip-two@example.com"})  # 1st — should pass
 
         self.assertEqual(resp_c1.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
         self.assertNotEqual(resp_c2.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

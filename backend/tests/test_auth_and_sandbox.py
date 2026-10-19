@@ -1,4 +1,5 @@
 from unittest.mock import Mock, patch
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -243,7 +244,13 @@ def test_github_oauth_callback_creates_user_and_redirects_withs(
     user_resp.raise_for_status.return_value = None
     mock_get.return_value = user_resp
 
-    response = client.get("/api/auth/github/callback/?code=fake-code")
+    # Drive the start endpoint first so the session carries the CSRF state
+    # and PKCE verifier the callback validates.
+    start = client.get("/api/auth/github/")
+    assert start.status_code == 302
+    state = parse_qs(urlparse(start["Location"]).query)["state"][0]
+
+    response = client.get(f"/api/auth/github/callback/?code=fake-code&state={state}")
 
     assert response.status_code == 302
     assert response["Location"].startswith(
