@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
-import { ArrowRight, GitBranch, Moon, ShieldCheck, Sun, X } from "lucide-react";
+import { ArrowRight, GitBranch, Moon, Sparkles, Sun, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { PasswordInput } from "../components/PasswordInput";
 import { useAuth } from "../features/auth/AuthContext";
@@ -15,6 +15,47 @@ import {
   googlePopupErrorMessage,
   hasGoogleCredential,
 } from "../lib/googleOAuth";
+
+const workspaceSteps = [
+  {
+    label: "Fork",
+    command: "gh repo fork atelier/starter --clone",
+    detail:
+      "Take a safe copy. Every good contribution starts with a little curiosity.",
+    position: { left: "18%", top: "27%" },
+    tone: "indigo",
+  },
+  {
+    label: "Build",
+    command: 'git commit -m "improve onboarding"',
+    detail:
+      "Make one small, thoughtful change. Tiny commits have main-character energy.",
+    position: { left: "53%", top: "45%" },
+    tone: "violet",
+  },
+  {
+    label: "Share",
+    command: "git push origin first-contribution",
+    detail: "Send it out and open the conversation with a pull request.",
+    position: { left: "42%", top: "54%" },
+    tone: "emerald",
+  },
+] as const;
+
+const contributionSparks = [
+  {
+    label: "Fix a tiny bug",
+    reply: "Tiny fix, deliciously satisfying.",
+  },
+  {
+    label: "Polish some docs",
+    reply: "Making the next person’s path softer.",
+  },
+  {
+    label: "Ship a first PR",
+    reply: "Okayyy, future open-source icon.",
+  },
+] as const;
 
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
@@ -52,6 +93,8 @@ export function LoginPage() {
   const [useBackupCode, setUseBackupCode] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeWorkspaceStep, setActiveWorkspaceStep] = useState(0);
+  const [activeSpark, setActiveSpark] = useState(0);
   const navigate = useNavigate();
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -145,11 +188,7 @@ export function LoginPage() {
     }
   };
 
-  const handleGithubSignIn = () => {
-    window.location.href =
-      import.meta.env?.VITE_GITHUB_OAUTH_URL ||
-      `${import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000/api"}/auth/github/`;
-  };
+  const activeStep = workspaceSteps[activeWorkspaceStep];
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-[#f2f1ec] text-slate-900 dark:bg-[#11131a] dark:text-slate-100">
@@ -184,41 +223,98 @@ export function LoginPage() {
             </span>
             <span className="hidden sm:block">main · clean</span>
           </div>
-          <div className="pointer-events-none absolute bottom-0 left-0 top-[45px] hidden w-[42%] border-r border-white/10 lg:block">
-            <div className="absolute left-[18%] top-[18%] h-[54%] w-px bg-gradient-to-b from-transparent via-indigo-400/70 to-transparent" />
-            <div className="absolute left-[18%] top-[27%] h-px w-[35%] bg-indigo-400/70" />
-            <div className="absolute left-[53%] top-[27%] h-[18%] w-px bg-indigo-400/70" />
-            <div className="absolute left-[18%] top-[54%] h-px w-[24%] bg-emerald-400/70" />
-            <span className="absolute left-[calc(18%-5px)] top-[calc(27%-5px)] h-3 w-3 rounded-full border-2 border-[#171923] bg-indigo-400" />
-            <span className="absolute left-[calc(53%-5px)] top-[calc(45%-5px)] h-3 w-3 rounded-full border-2 border-[#171923] bg-indigo-400" />
-            <span className="absolute left-[calc(42%-5px)] top-[calc(54%-5px)] h-3 w-3 rounded-full border-2 border-[#171923] bg-emerald-400" />
-            <p className="absolute left-[18%] top-[31%] font-mono text-xs text-indigo-200/80">
-              learn the flow
-            </p>
-            <p className="absolute left-[42%] top-[58%] font-mono text-xs text-emerald-200/80">
-              ship with care
-            </p>
+          <aside
+            aria-label="Contribution workflow preview"
+            className="absolute bottom-0 left-0 top-[45px] hidden w-[42%] border-r border-white/10 lg:block"
+          >
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute left-[18%] top-[18%] h-[54%] w-px bg-gradient-to-b from-transparent via-indigo-400/70 to-transparent" />
+              <div className="absolute left-[18%] top-[27%] h-px w-[35%] bg-indigo-400/70" />
+              <div className="absolute left-[53%] top-[27%] h-[18%] w-px bg-indigo-400/70" />
+              <div className="absolute left-[18%] top-[54%] h-px w-[24%] bg-emerald-400/70" />
+            </div>
+            <div className="absolute left-7 top-7">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                contribution flow
+              </p>
+              <p className="mt-1 text-sm font-medium text-slate-200">
+                Pick a move. See the flow.
+              </p>
+            </div>
             <div className="absolute right-7 top-10 rounded-full border border-indigo-300/20 bg-indigo-400/10 px-3 py-1 font-mono text-[10px] text-indigo-200">
               HEAD → main
             </div>
-            <div className="absolute bottom-10 left-[18%] flex items-center gap-2 text-xs text-slate-400">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              Your progress is ready.
+            {workspaceSteps.map((step, index) => {
+              const isActive = activeWorkspaceStep === index;
+              const nodeColor =
+                step.tone === "emerald"
+                  ? "bg-emerald-400 ring-emerald-300/30"
+                  : step.tone === "violet"
+                    ? "bg-violet-400 ring-violet-300/30"
+                    : "bg-indigo-400 ring-indigo-300/30";
+
+              return (
+                <button
+                  key={step.label}
+                  type="button"
+                  onClick={() => setActiveWorkspaceStep(index)}
+                  aria-pressed={isActive}
+                  style={step.position}
+                  className="group absolute z-10 -translate-x-1/2 -translate-y-1/2 text-left"
+                >
+                  <span
+                    className={`block h-3 w-3 rounded-full border-2 border-[#171923] ${nodeColor} ${isActive ? "ring-4" : "group-hover:ring-4"} transition`}
+                  />
+                  <span
+                    className={`mt-2 block whitespace-nowrap font-mono text-xs transition ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-200"}`}
+                  >
+                    {step.label}
+                  </span>
+                </button>
+              );
+            })}
+            <div className="absolute bottom-8 left-7 right-7 rounded-xl border border-white/10 bg-black/20 p-4 backdrop-blur-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-emerald-300">
+                  live preview
+                </p>
+                <span className="text-[10px] text-slate-500">
+                  {activeWorkspaceStep + 1} / {workspaceSteps.length}
+                </span>
+              </div>
+              <code className="mt-2 block overflow-hidden text-ellipsis whitespace-nowrap font-mono text-xs text-slate-100">
+                <span className="mr-2 text-emerald-400">$</span>
+                {activeStep.command}
+              </code>
+              <p className="mt-2 text-xs leading-5 text-slate-400">
+                {activeStep.detail}
+              </p>
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveWorkspaceStep(
+                    (activeWorkspaceStep + 1) % workspaceSteps.length,
+                  )
+                }
+                className="mt-3 text-xs font-medium text-indigo-300 transition hover:text-indigo-100"
+              >
+                Show next step →
+              </button>
             </div>
-          </div>
+          </aside>
           <section className="relative ml-auto h-[calc(100%-45px)] w-full max-w-[29rem] border-white/10 bg-white p-5 sm:p-6 lg:border-l dark:bg-[#20232f]">
             <span className="absolute left-0 top-9 hidden -translate-x-1/2 rounded-full border border-white/20 bg-[#171923] px-2 py-1 font-mono text-[9px] text-emerald-300 lg:block">
               HEAD
             </span>
             <div className="mb-7">
               <p className="font-mono text-xs text-indigo-600 dark:text-indigo-300">
-                $ atelier resume
+                $ your next contribution starts here
               </p>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                Continue your work.
+                Tiny commits. Big contributor energy.
               </h1>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                Sign in to return to your contribution workspace.
+                Bring the idea—we&apos;ll help you turn it into a contribution.
               </p>
             </div>
             {error && (
@@ -354,28 +450,43 @@ export function LoginPage() {
             </form>
             {!requires2FA && (
               <>
-                <div className="my-6 flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+                <div className="my-5 flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
                   <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
                   or continue with
                   <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => googleLogin()}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                  >
-                    <GoogleMark />
-                    Google
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleGithubSignIn}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                  >
-                    <GitBranch size={16} aria-hidden="true" />
-                    Sign in with GitHub
-                  </button>
+                <button
+                  type="button"
+                  onClick={() => googleLogin()}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-sm active:translate-y-0 dark:border-slate-700 dark:text-slate-200 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10"
+                >
+                  <GoogleMark />
+                  Continue with Google
+                </button>
+                <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 dark:border-indigo-400/15 dark:bg-indigo-500/[0.07]">
+                  <div className="flex items-center gap-2 text-xs font-medium text-indigo-900 dark:text-indigo-200">
+                    <Sparkles size={14} className="text-indigo-500" aria-hidden="true" />
+                    Pick today&apos;s contribution spark
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {contributionSparks.map((spark, index) => {
+                      const isActive = activeSpark === index;
+                      return (
+                        <button
+                          key={spark.label}
+                          type="button"
+                          onClick={() => setActiveSpark(index)}
+                          aria-pressed={isActive}
+                          className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition ${isActive ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-indigo-700 hover:-translate-y-0.5 hover:bg-indigo-100 dark:bg-slate-900 dark:text-indigo-200 dark:hover:bg-indigo-500/20"}`}
+                        >
+                          {spark.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p aria-live="polite" className="mt-2 text-xs text-indigo-700/80 dark:text-indigo-200/70">
+                    {contributionSparks[activeSpark].reply}
+                  </p>
                 </div>
                 <DemoLoginButton
                   label="Explore a demo workspace"
