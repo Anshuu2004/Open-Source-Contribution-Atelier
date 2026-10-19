@@ -1,0 +1,43 @@
+name: Good First Issue Welcome
+
+# When an issue is labeled `good-first-issue`, post a friendly comment with
+# how to claim it and where to get help.
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on good-first-issue
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const label = context.payload.label?.name;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            if (label !== 'good-first-issue') return;
+
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: issue.number,
+              body: `👋 Hi @${issue.user.login}! Thanks for picking up a good-first-issue.\n\n` +
+                `**How to claim:**\n` +
+                `1. Comment \`/assign\` on this issue to let us know you're working on it.\n` +
+                `2. Fork the repo, create a branch, and make your changes.\n` +
+                `3. Open a Pull Request linking this issue using \`Fixes #${issue.number}\`.\n` +
+                `4. Ask questions here or in Discussions if you get stuck.\n\n` +
+                `**Setup:**\n` +
+                `- Backend: \`cd backend && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt\`\n` +
+                `- Frontend: \`cd frontend && npm install\`\n` +
+                `- Full stack: \`docker compose up --build\`\n\n` +
+                `See CONTRIBUTING.md for the full guide. Happy contributing! 🚀`
+            });

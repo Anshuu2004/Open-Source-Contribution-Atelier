@@ -57,6 +57,37 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
+    // Same-origin API in dev: forward API traffic to the Django backend so the
+    // app works even without a VITE_API_BASE_URL entry (and without CORS
+    // preflights). Override with VITE_PROXY_TARGET when the backend runs
+    // somewhere else, e.g. VITE_PROXY_TARGET=http://localhost:8001.
+    proxy: {
+      "/api": {
+        target: process.env.VITE_PROXY_TARGET || "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+      "/admin": {
+        target: process.env.VITE_PROXY_TARGET || "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+      "/static": {
+        target: process.env.VITE_PROXY_TARGET || "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+      "/media": {
+        target: process.env.VITE_PROXY_TARGET || "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+      "/health": {
+        target: process.env.VITE_PROXY_TARGET || "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+      "/ws": {
+        target: process.env.VITE_PROXY_TARGET || "http://127.0.0.1:8000",
+        ws: true,
+        changeOrigin: true,
+      },
+    },
     ...(process.env.DOCKER === "true" && {
       hmr: {
         clientPort: 5173,

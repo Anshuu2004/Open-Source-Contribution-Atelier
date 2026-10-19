@@ -1,0 +1,51 @@
+name: DCO Sign-off Check
+
+# Require DCO sign-off (Signed-off-by trailer) on commits so contributions
+# are clearly licensed to the project.
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  dco:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check DCO sign-off
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner, repo, pull_number: pr.number, per_page: 100
+            });
+
+            const unsigned = commits.filter(c => {
+              const msg = c.commit.message || '';
+              return !/Signed-off-by:/i.test(msg);
+            });
+
+            if (unsigned.length > 0) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `⚠️ @${pr.user.login}, some commits are missing the DCO sign-off trailer.\n\n` +
+                  `Please add \`Signed-off-by: Your Name <your.email@example.com>\` to each commit message\n` +
+                  `(e.g. \`git commit --amend -s\` or \`git commit -s\`), then force-push.\n\n` +
+                  `Unsigned commits:\n- ${unsigned.map(c => c.sha.slice(0, 7)).join('\n- ')}`
+              });
+              core.setFailed('DCO sign-off missing on one or more commits');
+            }

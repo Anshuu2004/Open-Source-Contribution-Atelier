@@ -1,0 +1,53 @@
+name: No Empty / Oversized PR
+
+# Reject PRs that touch no files, or that exceed a reviewable size threshold.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check-size:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR file count & size
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner, repo, pull_number: pr.number, per_page: 100
+            });
+
+            const MAX_FILES = 30;
+            const MAX_LINES = 500;
+
+            const changedFiles = files.length;
+            const totalLines = files.reduce((sum, f) => sum + (f.additions + f.deletions), 0);
+
+            if (changedFiles === 0) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `⚠️ This PR touches **0 files**. Please add changes before requesting review.`
+              });
+              return core.setFailed('Empty PR');
+            }
+
+            if (changedFiles > MAX_FILES || totalLines > MAX_LINES) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `⚠️ This PR is large for review:\n` +
+                  `- Files changed: ${changedFiles} (max ${MAX_FILES})\n` +
+                  `- Lines changed: ${totalLines} (max ${MAX_LINES})\n\n` +
+                  `Consider splitting into smaller PRs.`
+              });
+              return core.setFailed('PR too large');
+            }

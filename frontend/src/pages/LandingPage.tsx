@@ -7,7 +7,13 @@ import { useAuth } from "../features/auth/AuthContext";
 import { useTheme } from "../hooks/useTheme";
 import { DraggableSticker } from "../components/ui/DraggableSticker";
 import { DemoLoginButton } from "../features/auth/DemoLoginButton";
-import { formatGoogleOAuthError } from "../lib/googleOAuth";
+import {
+  buildGoogleLoginPayload,
+  formatGoogleOAuthError,
+  googleLoginOptions,
+  googlePopupErrorMessage,
+  hasGoogleCredential,
+} from "../lib/googleOAuth";
 import { PasswordInput } from "../components/PasswordInput";
 
 function getErrorMessage(error: unknown, fallback: string) {
@@ -88,7 +94,7 @@ export function LandingPage() {
       const tokens = await fetchApi("/auth/login/", {
         method: "POST",
         requireAuth: false,
-        body: JSON.stringify({ username: email, password }),
+        body: JSON.stringify({ username: email.trim(), password }),
       });
       login(tokens);
       navigate("/dashboard");
@@ -97,24 +103,35 @@ export function LandingPage() {
     }
   };
 
-  const googleLoginHandler = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const tokens = await fetchApi("/auth/google/", {
-          method: "POST",
-          requireAuth: false,
-          body: JSON.stringify({ access_token: tokenResponse.access_token }),
-        });
-        login(tokens);
-        navigate("/dashboard");
-      } catch (err: unknown) {
-        setError(formatGoogleOAuthError(err, "backend"));
-      }
-    },
-    onError: () => {
-      setError(formatGoogleOAuthError(undefined, "popup"));
-    },
-  });
+  const googleLoginHandler = useGoogleLogin(
+    googleLoginOptions({
+      onSuccess: async (tokenResponse) => {
+        try {
+          const payload = buildGoogleLoginPayload(tokenResponse);
+          if (!hasGoogleCredential(payload)) {
+            throw new Error(
+              "Google returned no token to exchange. Check VITE_GOOGLE_OAUTH_FLOW.",
+            );
+          }
+          const tokens = await fetchApi("/auth/google/", {
+            method: "POST",
+            requireAuth: false,
+            body: JSON.stringify(payload),
+          });
+          login(tokens);
+          navigate("/dashboard");
+        } catch (err: unknown) {
+          setError(formatGoogleOAuthError(err, "backend"));
+        }
+      },
+      onError: () => {
+        setError(formatGoogleOAuthError(undefined, "popup"));
+      },
+      onNonOAuthError: (error) => {
+        setError(googlePopupErrorMessage(error));
+      },
+    }),
+  );
 
   const handleVibeClick = (vibe: VibeOption, e: React.MouseEvent) => {
     setActiveVibe(vibe);

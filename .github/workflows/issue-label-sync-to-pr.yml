@@ -1,0 +1,66 @@
+name: Sync Issue Labels to Linked PRs
+
+# When a label is added/removed on an issue, mirror it to every open PR
+# that links to that issue (Fixes #N, Closes #N, Resolves #N, or plain #N).
+
+on:
+  issues:
+    types: [labeled, unlabeled]
+
+permissions:
+  pull-requests: write
+  issues: read
+  contents: read
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror labels to linking PRs
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const action = context.payload.action; // 'labeled' | 'unlabeled'
+            const changedLabel = context.payload.label?.name;
+
+            if (!changedLabel) return;
+
+            // Find open PRs whose body references this issue number
+            const prs = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} type:pr state:open "#${issue.number}" in:body`,
+              per_page: 100
+            });
+
+            for (const pr of prs.data.items) {
+              const prNumber = pr.number;
+
+              const current = await github.rest.issues.listLabelsOnIssue({
+                owner, repo, issue_number: prNumber, per_page: 100
+              });
+              const currentLabels = new Set(current.data.map(l => l.name));
+
+              if (action === 'labeled') {
+                currentLabels.add(changedLabel);
+              } else {
+                currentLabels.delete(changedLabel);
+              }
+
+              const existing = new Set(pr.labels.map(l => l.name));
+              const toAdd = [...currentLabels].filter(l => !existing.has(l));
+              const toRemove = [...existing].filter(l => !currentLabels.has(l));
+
+              if (toAdd.length) {
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: prNumber, labels: toAdd
+                });
+              }
+              for (const label of toRemove) {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: prNumber, name: label
+                });
+              }
+            }

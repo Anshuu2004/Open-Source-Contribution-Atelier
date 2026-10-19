@@ -115,6 +115,9 @@ services:
     ports:
       - "5173:80"
     environment:
+      # Same-origin /api is proxied by the frontend nginx to this URL
+      # (see frontend/nginx.conf).
+      - BACKEND_URL=http://backend:8000
       - VITE_API_URL=http://localhost:8000
       - DOCKER=true
     labels:

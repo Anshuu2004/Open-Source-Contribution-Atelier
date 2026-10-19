@@ -284,8 +284,15 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         username_key = self.username_field
         identifier = attrs.get(username_key, "")
+        if isinstance(identifier, str):
+            # Login attempts often carry stray whitespace from copy/paste or
+            # autofill; normalize before lookup and authentication.
+            stripped_identifier = identifier.strip()
+            if stripped_identifier != identifier:
+                attrs = {**attrs, username_key: stripped_identifier}
+            identifier = stripped_identifier
         if isinstance(identifier, str) and "@" in identifier:
-            user = User.objects.filter(email__iexact=identifier.strip()).first()
+            user = User.objects.filter(email__iexact=identifier).first()
             if user:
                 attrs = {**attrs, username_key: user.username}
 
@@ -302,6 +309,7 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
                 raise AuthenticationFailed(
                     {
                         "requires_2fa": True,
+                        "code": "2fa_required",
                         "message": "Two-factor authentication code required.",
                     },
                     code="2fa_required",
@@ -319,7 +327,10 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
 
             if not is_valid_totp and not is_valid_backup:
                 raise AuthenticationFailed(
-                    {"totp_code": "Invalid 2FA authentication code or recovery code."},
+                    {
+                        "totp_code": "Invalid 2FA authentication code or recovery code.",
+                        "code": "invalid_2fa_code",
+                    },
                     code="invalid_2fa_code",
                 )
 

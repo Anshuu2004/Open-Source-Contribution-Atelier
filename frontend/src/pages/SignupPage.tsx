@@ -7,7 +7,13 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { GitBranch } from "lucide-react";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { DemoLoginButton } from "../features/auth/DemoLoginButton";
-import { formatGoogleOAuthError } from "../lib/googleOAuth";
+import {
+  formatGoogleOAuthError,
+  googleLoginOptions,
+  buildGoogleLoginPayload,
+  googlePopupErrorMessage,
+  hasGoogleCredential,
+} from "../lib/googleOAuth";
 import { PasswordInput } from "../components/PasswordInput";
 
 const githubAuthUrl =
@@ -30,42 +36,58 @@ export function SignupPage() {
     window.location.href = githubAuthUrl;
   };
 
-  const googleLoginHandler = useGoogleLogin({
-    onSuccess: async (tokenResponse: any) => {
-      try {
-        const tokens = await fetchApi("/auth/google/", {
-          method: "POST",
-          requireAuth: false,
-          body: JSON.stringify({ access_token: tokenResponse.access_token }),
-          timeoutMs: 3000,
-        });
-        login(tokens);
-        sessionStorage.setItem("justLoggedIn", "true");
-        navigate("/dashboard");
-      } catch (err: unknown) {
-        setError(formatGoogleOAuthError(err, "backend"));
-      }
-    },
-    onError: () => {
-      setError(formatGoogleOAuthError(undefined, "popup"));
-    },
-  });
+  const googleLoginHandler = useGoogleLogin(
+    googleLoginOptions({
+      onSuccess: async (tokenResponse: any) => {
+        try {
+          const payload = buildGoogleLoginPayload(tokenResponse);
+          if (!hasGoogleCredential(payload)) {
+            throw new Error(
+              "Google returned no token to exchange. Check VITE_GOOGLE_OAUTH_FLOW.",
+            );
+          }
+          const tokens = await fetchApi("/auth/google/", {
+            method: "POST",
+            requireAuth: false,
+            body: JSON.stringify(payload),
+          });
+          login(tokens);
+          sessionStorage.setItem("justLoggedIn", "true");
+          navigate("/dashboard");
+        } catch (err: unknown) {
+          setError(formatGoogleOAuthError(err, "backend"));
+        }
+      },
+      onError: () => {
+        setError(formatGoogleOAuthError(undefined, "popup"));
+      },
+      onNonOAuthError: (error) => {
+        setError(googlePopupErrorMessage(error));
+      },
+    }),
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
+      const trimmedUsername = username.trim();
+      const trimmedEmail = email.trim();
       // 1. Create the account
       await fetchApi("/auth/signup/", {
         method: "POST",
         requireAuth: false,
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({
+          username: trimmedUsername,
+          email: trimmedEmail,
+          password,
+        }),
       });
       // 2. Fetch token to login
       const tokens = await fetchApi("/auth/login/", {
         method: "POST",
         requireAuth: false,
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: trimmedUsername, password }),
       });
       login(tokens);
       sessionStorage.setItem("justLoggedIn", "true");

@@ -1,0 +1,43 @@
+name: Ready for Review Checklist
+
+# Verify PR description has the key checklist boxes ticked before a review
+# is requested. Comments if anything is missing.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR checklist
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const body = pr.body || '';
+
+            const required = [
+              ['Fixes #', 'linked issue (Fixes #N)'],
+              ['### Automated Tests', 'automated tests section'],
+              ['### Manual Verification', 'manual verification section']
+            ];
+
+            const missing = required.filter(([pattern, label]) => !body.includes(pattern));
+
+            if (missing.length > 0) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `⚠️ @${pr.user.login}, before requesting review please complete these PR template sections:\n` +
+                  `- ${missing.map(m => m[1]).join('\n- ')}\n\n` +
+                  `See the PR template for the full checklist.`
+              });
+            }

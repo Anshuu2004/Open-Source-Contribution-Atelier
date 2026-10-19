@@ -523,6 +523,18 @@ GITHUB_OAUTH_CLIENT_SECRET = (
     os.getenv("GITHUB_OAUTH_CLIENT_SECRET") or GITHUB_CLIENT_SECRET
 )
 
+# Google Sign-In (apps.accounts.views.GoogleLoginView).
+# GOOGLE_CLIENT_ID must match the client ID configured for the frontend
+# (VITE_GOOGLE_CLIENT_ID) so ID-token audience checks pass.
+# GOOGLE_CLIENT_SECRET is only required when the frontend uses the OAuth
+# authorization-code flow (VITE_GOOGLE_OAUTH_FLOW=auth-code); the default
+# implicit / access-token flow works without it.
+GOOGLE_CLIENT_ID = os.getenv(
+    "GOOGLE_CLIENT_ID",
+    "27042928964-pbolsldqvdv2hfipblmrcf332evg83v8.apps.googleusercontent.com",
+)
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+
 # ── AI Tutor ────────────────────────────────────────────────────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_MODEL = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
@@ -685,11 +697,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     "google": {
         "APP": {
-            "client_id": os.getenv(
-                "GOOGLE_CLIENT_ID",
-                "27042928964-pbolsldqvdv2hfipblmrcf332evg83v8.apps.googleusercontent.com",
-            ),
-            "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+            "client_id": GOOGLE_CLIENT_ID,
+            "secret": GOOGLE_CLIENT_SECRET,
         },
         "SCOPE": [
             "profile",

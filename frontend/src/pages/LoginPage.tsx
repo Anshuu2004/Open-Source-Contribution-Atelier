@@ -7,7 +7,13 @@ import { useAuth } from "../features/auth/AuthContext";
 import { toast } from "react-hot-toast";
 import { DraggableSticker } from "../components/ui/DraggableSticker";
 import { DemoLoginButton } from "../features/auth/DemoLoginButton";
-import { formatGoogleOAuthError } from "../lib/googleOAuth";
+import {
+  buildGoogleLoginPayload,
+  formatGoogleOAuthError,
+  googleLoginOptions,
+  googlePopupErrorMessage,
+  hasGoogleCredential,
+} from "../lib/googleOAuth";
 import { PasswordInput } from "../components/PasswordInput";
 import { MascotBuddy, MascotState } from "../components/ui/MascotBuddy";
 import {
@@ -61,55 +67,64 @@ export function LoginPage() {
     }
   }, []);
 
-  const googleLogin = useGoogleLogin({
-    scope: "email profile openid",
-    onSuccess: async (tokenResponse: any) => {
-      try {
-        const rawToken =
-          tokenResponse?.access_token ||
-          tokenResponse?.credential ||
-          tokenResponse?.id_token ||
-          tokenResponse?.code ||
-          "";
-        const tokens = await fetchApi("/auth/google/", {
-          method: "POST",
-          requireAuth: false,
-          body: JSON.stringify({
-            access_token: rawToken,
-            token: rawToken,
-            credential: tokenResponse?.credential || tokenResponse?.id_token,
-          }),
-        });
-        login(tokens);
-        sessionStorage.setItem("justLoggedIn", "true");
-        navigate("/dashboard");
-      } catch (err: unknown) {
-        setMascotState("error");
-        const message = formatGoogleOAuthError(err, "backend");
-        setError(message);
-        toast.error(message);
-      }
-    },
-    onError: (errorResponse) => {
-      setMascotState("error");
-      const message = formatGoogleOAuthError(errorResponse, "popup");
-      setError(message);
-      toast.error(message, { duration: 5000 });
-    },
-  });
-
-  const handleGoogleDevFallback = () => {
-    login({
-      access: "dev-google-mock-access-token",
-      refresh: "dev-google-mock-refresh-token",
-      user: {
-        username: "google_dev_user",
-        email: "google_dev@example.com",
-        is_staff: false,
+  const googleLogin = useGoogleLogin(
+    googleLoginOptions({
+      onSuccess: async (tokenResponse: any) => {
+        try {
+          const payload = buildGoogleLoginPayload(tokenResponse);
+          if (!hasGoogleCredential(payload)) {
+            throw new Error(
+              "Google returned no token to exchange. Check VITE_GOOGLE_OAUTH_FLOW.",
+            );
+          }
+          const tokens = await fetchApi("/auth/google/", {
+            method: "POST",
+            requireAuth: false,
+            body: JSON.stringify(payload),
+          });
+          login(tokens);
+          sessionStorage.setItem("justLoggedIn", "true");
+          navigate("/dashboard");
+        } catch (err: unknown) {
+          setMascotState("error");
+          const message = formatGoogleOAuthError(err, "backend");
+          setError(message);
+          toast.error(message);
+        }
       },
-    });
-    toast.success("Logged in as Google Dev User! 🚀");
-    navigate("/dashboard");
+      onError: (errorResponse) => {
+        setMascotState("error");
+        const message = formatGoogleOAuthError(errorResponse, "popup");
+        setError(message);
+        toast.error(message, { duration: 5000 });
+      },
+      onNonOAuthError: (error) => {
+        setMascotState("error");
+        const message = googlePopupErrorMessage(error);
+        setError(message);
+        toast.error(message, { duration: 5000 });
+      },
+    }),
+  );
+
+  const handleGoogleDevFallback = async () => {
+    try {
+      // Exchanges a local dev credential with the backend so the session is
+      // real (a mocked client-side token would fail the very next /auth/me/).
+      const tokens = await fetchApi("/auth/google/", {
+        method: "POST",
+        requireAuth: false,
+        body: JSON.stringify({ access_token: "dev-google-mock-access-token" }),
+      });
+      login(tokens);
+      sessionStorage.setItem("justLoggedIn", "true");
+      toast.success("Logged in as Google Dev User! 🚀");
+      navigate("/dashboard");
+    } catch (err: unknown) {
+      const message = formatGoogleOAuthError(err, "backend");
+      setError(message);
+      toast.error(message);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,9 +134,12 @@ export function LoginPage() {
     setMascotState("loading");
 
     try {
-      const payload: Record<string, string> = { username, password };
+      const payload: Record<string, string> = {
+        username: username.trim(),
+        password,
+      };
       if (requires2FA && totpCode) {
-        payload.totp_code = totpCode;
+        payload.totp_code = totpCode.trim();
       }
 
       const tokens = await fetchApi("/auth/login/", {
@@ -143,20 +161,25 @@ export function LoginPage() {
       navigate(redirect);
     } catch (err: any) {
       setMascotState("error");
+      const code = err?.code as string | undefined;
       if (
+        code === "2fa_required" ||
+        code === "requires_2fa" ||
         err?.requires_2fa ||
-        err?.code === "2fa_required" ||
         (err?.message && err.message.includes("Two-factor"))
       ) {
         setRequires2FA(true);
         toast.error("2FA code required. Enter code from authenticator app.");
       } else {
-        setError(getErrorMessage(err, "Failed to login"));
-        toast.error(
-          requires2FA
-            ? "Invalid 2FA code or backup code."
-            : "Login failed. Please check your credentials.",
-        );
+        const message = getErrorMessage(err, "Failed to login");
+        setError(message);
+        if (requires2FA) {
+          toast.error("Invalid 2FA code or backup code.");
+        } else if (code === "rate_limited" || err?.status === 429) {
+          toast.error(message, { duration: 6000 });
+        } else {
+          toast.error("Login failed. Please check your credentials.");
+        }
       }
     } finally {
       setIsLoading(false);
@@ -198,8 +221,13 @@ export function LoginPage() {
           >
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <AlertCircle size={16} className="shrink-0 text-rose-600 dark:text-rose-400" />
-                <span className="text-[11px] leading-tight font-extrabold">{error}</span>
+                <AlertCircle
+                  size={16}
+                  className="shrink-0 text-rose-600 dark:text-rose-400"
+                />
+                <span className="text-[11px] leading-tight font-extrabold">
+                  {error}
+                </span>
               </div>
               <button
                 type="button"
@@ -236,6 +264,9 @@ export function LoginPage() {
                   className="w-full rounded-2xl border-2 border-black dark:border-white/20 bg-white dark:bg-[#12100e] px-3.5 py-2 text-slate-900 dark:text-white font-bold outline-none placeholder:text-slate-400 focus:border-indigo-600 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:shadow-[2px_2px_0px_0px_rgba(99,102,241,1)] transition-all text-xs sm:text-sm"
                   placeholder="developer@atelier.com"
                   value={username}
+                  name="username"
+                  autoComplete="username"
+                  spellCheck={false}
                   onFocus={() => setMascotState("focus-username")}
                   onBlur={() => setMascotState("idle")}
                   onChange={(e) => setUsername(e.target.value)}
@@ -263,6 +294,8 @@ export function LoginPage() {
               </div>
               <PasswordInput
                 id="login-password"
+                name="password"
+                autoComplete="current-password"
                 className="w-full rounded-2xl border-2 border-black dark:border-white/20 bg-white dark:bg-[#12100e] px-3.5 py-2 text-slate-900 dark:text-white font-bold outline-none placeholder:text-slate-400 focus:border-indigo-600 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:shadow-[2px_2px_0px_0px_rgba(99,102,241,1)] transition-all text-xs sm:text-sm"
                 placeholder="••••••••"
                 value={password}
@@ -278,7 +311,8 @@ export function LoginPage() {
           <div className="space-y-2.5 p-3.5 rounded-2xl border-2 border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/40">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-black uppercase text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
-                <Shield size={14} className="text-indigo-600" /> 2FA Verification Required
+                <Shield size={14} className="text-indigo-600" /> 2FA
+                Verification Required
               </span>
               <button
                 type="button"
@@ -291,11 +325,16 @@ export function LoginPage() {
 
             <div className="space-y-1">
               <label className="font-black text-slate-700 dark:text-slate-300 ml-1 text-[10px] uppercase tracking-wider">
-                {useBackupCode ? "Backup Code" : "Authenticator Code (6 digits)"}
+                {useBackupCode
+                  ? "Backup Code"
+                  : "Authenticator Code (6 digits)"}
               </label>
               <input
                 type="text"
                 autoFocus
+                name="totp_code"
+                autoComplete={useBackupCode ? "off" : "one-time-code"}
+                inputMode={useBackupCode ? "text" : "numeric"}
                 maxLength={useBackupCode ? 10 : 6}
                 placeholder={useBackupCode ? "a1b2-c3d4" : "123456"}
                 value={totpCode}

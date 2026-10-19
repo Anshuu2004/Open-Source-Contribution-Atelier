@@ -1,0 +1,51 @@
+name: PR Review Nudge
+
+# If a PR has no reviews after 3 days, comment tagging CODEOWNERS / maintainers.
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # daily 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Nudge unreviewed PRs
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const DAYS = 3;
+            const now = new Date();
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', sort: 'updated', direction: 'asc', per_page: 100
+            });
+
+            for (const pr of prs) {
+              if (pr.draft) continue;
+
+              const created = new Date(pr.created_at);
+              const daysOpen = (now - created) / (1000 * 60 * 60 * 24);
+              if (daysOpen < DAYS) continue;
+
+              const { data: reviews } = await github.rest.pulls.listReviews({
+                owner, repo, pull_number: pr.number
+              });
+
+              if (reviews.length === 0) {
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: pr.number,
+                  body: `🔔 Gentle nudge: this PR has been open for ${Math.floor(daysOpen)} days ` +
+                    `with no reviews yet. Pinging maintainers / CODEOWNERS to take a look when possible.`
+                });
+                console.log(`Nudged PR #${pr.number}`);
+              }
+            }

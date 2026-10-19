@@ -5,6 +5,8 @@ export interface ApiErrorOptions {
   retryable?: boolean;
   authExpired?: boolean;
   details?: string | null;
+  /** Machine-readable error code returned by the API (e.g. `2fa_required`). */
+  code?: string | null;
 }
 
 const DEFAULT_API_ERROR_MESSAGE =
@@ -17,6 +19,7 @@ export class ApiError extends Error {
   retryable: boolean;
   authExpired: boolean;
   details?: string | null;
+  code?: string | null;
 
   constructor(message: string, options: ApiErrorOptions = {}) {
     super(message);
@@ -27,6 +30,7 @@ export class ApiError extends Error {
     this.retryable = options.retryable ?? false;
     this.authExpired = options.authExpired ?? false;
     this.details = options.details ?? null;
+    this.code = options.code ?? null;
   }
 }
 
@@ -79,15 +83,21 @@ export function createApiError(params: {
 }): ApiError {
   let bodyMessage: string | null = null;
   let detailsStr: string | null = null;
+  let code: string | null = null;
 
   if (params.body && typeof params.body === "object") {
     const b = params.body as Record<string, unknown>;
-    if (typeof b.detail === "string" && b.detail.trim()) {
+    if (typeof b.code === "string" && b.code.trim()) {
+      code = b.code.trim();
+    }
+    // Prefer the human-facing `message` field: throttling and auth errors use
+    // it, while `error` often carries a machine token like "rate_limited".
+    if (typeof b.message === "string" && b.message.trim()) {
+      bodyMessage = b.message.trim();
+    } else if (typeof b.detail === "string" && b.detail.trim()) {
       bodyMessage = b.detail.trim();
     } else if (typeof b.error === "string" && b.error.trim()) {
       bodyMessage = b.error.trim();
-    } else if (typeof b.message === "string" && b.message.trim()) {
-      bodyMessage = b.message.trim();
     } else if (
       Array.isArray(b.non_field_errors) &&
       b.non_field_errors.length > 0
@@ -124,6 +134,7 @@ export function createApiError(params: {
     retryable: params.retryable,
     authExpired: params.authExpired,
     details: detailsStr,
+    code,
   });
 }
 

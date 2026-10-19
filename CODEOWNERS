@@ -1,0 +1,24 @@
+# Auto-request reviews from the right owners based on changed paths.
+# Replace the team handles below with your actual GitHub teams/usernames.
+
+# Backend
+/backend/           @your-backend-team
+/backend/apps/      @your-backend-team
+
+# Frontend
+/frontend/          @your-frontend-team
+/frontend/src/      @your-frontend-team
+
+# Curriculum / content (Markdown + curriculum.json)
+/frontend/public/content/ @your-content-team
+
+# Documentation
+/docs/              @your-docs-team
+*.md                @your-docs-team
+
+# CI / workflows
+/.github/workflows/ @your-infra-team
+/.github/labeler.yml @your-infra-team
+
+# Default: everything else goes to maintainers
+*                   @your-maintainers

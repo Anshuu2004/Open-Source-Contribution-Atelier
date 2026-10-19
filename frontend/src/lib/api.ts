@@ -211,6 +211,23 @@ export async function fetchApi(endpoint: string, options: RequestOptions = {}) {
         currentTimeoutMs,
       );
 
+      // A non-JSON body means we are not talking to the API: in dev a missing
+      // proxy, or in prod an nginx SPA fallback, serves index.html instead of
+      // the endpoint. Surface that clearly instead of failing cryptically.
+      const contentType = response.headers.get("content-type") || "";
+      const isJson = contentType.includes("json");
+      let rawBody = "";
+      if (!isJson) {
+        rawBody = await response.text().catch(() => "");
+      }
+      const htmlFallback =
+        !isJson && /^\s*<!doctype html|^\s*<html[\s>]/i.test(rawBody);
+      const htmlErrorDetail = htmlFallback
+        ? `The server returned a web page instead of JSON for "${endpoint}". ` +
+          `The API is not reachable at ${API_BASE} — make sure the backend is ` +
+          `running and check the dev proxy (vite.config.ts) or VITE_API_BASE_URL.`
+        : null;
+
       const isRetryableStatus =
         response.status === 429 ||
         (response.status >= 500 && response.status < 600);
@@ -277,7 +294,11 @@ export async function fetchApi(endpoint: string, options: RequestOptions = {}) {
           }
         }
 
-        const errorBody = await response.json().catch(() => ({}));
+        const errorBody = htmlErrorDetail
+          ? { detail: htmlErrorDetail }
+          : isJson
+            ? await response.json().catch(() => ({}))
+            : {};
         const apiError = createApiError({
           status: response.status,
           endpoint,
@@ -313,6 +334,23 @@ export async function fetchApi(endpoint: string, options: RequestOptions = {}) {
 
         lastError = apiError;
         throw apiError;
+      }
+
+      if (htmlErrorDetail) {
+        // 2xx with an HTML body: the endpoint silently resolved to the SPA.
+        throw createApiError({
+          status: response.status,
+          endpoint,
+          requestId,
+          body: { detail: htmlErrorDetail },
+          retryable: false,
+          authExpired: false,
+        });
+      }
+
+      if (!isJson) {
+        // Non-JSON, non-HTML success body — preserve the historical behaviour.
+        return {};
       }
 
       return await response.json().catch(() => ({}));
@@ -453,7 +491,12 @@ export async function fetchStreamApi(
     onChunk: (text: string) => void;
   },
 ): Promise<void> {
-  const { onChunk, requireAuth = true, headers: customHeaders, ...config } = options;
+  const {
+    onChunk,
+    requireAuth = true,
+    headers: customHeaders,
+    ...config
+  } = options;
   const headers = new Headers(customHeaders);
   const requestId = safeGenerateUUID();
   headers.set("X-Request-ID", requestId);

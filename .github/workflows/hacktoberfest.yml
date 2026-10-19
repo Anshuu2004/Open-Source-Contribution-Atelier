@@ -1,0 +1,56 @@
+name: Hacktoberfest Labeler
+
+# During October, label qualifying PRs with `hacktoberfest`.
+# Runs daily and removes the label from PRs that are spam / low quality.
+
+on:
+  schedule:
+    - cron: '0 8 * * 10 *' # daily during October (month 10)
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply/remove hacktoberfest label
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const now = new Date();
+            const isOctober = now.getMonth() === 9; // 0-indexed, so 9 = October
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', per_page: 100
+            });
+
+            for (const pr of prs) {
+              if (pr.draft) continue;
+
+              const hasLabel = pr.labels.some(l => l.name === 'hacktoberfest');
+
+              if (isOctober) {
+                // Basic quality heuristic: not draft, has linked issue, reasonable size
+                const body = pr.body || '';
+                const linksIssue = /(fixes|closes|resolves)\s*#\d+/i.test(body);
+
+                if (linksIssue && !hasLabel) {
+                  await github.rest.issues.addLabels({
+                    owner, repo, issue_number: pr.number, labels: ['hacktoberfest']
+                  });
+                }
+              } else {
+                // Outside October, remove the label
+                if (hasLabel) {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: pr.number, name: 'hacktoberfest'
+                  });
+                }
+              }
+            }

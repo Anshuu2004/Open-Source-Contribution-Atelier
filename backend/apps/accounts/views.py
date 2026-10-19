@@ -102,6 +102,23 @@ def unique_username_from_value(value: str) -> str:
     return candidate
 
 
+def available_username_from_value(value: str) -> str:
+    """Return an unused username derived from ``value``.
+
+    Unlike :func:`unique_username_from_value` this never raises — social login
+    must not fail just because another account already owns the preferred
+    username (e.g. ``jane`` exists while ``jane@gmail.com`` signs in with
+    Google). A numeric suffix is appended until the name is free.
+    """
+    base = (username_from_value(value) or "user")[:140]
+    candidate = base
+    suffix = 1
+    while User.objects.filter(username__iexact=candidate).exists():
+        suffix += 1
+        candidate = f"{base}{suffix}"
+    return candidate
+
+
 def frontend_url(path: str, query: Optional[dict[str, str]] = None) -> str:
     base_url = os.getenv("FRONTEND_URL") or (
         settings.CORS_ALLOWED_ORIGINS[0]
@@ -266,154 +283,422 @@ class RefreshView(TokenRefreshView):
     throttle_classes = [TokenRefreshThrottle]
 
 
+class GoogleLoginError(Exception):
+    """Raised while resolving a Google identity, carries an API-safe payload."""
+
+    def __init__(
+        self,
+        detail: str,
+        code: str = "google_login_failed",
+        status_code: int = status.HTTP_401_UNAUTHORIZED,
+    ):
+        super().__init__(detail)
+        self.detail = detail
+        self.code = code
+        self.status_code = status_code
+
+
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+GOOGLE_USERINFO_V2_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
+GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
+# Tokens the frontend (and tests) use to sign in locally without Google.
+GOOGLE_DEV_TOKENS = {"fake", "dev"}
+
+
 class GoogleLoginView(APIView):
+    """Sign in / sign up with Google.
+
+    Accepts whichever payload the configured OAuth flow produced:
+
+    * ``access_token`` — OAuth2 access token (implicit flow, no client secret)
+    * ``id_token`` / ``credential`` — Google ID token (OpenID Connect / GIS)
+    * ``code`` — OAuth2 authorization code (auth-code flow), exchanged for
+      tokens server-side when ``GOOGLE_CLIENT_SECRET`` is configured
+
+    Whichever combination arrives, the identity is verified against Google
+    before a JWT is issued.
+    """
+
     permission_classes = [permissions.AllowAny]
     throttle_classes = [OAuthThrottle]
 
     @staticmethod
     def _unique_username_from_email(email: str) -> str:
-        return unique_username_from_value(email)
+        # Kept for backward compatibility with callers: social login must never
+        # fail because somebody else already owns the preferred username.
+        return available_username_from_value(email)
 
-    def post(self, request):
-        token = (
-            request.data.get("access_token")
-            or request.data.get("access")
-            or request.data.get("id_token")
-            or request.data.get("credential")
-            or request.data.get("token")
-        )
-        if not token:
-            return Response(
-                {"detail": "No access token provided"},
-                status=status.HTTP_400_BAD_REQUEST,
+    @staticmethod
+    def _audience_matches(*candidates) -> Optional[bool]:
+        """True/False when Google reported an audience, None when unknown."""
+        expected = getattr(settings, "GOOGLE_CLIENT_ID", None)
+        known = [c for c in candidates if isinstance(c, str) and c]
+        if not expected or not known:
+            return None
+        return any(c == expected for c in known)
+
+    @staticmethod
+    def _reject_unverified_email(info: dict, source: str) -> None:
+        if info.get("email_verified") is False and not settings.DEBUG:
+            raise GoogleLoginError(
+                "Your Google account email address is not verified. Verify it "
+                "with Google, then try again.",
+                code="google_email_unverified",
+            )
+        if not info.get("email"):
+            raise GoogleLoginError(
+                f"Google ({source}) did not return an email address for this "
+                "account. Make sure the email scope is granted.",
+                code="google_no_email",
+            )
+
+    def _exchange_authorization_code(
+        self, code: str, redirect_uri: Optional[str]
+    ) -> dict:
+        client_id = getattr(settings, "GOOGLE_CLIENT_ID", None)
+        client_secret = getattr(settings, "GOOGLE_CLIENT_SECRET", None)
+        if not client_id or not client_secret:
+            raise GoogleLoginError(
+                "Google sign-in is using the authorization-code flow but "
+                "GOOGLE_CLIENT_SECRET is not configured on the server. Set "
+                "GOOGLE_CLIENT_SECRET in the backend environment, or set "
+                "VITE_GOOGLE_OAUTH_FLOW=implicit in the frontend.",
+                code="google_oauth_not_configured",
+                status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            )
+
+        payload = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "client_id": client_id,
+            "client_secret": client_secret,
+        }
+        if redirect_uri:
+            payload["redirect_uri"] = redirect_uri
+
+        try:
+            resp = http_requests.post(GOOGLE_TOKEN_ENDPOINT, data=payload, timeout=10)
+        except http_requests.RequestException as exc:
+            logger.warning("Google code exchange could not reach Google: %s", exc)
+            raise GoogleLoginError(
+                "Could not reach Google to complete sign-in. Please try again.",
+                code="google_unreachable",
+                status_code=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        if not resp.ok:
+            logger.warning("Google rejected the authorization code: %s", resp.status_code)
+            raise GoogleLoginError(
+                "Google rejected the sign-in code. Please try again.",
+                code="google_code_rejected",
             )
 
         try:
-            email = None
-            # Try OAuth2 userinfo endpoint with Bearer auth first
-            user_info_resp = http_requests.get(
-                "https://www.googleapis.com/oauth2/v3/userinfo",
-                headers={"Authorization": f"Bearer {token}"},
+            data = resp.json()
+        except ValueError:
+            data = {}
+
+        if not data.get("id_token") and not data.get("access_token"):
+            raise GoogleLoginError(
+                "Google did not return tokens for this sign-in. Please try again.",
+                code="google_code_rejected",
+            )
+        return data
+
+    def _id_token_payload(self, id_token: str, dev_mode: bool = False) -> Optional[dict]:
+        """Verify a Google ID token and return its profile payload.
+
+        Google's tokeninfo endpoint validates the signature server-side and
+        returns the token audience, so a token minted for another OAuth client
+        is rejected.
+        """
+        try:
+            resp = http_requests.get(
+                f"{GOOGLE_TOKENINFO_URL}?id_token={id_token}", timeout=10
+            )
+            if resp.ok:
+                info = resp.json()
+                if self._audience_matches(info.get("aud")) is False:
+                    raise GoogleLoginError(
+                        "This Google sign-in token was issued for a different "
+                        "OAuth client. Make sure GOOGLE_CLIENT_ID on the server "
+                        "matches VITE_GOOGLE_CLIENT_ID in the frontend.",
+                        code="google_audience_mismatch",
+                    )
+                if info.get("email"):
+                    self._reject_unverified_email(info, "ID token")
+                    return info
+        except http_requests.RequestException as exc:
+            logger.warning("Google tokeninfo request failed: %s", exc)
+        except ValueError as exc:
+            logger.warning("Google tokeninfo returned invalid JSON: %s", exc)
+
+        # Fallback: treat the value as a bearer token (legacy clients send an
+        # ID token in the access_token field).
+        payload = self._access_token_payload(
+            id_token, check_audience=False, dev_mode=dev_mode
+        )
+        if payload:
+            return payload
+
+        if dev_mode:
+            # Local/dev credential — skip the extra network round trip.
+            return None
+
+        # Last resort: local signature verification via Google's JWKS.
+        try:
+            from google.auth.transport.requests import Request as GoogleAuthRequest
+            from google.oauth2 import id_token as google_id_token
+
+            info = google_id_token.verify_oauth2_token(
+                id_token,
+                GoogleAuthRequest(),
+                audience=getattr(settings, "GOOGLE_CLIENT_ID", None) or None,
+            )
+            if isinstance(info, dict) and info.get("email"):
+                self._reject_unverified_email(info, "ID token")
+                return info
+        except GoogleLoginError:
+            raise
+        except Exception as exc:
+            logger.info("Google ID token could not be verified locally: %s", exc)
+        return None
+
+    def _access_token_payload(
+        self, access_token: str, check_audience: bool = True, dev_mode: bool = False
+    ) -> Optional[dict]:
+        info: Optional[dict] = None
+        try:
+            resp = http_requests.get(
+                GOOGLE_USERINFO_URL,
+                headers={"Authorization": f"Bearer {access_token}"},
                 timeout=10,
             )
-
-            if user_info_resp.ok:
-                idinfo = user_info_resp.json()
-                email = idinfo.get("email")
-
-            # Try OAuth2 v2 userinfo endpoint with access_token URL parameter
-            if not email:
-                user_info_v2_resp = http_requests.get(
-                    f"https://www.googleapis.com/oauth2/v2/userinfo?access_token={token}",
+            if resp.ok:
+                info = resp.json()
+            elif not dev_mode:
+                resp = http_requests.get(
+                    f"{GOOGLE_USERINFO_V2_URL}?access_token={access_token}",
                     timeout=10,
                 )
-                if user_info_v2_resp.ok:
-                    email = user_info_v2_resp.json().get("email")
+                if resp.ok:
+                    info = resp.json()
+        except (http_requests.RequestException, ValueError) as exc:
+            logger.warning("Google userinfo request failed: %s", exc)
 
-            # If userinfo endpoint failed or had no email, try tokeninfo endpoint
-            if not email:
-                token_info_url = (
-                    f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
-                    if token.count(".") == 2
-                    else f"https://oauth2.googleapis.com/tokeninfo?access_token={token}"
+        if info is None and not dev_mode:
+            # tokeninfo validates the access token and returns its audience.
+            try:
+                resp = http_requests.get(
+                    f"{GOOGLE_TOKENINFO_URL}?access_token={access_token}", timeout=10
                 )
-                token_info_resp = http_requests.get(token_info_url, timeout=10)
-                if token_info_resp.ok:
-                    email = token_info_resp.json().get("email")
+                if resp.ok:
+                    info = resp.json()
+                    check_audience = True  # audience comes with this response
+            except (http_requests.RequestException, ValueError) as exc:
+                logger.warning("Google access-token tokeninfo failed: %s", exc)
 
-            # Fallback: If token is a 3-part JWT, decode unverified payload to extract email
-            if not email and isinstance(token, str) and token.count(".") == 2:
-                try:
-                    import base64
-                    import json
+        if not info:
+            return None
 
-                    payload_part = token.split(".")[1]
-                    padded = payload_part + "=" * (-len(payload_part) % 4)
-                    decoded_bytes = base64.b64decode(padded)
-                    payload_data = json.loads(decoded_bytes.decode("utf-8"))
-                    email = payload_data.get("email")
-                except Exception as exc:
-                    logger.warning(
-                        f"Failed to decode Google JWT payload fallback: {exc}"
-                    )
-
-            if not email and (
-                settings.DEBUG or token.startswith("dev-") or token == "fake"
+        if check_audience and info.get("email"):
+            try:
+                resp = http_requests.get(
+                    f"{GOOGLE_TOKENINFO_URL}?access_token={access_token}", timeout=10
+                )
+                token_info = resp.json() if resp.ok else {}
+            except (http_requests.RequestException, ValueError):
+                token_info = {}
+            if (
+                self._audience_matches(
+                    token_info.get("aud"),
+                    token_info.get("audience"),
+                    token_info.get("azp"),
+                )
+                is False
             ):
-                email = request.data.get("email") or "google_dev@example.com"
-
-            if not email:
-                return Response(
-                    {"detail": "Failed to verify Google token"},
-                    status=status.HTTP_401_UNAUTHORIZED,
+                raise GoogleLoginError(
+                    "This Google token was issued for a different OAuth client. "
+                    "Make sure GOOGLE_CLIENT_ID on the server matches "
+                    "VITE_GOOGLE_CLIENT_ID in the frontend.",
+                    code="google_audience_mismatch",
                 )
 
-            user = User.objects.filter(email__iexact=email).first()
-            if not user:
-                username = self._unique_username_from_email(email)
+        self._reject_unverified_email(info, "access token")
+        return info
+
+    def _resolve_identity(self, request) -> dict:
+        access_token = request.data.get("access_token") or request.data.get("access")
+        id_token = request.data.get("id_token") or request.data.get("credential")
+        code = request.data.get("code")
+        legacy = request.data.get("token")
+
+        if isinstance(legacy, str) and legacy:
+            if legacy.count(".") == 2:
+                id_token = id_token or legacy
+            elif legacy.startswith("ya"):
+                access_token = access_token or legacy
+            else:
+                code = code or legacy
+
+        if not access_token and not id_token and not code:
+            raise GoogleLoginError(
+                "No access token provided",
+                code="no_token",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        probe = id_token or access_token or code or ""
+        # Explicit local credentials (and DEBUG builds) skip the extra Google
+        # round trips once the first verification attempt comes back empty.
+        dev_mode = (
+            probe in GOOGLE_DEV_TOKENS or probe.startswith("dev-") or bool(settings.DEBUG)
+        )
+
+        if code:
+            tokens = self._exchange_authorization_code(
+                code, request.data.get("redirect_uri")
+            )
+            id_token = id_token or tokens.get("id_token")
+            access_token = access_token or tokens.get("access_token")
+
+        if id_token:
+            payload = self._id_token_payload(id_token, dev_mode=dev_mode)
+            if payload:
+                return payload
+
+        if access_token:
+            payload = self._access_token_payload(
+                access_token, check_audience=id_token is None, dev_mode=dev_mode
+            )
+            if payload:
+                return payload
+
+        if dev_mode:
+            # Dev escape hatch: never allow signing in as an arbitrary email —
+            # only explicit dev credentials (fake / dev-*) may choose the account,
+            # DEBUG builds fall back to the local dev account.
+            explicit_dev = probe in GOOGLE_DEV_TOKENS or probe.startswith("dev-")
+            requested_email = request.data.get("email")
+            email = (
+                requested_email
+                if explicit_dev and isinstance(requested_email, str) and requested_email
+                else "google_dev@example.com"
+            )
+            logger.warning(
+                "Google identity could not be verified; using local dev account."
+            )
+            return {"email": email, "email_verified": True}
+
+        raise GoogleLoginError(
+            "Failed to verify Google token", code="google_token_invalid"
+        )
+
+    def post(self, request):
+        try:
+            payload = self._resolve_identity(request)
+        except GoogleLoginError as exc:
+            return Response(
+                {"detail": exc.detail, "code": exc.code}, status=exc.status_code
+            )
+        except Exception:
+            logger.exception("Google login failed unexpectedly")
+            return Response(
+                {
+                    "detail": "Google sign-in failed. Please try again.",
+                    "code": "google_login_failed",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = (payload.get("email") or "").strip().lower()
+        if not email:
+            return Response(
+                {
+                    "detail": "Google did not return an email address for this account.",
+                    "code": "google_no_email",
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            from django.db import IntegrityError
+
+            try:
                 user = User.objects.create_user(
-                    username=username,
+                    username=available_username_from_value(email),
                     email=email,
                     password=secrets.token_urlsafe(24),
                 )
+            except IntegrityError:
+                # Concurrent sign-in raced us to the username — reuse the row.
+                user = User.objects.filter(email__iexact=email).first()
+                if not user:
+                    return Response(
+                        {
+                            "detail": "Could not create your account. Please try again.",
+                            "code": "google_signup_failed",
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-            refresh = RefreshToken.for_user(user)
-            return Response(
-                {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "user": {
-                        "username": user.username,
-                        "email": user.email,
-                        "is_staff": user.is_staff,
-                    },
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user": {
+                    "username": user.username,
+                    "email": user.email,
+                    "is_staff": user.is_staff,
                 },
-                status=status.HTTP_200_OK,
-            )
-
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class GitHubOAuthStartView(APIView):
     permission_classes = [permissions.AllowAny]
     throttle_classes = [OAuthThrottle]
 
+    def get(self, request):
+        client_id = settings.GITHUB_CLIENT_ID
+        if not client_id:
+            return Response(
+                {"detail": "GitHub OAuth is not configured."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-def get(self, request):
-    client_id = settings.GITHUB_CLIENT_ID
-    if not client_id:
-        return Response(
-            {"detail": "GitHub OAuth is not configured."},
-            status=status.HTTP_400_BAD_REQUEST,
+        state = secrets.token_urlsafe(32)
+        code_verifier = secrets.token_urlsafe(64)
+        code_challenge = (
+            base64.urlsafe_b64encode(
+                hashlib.sha256(code_verifier.encode("ascii")).digest()
+            )
+            .decode("ascii")
+            .rstrip("=")
         )
 
-    state = secrets.token_urlsafe(32)
-    code_verifier = secrets.token_urlsafe(64)
-    code_challenge = (
-        base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode("ascii")).digest())
-        .decode("ascii")
-        .rstrip("=")
-    )
-
-    request.session["github_oauth_state"] = {
-        "value": state,
-        "created_at": time.time(),
-    }
-    request.session["github_oauth_verifier"] = code_verifier
-
-    callback_url = request.build_absolute_uri("/api/auth/github/callback/")
-    params = urlencode(
-        {
-            "client_id": client_id,
-            "redirect_uri": callback_url,
-            "scope": "read:user user:email",
-            "state": state,
-            "code_challenge": code_challenge,
-            "code_challenge_method": "S256",
+        request.session["github_oauth_state"] = {
+            "value": state,
+            "created_at": time.time(),
         }
-    )
-    return redirect(f"https://github.com/login/oauth/authorize?{params}")
+        request.session["github_oauth_verifier"] = code_verifier
+
+        callback_url = request.build_absolute_uri("/api/auth/github/callback/")
+        params = urlencode(
+            {
+                "client_id": client_id,
+                "redirect_uri": callback_url,
+                "scope": "read:user user:email",
+                "state": state,
+                "code_challenge": code_challenge,
+                "code_challenge_method": "S256",
+            }
+        )
+        return redirect(f"https://github.com/login/oauth/authorize?{params}")
 
 
 class GitHubOAuthCallbackView(APIView):

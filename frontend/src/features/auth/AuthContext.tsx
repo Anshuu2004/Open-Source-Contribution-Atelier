@@ -31,7 +31,7 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (tokens: { access: string; refresh: string }) => void;
+  login: (tokens: { access?: string; refresh?: string } | null) => void;
   logout: () => void;
   checkUser: () => Promise<void>;
 };
@@ -46,8 +46,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useStorageSync();
 
-  const login = (tokens: { access: string; refresh: string }) => {
-    dispatch(loginTokens(tokens));
+  const login = (tokens: { access?: string; refresh?: string } | null) => {
+    if (!tokens || !tokens.access || !tokens.refresh) {
+      // Never store partial credentials — that leaves the app in a
+      // "logged in" state that immediately fails every subsequent request.
+      throw new Error(
+        "The server did not return login tokens. Please try again.",
+      );
+    }
+    dispatch(loginTokens({ access: tokens.access, refresh: tokens.refresh }));
     dispatch(checkUser());
     broadcastAuthEvent("LOGIN");
   };

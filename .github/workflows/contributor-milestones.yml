@@ -1,0 +1,44 @@
+name: Contributor Milestones
+
+# Celebrate contributor merge milestones (1st, 5th, 10th, 25th merged PR).
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  pull-requests: write
+  issues: read
+  contents: read
+
+jobs:
+  milestone:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Celebrate merge milestone
+        if: github.event.pull_request.merged == true
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const author = pr.user.login;
+
+            const { data: allPrs } = await github.rest.pulls.list({
+              owner, repo, state: 'all', sort: 'updated', direction: 'asc', per_page: 100
+            });
+
+            const mergedByAuthor = allPrs.filter(p =>
+              p.merged_at && p.user.login === author
+            ).length;
+
+            const milestones = [1, 5, 10, 25];
+            if (milestones.includes(mergedByAuthor)) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `🎉 Congrats @${author}! That's your **${mergedByAuthor}**${mergedByAuthor === 1 ? 'st' : mergedByAuthor === 2 ? 'nd' : mergedByAuthor === 3 ? 'rd' : 'th'} merged PR! ` +
+                  `Thank you for contributing to the project. 🚀`
+              });
+            }

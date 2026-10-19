@@ -3,6 +3,7 @@ Custom DRF exception handler that produces user-friendly API responses.
 """
 
 import logging
+from typing import Optional
 
 from rest_framework import status
 from rest_framework.exceptions import (
@@ -71,27 +72,55 @@ def throttle_exception_handler(exc, context):
     # Invalid credentials / authentication failure
     if isinstance(exc, AuthenticationFailed):
         code = "authentication_failed"
+        detail = getattr(exc, "detail", None)
+        payload: dict = {}
+        message: Optional[str] = None
+
+        if isinstance(detail, dict):
+            # Keep machine-readable flags (requires_2fa, field errors, ...) in
+            # the body so clients can branch on them instead of parsing prose.
+            for key, value in detail.items():
+                payload[key] = value
+
+            explicit_code = detail.get("code")
+            if isinstance(explicit_code, str) and explicit_code:
+                code = explicit_code
+            elif detail.get("requires_2fa"):
+                code = "2fa_required"
+
+            if isinstance(detail.get("message"), str) and detail["message"].strip():
+                message = detail["message"].strip()
+            else:
+                message = next(
+                    (
+                        str(value)
+                        for value in detail.values()
+                        if isinstance(value, str) and value.strip()
+                    ),
+                    None,
+                )
+        elif isinstance(detail, (list, tuple)) and detail:
+            message = str(detail[0])
+        elif isinstance(detail, str) and detail:
+            message = detail
+
         if hasattr(exc, "get_codes"):
             codes = exc.get_codes()
-            if isinstance(codes, str):
-                code = codes
-            elif isinstance(codes, dict) and "detail" in codes:
-                code = codes["detail"]
-            elif isinstance(codes, dict) and "code" in codes:
-                code = codes["code"]
+            if code == "authentication_failed":
+                if isinstance(codes, str) and codes:
+                    code = codes
+                elif isinstance(codes, dict):
+                    if isinstance(codes.get("detail"), str):
+                        code = codes["detail"]
+                    elif isinstance(codes.get("code"), str):
+                        code = codes["code"]
 
-        # SimpleJWT sometimes puts code in detail dict directly
-        if isinstance(getattr(exc, "detail", None), dict) and "code" in exc.detail:
-            code = exc.detail["code"]
+        response_data: dict = dict(payload)
+        response_data["error"] = True
+        response_data["code"] = code
+        response_data["message"] = message or str(detail)
 
-        return Response(
-            {
-                "error": True,
-                "code": code,
-                "message": str(exc.detail),
-            },
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
+        return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
 
     # Validation errors
     if isinstance(exc, ValidationError):

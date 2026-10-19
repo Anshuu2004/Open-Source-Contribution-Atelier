@@ -1,0 +1,41 @@
+name: Duplicate Issue Detector
+
+# When a new issue is opened, search open issues with a similar title and
+# comment a possible-duplicate hint so maintainers can merge/close.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for similar open issues
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Simple title keyword search among open issues
+            const { data: results } = await github.rest.search.issues({
+              q: `repo:${owner}/${repo} type:issue state:open "${issue.title}"`,
+              per_page: 10
+            });
+
+            const similar = results.items.filter(i => i.number !== issue.number);
+            if (similar.length > 0) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `🔍 This might be a duplicate of:\n` +
+                  similar.map(i => `- #${i.number}: ${i.title}`).join('\n') +
+                  `\n\nIf so, please comment on the existing issue instead of opening a new one.`
+              });
+            }

@@ -1,0 +1,28 @@
+name: Conventional Commits
+
+# Enforce conventional commit messages (feat/fix/chore/docs/...) on every PR
+# and push to keep history clean and drive the release-drafter changelog.
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lint commit messages
+        uses: wagoid/commitlint-github-action@v3
+        with:
+          configPath: ./commitlint.config.js

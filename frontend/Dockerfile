@@ -25,8 +25,12 @@ FROM nginx:1.27-alpine AS runner
 # Remove default static files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom Nginx configuration as a template so ${BACKEND_URL} is replaced
+# at container start (see 20-envsubst-on-templates.sh in the nginx image).
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+# Where /api, /admin, /static, /media and /ws are proxied to.
+ENV BACKEND_URL=http://backend:8000
 
 # Copy built static assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
