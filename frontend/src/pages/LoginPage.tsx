@@ -152,8 +152,8 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f2f1ec] text-slate-900 dark:bg-[#11131a] dark:text-slate-100">
-      <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
+    <div className="h-[100dvh] overflow-hidden bg-[#f2f1ec] text-slate-900 dark:bg-[#11131a] dark:text-slate-100">
+      <header className="relative mx-auto flex h-[60px] w-full max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           to="/"
           className="flex items-center gap-2.5 font-semibold tracking-tight"
@@ -174,8 +174,8 @@ export function LoginPage() {
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </header>
-      <main className="mx-auto w-full max-w-6xl px-5 pb-10 pt-4 sm:px-8 lg:flex lg:min-h-[calc(100vh-76px)] lg:items-center lg:py-12">
-        <div className="relative w-full overflow-hidden rounded-[28px] border border-slate-900/10 bg-[#171923] shadow-[0_28px_80px_rgba(15,23,42,0.18)] dark:border-white/10">
+      <main className="mx-auto h-[calc(100dvh-60px)] w-full max-w-6xl px-5 py-2 sm:px-8">
+        <div className="relative h-full w-full overflow-hidden rounded-[28px] border border-slate-900/10 bg-[#171923] shadow-[0_28px_80px_rgba(15,23,42,0.18)] dark:border-white/10">
           <div className="absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(255,255,255,.38)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.38)_1px,transparent_1px)] [background-size:32px_32px]" />
           <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3 font-mono text-[11px] text-slate-400 sm:px-6">
             <span className="flex items-center gap-2">
@@ -198,12 +198,18 @@ export function LoginPage() {
             <p className="absolute left-[42%] top-[58%] font-mono text-xs text-emerald-200/80">
               ship with care
             </p>
+            <div className="absolute right-7 top-10 rounded-full border border-indigo-300/20 bg-indigo-400/10 px-3 py-1 font-mono text-[10px] text-indigo-200">
+              HEAD → main
+            </div>
             <div className="absolute bottom-10 left-[18%] flex items-center gap-2 text-xs text-slate-400">
               <ShieldCheck size={14} className="text-emerald-400" />
               Your progress is ready.
             </div>
           </div>
-          <section className="relative ml-auto w-full max-w-[29rem] border-white/10 bg-white p-6 sm:p-8 lg:min-h-[600px] lg:border-l dark:bg-[#20232f]">
+          <section className="relative ml-auto h-[calc(100%-45px)] w-full max-w-[29rem] border-white/10 bg-white p-5 sm:p-6 lg:border-l dark:bg-[#20232f]">
+            <span className="absolute left-0 top-9 hidden -translate-x-1/2 rounded-full border border-white/20 bg-[#171923] px-2 py-1 font-mono text-[9px] text-emerald-300 lg:block">
+              HEAD
+            </span>
             <div className="mb-7">
               <p className="font-mono text-xs text-indigo-600 dark:text-indigo-300">
                 $ atelier resume
