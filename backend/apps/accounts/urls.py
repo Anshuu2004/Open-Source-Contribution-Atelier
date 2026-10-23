@@ -19,6 +19,7 @@ from .views import (
     PasswordResetValidateTokenView,
     PublicProfileView,
     RefreshView,
+    ResendVerificationView,
     SecureAccountDeleteView,
     ShopStreakFreezeView,
     SignupView,
@@ -32,6 +33,7 @@ from .views import (
     UserSessionListView,
     UserStatisticsView,
     UserSuggestionsView,
+    VerifyEmailView,
 )
 from .views_webauthn import PasskeyRegisterBeginView, PasskeyRegisterFinishView
 
@@ -93,6 +95,12 @@ urlpatterns = [
         "magic-link/request/", MagicLinkRequestView.as_view(), name="magic-link-request"
     ),
     path("magic-link/verify/", MagicLinkVerifyView.as_view(), name="magic-link-verify"),
+    path("verify-email/<str:key>/", VerifyEmailView.as_view(), name="verify-email"),
+    path(
+        "resend-verification/",
+        ResendVerificationView.as_view(),
+        name="resend-verification",
+    ),
     path(
         "passkey/register/begin/",
         PasskeyRegisterBeginView.as_view(),

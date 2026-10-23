@@ -67,6 +67,14 @@ const SignupPage = lazy(() =>
   })),
 );
 
+const VerificationPage = lazy(() =>
+  import("../pages/VerificationPage").then((module) => ({
+    default: module.VerificationPage,
+  })),
+);
+
+const VerifyNoticePage = lazy(() => import("../pages/VerifyNoticePage"));
+
 const LessonPage = lazy(() =>
   import("../pages/LessonPage").then((module) => ({
     default: module.LessonPage,
@@ -491,6 +499,22 @@ export function AppRouter() {
           element={
             <RouteSuspenseWrapper>
               <SignupPage />
+            </RouteSuspenseWrapper>
+          }
+        />
+        <Route
+          path="/verify-email/:token"
+          element={
+            <RouteSuspenseWrapper>
+              <VerificationPage />
+            </RouteSuspenseWrapper>
+          }
+        />
+        <Route
+          path="/verify-notice"
+          element={
+            <RouteSuspenseWrapper>
+              <VerifyNoticePage />
             </RouteSuspenseWrapper>
           }
         />

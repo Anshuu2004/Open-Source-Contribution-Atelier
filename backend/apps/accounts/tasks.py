@@ -56,6 +56,25 @@ def send_magic_link_email_task(user_email, user_username, login_url, timeout):
     )
 
 
+def send_verification_email_task(user_email, user_username, verify_url, timeout_hours):
+    """
+    Sends the email address verification link after signup. (CRITICAL)
+    """
+    send_mail(
+        subject="Verify your email address",
+        message=(
+            f"Hi {user_username},\n\n"
+            "Please confirm this is your email address by opening the link below "
+            f"(it expires in {timeout_hours} hours):\n"
+            f"{verify_url}\n\n"
+            "If you did not create an Atelier account, you can safely ignore this email."
+        ),
+        from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@atelier.dev"),
+        recipient_list=[user_email],
+        fail_silently=False,
+    )
+
+
 def send_notification_email_task(user_email, subject, message_body):
     """
     Sends a general system notification email asynchronously. (NON-CRITICAL)

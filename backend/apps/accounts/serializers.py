@@ -476,6 +476,18 @@ class MagicLinkRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
+class ResendVerificationSerializer(serializers.Serializer):
+    """Either the address to resend to, or the key from an expired link."""
+
+    email = serializers.EmailField(required=False)
+    key = serializers.CharField(required=False, max_length=512)
+
+    def validate(self, attrs):
+        if not attrs.get("email") and not attrs.get("key"):
+            raise serializers.ValidationError("Provide an email address or a key.")
+        return attrs
+
+
 class MagicLinkVerifySerializer(serializers.Serializer):
     """Accept a magic link token to verify and login the user."""
 
