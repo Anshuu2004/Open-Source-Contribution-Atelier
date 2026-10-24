@@ -118,7 +118,26 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-ALLOWED_HOSTS = ["*"]
+def _parse_allowed_hosts(raw: str) -> list[str]:
+    return [host.strip() for host in raw.split(",") if host.strip()]
+
+
+def _validate_allowed_hosts(hosts: list[str]) -> list[str]:
+    if not DEBUG and "*" in hosts:
+        raise ImproperlyConfigured(
+            "ALLOWED_HOSTS must not contain '*' when DEBUG=False. "
+            "Set ALLOWED_HOSTS to a comma-separated list of the hostnames "
+            "this backend is served from."
+        )
+    return hosts
+
+
+ALLOWED_HOSTS = _parse_allowed_hosts(
+    os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
+)
+if TESTING and "testserver" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("testserver")
+ALLOWED_HOSTS = _validate_allowed_hosts(ALLOWED_HOSTS)
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()

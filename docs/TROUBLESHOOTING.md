@@ -264,6 +264,15 @@ Also include:
 
 ---
 
+## Invalid HTTP_HOST header / ImproperlyConfigured: ALLOWED_HOSTS
+
+The backend reads `ALLOWED_HOSTS` from the environment (comma-separated). If it is unset it defaults to `localhost,127.0.0.1`.
+
+- A `400 Bad Request` / "Invalid HTTP_HOST header" on a deployed backend (Vercel, Hugging Face Spaces, etc.) means the hostname is not in the list. Set `ALLOWED_HOSTS` to include it, e.g. `ALLOWED_HOSTS=localhost,127.0.0.1,your-space.hf.space,your-project.vercel.app`.
+- A bare `*` is rejected at startup when `DEBUG=False`. List the real hostnames instead.
+
+---
+
 ## Reference
 - `docker-compose.yml` (dev): root-level Compose configuration
 - `docker-compose.prod.yml` (prod): Compose configuration for production-style runs
