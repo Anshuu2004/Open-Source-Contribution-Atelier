@@ -43,6 +43,7 @@ function analyzeBundle() {
     const gzipKB = Math.round(gzipped.length / 1024);
 
     if (
+      file.endsWith(".map") ||
       file.endsWith(".js.gz") ||
       file.endsWith(".js.br") ||
       file.endsWith(".css.gz") ||
