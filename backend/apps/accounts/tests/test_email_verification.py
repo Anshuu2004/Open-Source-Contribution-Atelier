@@ -16,10 +16,12 @@ User = get_user_model()
 
 
 @pytest.fixture(autouse=True)
-def _loose_verification_throttles(settings):
+def _loose_verification_throttles(settings, monkeypatch):
+    # DRF throttles hold a reference to this exact dict, so patch its keys
+    # (restored at teardown) instead of swapping in a new dict.
     rates = settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]
-    rates["auth_email_verify"] = "10000/hour"
-    rates["auth_email_verification_resend"] = "10000/hour"
+    monkeypatch.setitem(rates, "auth_email_verify", "10000/hour")
+    monkeypatch.setitem(rates, "auth_email_verification_resend", "10000/hour")
 
 
 @pytest.fixture(autouse=True)
@@ -153,6 +155,32 @@ class TestVerifyEmail:
         address = EmailAddress.objects.get(user=new_user)
         assert address.verified and address.primary
 
+    def test_concurrent_verify_does_not_500(self, api_client, new_user, monkeypatch):
+        # Another request (double click, mail client prefetch) inserted the
+        # row after our lookup missed it, so our create hits the unique
+        # (user, email) constraint.
+        EmailAddress.objects.create(
+            user=new_user, email=new_user.email, verified=True, primary=True
+        )
+        real_filter = EmailAddress.objects.filter
+        stale = {"done": False}
+
+        def filter_with_stale_lookup(*args, **kwargs):
+            qs = real_filter(*args, **kwargs)
+            lookup = "email__iexact" in kwargs and "verified" not in kwargs
+            if lookup and not stale["done"]:
+                stale["done"] = True
+                return qs.none()
+            return qs
+
+        monkeypatch.setattr(EmailAddress.objects, "filter", filter_with_stale_lookup)
+        response = _verify(api_client, email_verification.make_key(new_user))
+
+        assert stale["done"]
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == {"status": "already_verified"}
+        assert EmailAddress.objects.filter(user=new_user).count() == 1
+
 
 @pytest.mark.django_db
 class TestResendVerification:
@@ -180,6 +208,18 @@ class TestResendVerification:
             assert response.data == known.data
         assert mail.outbox == []
 
+    def test_queue_failure_still_returns_generic_response(
+        self, api_client, new_user, monkeypatch
+    ):
+        def boom(*args, **kwargs):
+            raise ConnectionError("queue down")
+
+        monkeypatch.setattr("apps.accounts.views.async_task", boom)
+        known = api_client.post(self.url, {"email": new_user.email})
+        unknown = api_client.post(self.url, {"email": "nobody@example.com"})
+        assert known.status_code == status.HTTP_200_OK
+        assert known.data == unknown.data
+
     def test_requires_email_or_key(self, api_client):
         response = api_client.post(self.url, {})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -187,14 +227,16 @@ class TestResendVerification:
 
 @pytest.mark.django_db
 def test_resend_from_expired_link_is_counted_once_per_request(
-    api_client, new_user, settings
+    api_client, new_user, settings, monkeypatch
 ):
     from django.core.cache import cache
 
     cache.clear()
-    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"][
-        "auth_email_verification_resend"
-    ] = "3/hour"
+    monkeypatch.setitem(
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"],
+        "auth_email_verification_resend",
+        "3/hour",
+    )
     key = _expired_key(new_user)
 
     statuses = [

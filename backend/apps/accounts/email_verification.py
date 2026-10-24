@@ -17,6 +17,7 @@ from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import signing
+from django.db import IntegrityError, transaction
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -95,17 +96,29 @@ def is_verified(user) -> bool:
 
 def mark_verified(user) -> bool:
     """Mark the user's current address verified. Returns False if it already was."""
-    address = EmailAddress.objects.filter(user=user, email__iexact=user.email).first()
+    lookup = {"user": user, "email__iexact": user.email}
+    address = EmailAddress.objects.filter(**lookup).first()
     if address is None:
-        EmailAddress.objects.create(
-            user=user,
-            email=user.email,
-            verified=True,
-            primary=not EmailAddress.objects.filter(user=user, primary=True).exists(),
-        )
-        return True
-    if address.verified:
-        return False
-    address.verified = True
-    address.save(update_fields=["verified"])
-    return True
+        try:
+            with transaction.atomic():
+                EmailAddress.objects.create(
+                    user=user,
+                    email=user.email,
+                    verified=True,
+                    primary=not EmailAddress.objects.filter(
+                        user=user, primary=True
+                    ).exists(),
+                )
+            return True
+        except IntegrityError:
+            # A concurrent request created the row first; fall through and
+            # use it. If there is still no row, the conflict is something
+            # else (e.g. another account owns this verified address).
+            address = EmailAddress.objects.filter(**lookup).first()
+            if address is None:
+                raise
+    # Conditional update so only one of several concurrent requests
+    # reports the address as newly verified.
+    return bool(
+        EmailAddress.objects.filter(pk=address.pk, verified=False).update(verified=True)
+    )

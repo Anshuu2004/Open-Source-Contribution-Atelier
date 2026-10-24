@@ -247,7 +247,14 @@ class ResendVerificationView(APIView):
             user = email_verification.user_for_expired_key(key)
 
         if user and user.is_active and not email_verification.is_verified(user):
-            send_verification_email(user)
+            try:
+                send_verification_email(user)
+            except Exception:
+                # Same generic answer either way, so a queue failure cannot
+                # reveal that the account exists.
+                logger.exception(
+                    "Could not queue verification email for user_id=%s", user.pk
+                )
 
         return Response(
             {
