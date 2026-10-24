@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /community
+Allow: /leaderboard
+Allow: /pathway
+Allow: /documentation
+Allow: /docs/fullstack
+Allow: /learning-path
+Allow: /lessons/
+Allow: /skills
+
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /docs/api
