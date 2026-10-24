@@ -1,0 +1,42 @@
+name: Performance Budget
+
+# Builds the frontend and checks it against frontend/performance-budget.json:
+# bundle sizes via scripts/analyze-bundle.ts, Lighthouse scores via lhci.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/performance-budget.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance-budget:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # npm ci fails while package-lock.json is out of sync with package.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Check bundle size budget
+        run: npm run perf:budget
+
+      - name: Run Lighthouse CI
+        run: npm run perf:lighthouse

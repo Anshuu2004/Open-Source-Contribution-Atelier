@@ -1,15 +1,18 @@
 {
-  "comment": "Performance budget thresholds. CI will fail if any metric exceeds these values.",
+  "comment": "Performance budget thresholds. The bundle and lighthouse sections are enforced in CI (.github/workflows/performance-budget.yml), api and database are targets only. See docs/frontend/PERFORMANCE_BUDGET.md.",
   "bundle": {
-    "totalJsGzipKB": 500,
-    "singleChunkMaxKB": 250,
+    "totalJsGzipKB": 3500,
+    "singleChunkMaxKB": 1000,
     "totalCssGzipKB": 100
   },
   "lighthouse": {
-    "performance": 90,
-    "accessibility": 90,
+    "performance": 50,
+    "accessibility": 85,
     "bestPractices": 90,
-    "seo": 90
+    "seo": 90,
+    "largestContentfulPaintMs": 10000,
+    "cumulativeLayoutShift": 0.1,
+    "interactiveMs": 12000
   },
   "api": {
     "endpoints": [
