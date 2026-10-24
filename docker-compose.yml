@@ -17,9 +17,9 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: atelier
-      POSTGRES_USER: atelier_user
-      POSTGRES_PASSWORD: atelier_password
+      POSTGRES_DB: ${POSTGRES_DB:-atelier}
+      POSTGRES_USER: ${POSTGRES_USER:-atelier_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-atelier_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -44,7 +44,7 @@ services:
   pgbouncer:
     image: edoburu/pgbouncer:latest
     environment:
-      - DATABASE_URL=postgres://atelier_user:atelier_password@db:5432/atelier
+      - DATABASE_URL=postgres://${POSTGRES_USER:-atelier_user}:${POSTGRES_PASSWORD:-atelier_password}@db:5432/${POSTGRES_DB:-atelier}
       - MAX_CLIENT_CONN=1000
       - DEFAULT_POOL_SIZE=20
       - POOL_MODE=transaction
@@ -63,7 +63,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - DATABASE_URL=postgres://atelier_user:atelier_password@pgbouncer:6432/atelier
+      - DATABASE_URL=postgres://${POSTGRES_USER:-atelier_user}:${POSTGRES_PASSWORD:-atelier_password}@pgbouncer:6432/${POSTGRES_DB:-atelier}
       - REDIS_URL=redis://redis:6379/0
       - MEILI_URL=http://meilisearch:7700
       - MEILI_MASTER_KEY=masterKey123
@@ -97,7 +97,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - DATABASE_URL=postgres://atelier_user:atelier_password@pgbouncer:6432/atelier
+      - DATABASE_URL=postgres://${POSTGRES_USER:-atelier_user}:${POSTGRES_PASSWORD:-atelier_password}@pgbouncer:6432/${POSTGRES_DB:-atelier}
       - REDIS_URL=redis://redis:6379/0
       - MEILI_URL=http://meilisearch:7700
       - MEILI_MASTER_KEY=masterKey123
