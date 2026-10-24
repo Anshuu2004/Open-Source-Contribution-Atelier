@@ -6,6 +6,8 @@ Welcome to the permanent **Hall of Fame & Contributor Legacy** for **Open-Source
 
 | 1 | @brandonphelps1212 | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-20 |
 
+| 1 | @Anshuu2004 | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-24 |
+
 ---
 
 ## 🌟 Historic Milestones & Seasonal Legacy
