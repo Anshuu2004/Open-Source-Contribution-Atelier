@@ -10,6 +10,8 @@ Welcome to the permanent **Hall of Fame & Contributor Legacy** for **Open-Source
 
 | 1 | @ArshiBansal | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-24 |
 
+| 1 | @chanchall26 | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-24 |
+
 ---
 
 ## 🌟 Historic Milestones & Seasonal Legacy
