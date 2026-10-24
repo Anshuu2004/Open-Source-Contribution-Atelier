@@ -20,6 +20,21 @@ class SecurityHeadersTests(SimpleTestCase):
         self.assertIn("frame-ancestors 'none'", policy)
         self.assertIn("base-uri 'self'", policy)
 
+    def test_csp_allows_google_fonts_only_for_style_and_font(self):
+        middleware = ContentSecurityPolicyMiddleware(lambda request: HttpResponse("ok"))
+        response = middleware(RequestFactory().get("/test/"))
+
+        directives = {
+            part.strip().split(" ", 1)[0]: part.strip()
+            for part in response.headers["Content-Security-Policy"].split(";")
+            if part.strip()
+        }
+
+        self.assertIn("https://fonts.googleapis.com", directives["style-src"])
+        self.assertIn("https://fonts.gstatic.com", directives["font-src"])
+        self.assertEqual(directives["default-src"], "default-src 'self'")
+        self.assertNotIn("fonts.g", directives["script-src"])
+
     def test_content_type_options_header_is_nosniff(self):
         response = self.client.get("/api/version/")
 
