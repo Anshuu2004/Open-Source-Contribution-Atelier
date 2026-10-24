@@ -9,6 +9,7 @@ import stripe
 
 # pyrefly: ignore [missing-import]
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 from config.auth import TOKEN_BLACKLIST_ENABLED
 
@@ -21,16 +22,14 @@ WS_TOKEN_TIMEOUT = 3600
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / ".env")
+
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 stripe.api_key = STRIPE_SECRET_KEY
 
-
-from dotenv import load_dotenv
-
-load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv(
     "SECRET_KEY", "django-insecure-dev-key-not-for-production-use-32bytes!!"
