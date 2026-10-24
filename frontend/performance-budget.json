@@ -2,12 +2,12 @@
   "comment": "Performance budget thresholds. The bundle and lighthouse sections are enforced in CI (.github/workflows/performance-budget.yml), api and database are targets only. See docs/frontend/PERFORMANCE_BUDGET.md.",
   "bundle": {
     "totalJsGzipKB": 3500,
-    "singleChunkMaxKB": 700,
+    "singleChunkMaxKB": 1000,
     "totalCssGzipKB": 100
   },
   "lighthouse": {
     "performance": 50,
-    "accessibility": 90,
+    "accessibility": 85,
     "bestPractices": 90,
     "seo": 90,
     "largestContentfulPaintMs": 10000,

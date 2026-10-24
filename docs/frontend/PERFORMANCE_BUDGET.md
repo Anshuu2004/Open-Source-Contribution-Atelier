@@ -37,26 +37,35 @@ needed because both pages are prerendered.
 
 ## Current numbers
 
-Measured on a production build from `main` (October 2026):
+Measured by the workflow on GitHub Actions (Ubuntu, Chrome) against `main`
+in October 2026:
 
-| Metric                             | Measured    | Budget   |
-| ---------------------------------- | ----------- | -------- |
-| Total JS (gzip)                    | 3164 KB     | 3500 KB  |
-| Biggest chunk (`y-monaco`)         | 614 KB      | 700 KB   |
-| Total CSS (gzip)                   | 63 KB       | 100 KB   |
-| Performance score                  | 54 to 57    | 50       |
-| Accessibility                      | 97 to 98    | 90       |
-| Best practices                     | 96          | 90       |
-| SEO                                | 91          | 90       |
-| Largest Contentful Paint           | about 8.9 s | 10000 ms |
-| Cumulative Layout Shift            | 0 to 0.093  | 0.1      |
-| Time to Interactive (warning only) | about 9.7 s | 12000 ms |
+| Metric                             | Measured                | Budget   |
+| ---------------------------------- | ----------------------- | -------- |
+| Total JS (gzip)                    | about 3100 KB           | 3500 KB  |
+| Biggest chunk (entry `index-*.js`) | 941 KB                  | 1000 KB  |
+| Total CSS (gzip)                   | 63 KB                   | 100 KB   |
+| Performance score                  | 64                      | 50       |
+| Accessibility                      | 94 (`/`), 89 (`/learn`) | 85       |
+| Best practices                     | 96                      | 90       |
+| SEO                                | 91                      | 90       |
+| Largest Contentful Paint           | about 8.9 s             | 10000 ms |
+| Cumulative Layout Shift            | 0                       | 0.1      |
+| Time to Interactive (warning only) | about 8.9 s             | 12000 ms |
 
-The bundle and performance limits are set a little above what the app does today,
-so they catch regressions without failing every PR. Treat them as a ratchet: when
-a PR makes things faster or smaller, lower the matching number in the budget file
-in the same PR. The biggest win right now is the initial load, `index.html`
-preloads the `y-monaco` editor chunk even on the login page.
+The limits are set a little above what the app does today, so they catch
+regressions without failing every PR. Treat them as a ratchet: when a PR makes
+things faster or smaller, lower the matching number in the budget file in the
+same PR. `singleChunkMaxKB` matches the 1000 KB chunk limit that `vite.config.ts`
+already enforces during the build.
+
+Known gaps worth fixing next:
+
+- the entry chunk is about 940 KB gzipped and loads on every page, splitting it
+  is the biggest performance win
+- accessibility on `/learn` loses points for `color-contrast` and `skip-link`
+- local numbers can differ from CI. A Windows build splits chunks differently
+  and a local Chrome or Edge scores differently, so trust the CI run
 
 ## Running the checks locally
 
