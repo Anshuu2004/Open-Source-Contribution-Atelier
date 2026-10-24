@@ -1,83 +1,75 @@
-import React, { useEffect, useState } from "react";
-import { fetchApi } from "../lib/api";
+import React from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
-import { useStripeCheckout } from "../hooks/useStripeCheckout";
-import { PlanCard, Plan } from "../components/billing/PlanCard";
-import { FeatureTable } from "../components/billing/FeatureTable";
 
 export function PricingPage() {
   const { user } = useAuth();
-  const isLoggedIn = !!user;
-  const { subscribe, loading: stripeLoading } = useStripeCheckout();
-
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentPlanName, setCurrentPlanName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch plans
-        const plansData = await fetchApi("/billing/plans/");
-        setPlans(plansData);
-
-        // Fetch subscription status if logged in
-        if (isLoggedIn) {
-          const statusData = await fetchApi("/billing/status/");
-          setCurrentPlanName(statusData.plan_name);
-        }
-      } catch (err) {
-        console.error("Failed to load plans or status:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [isLoggedIn]);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-16 text-center">
-        <div className="text-xl font-bold uppercase tracking-widest animate-pulse text-black dark:text-white">
-          Loading pricing tiers...
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      {/* Page Title */}
-      <div className="text-center mb-16">
-        <h1 className="text-5xl font-black tracking-tight text-black dark:text-white uppercase mb-4">
-          Choose Your Level
-        </h1>
-        <p className="text-lg max-w-2xl mx-auto text-gray-500 dark:text-[#c4bbae] font-bold">
-          Level up your Git expertise, collaborate in real-time, unlock premium
-          learning paths, and claim Connect Bounties.
-        </p>
-      </div>
+    <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+      <h1 className="text-5xl font-black tracking-tight text-black dark:text-white uppercase mb-6">
+        Free Forever
+      </h1>
 
-      {/* Plan Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-        {plans.map((plan) => (
-          <PlanCard
-            key={plan.id}
-            plan={plan}
-            onSubscribe={subscribe}
-            isLoading={stripeLoading}
-            isCurrent={currentPlanName === plan.name}
-            isLoggedIn={isLoggedIn}
-          />
-        ))}
-      </div>
+      <p className="text-xl text-gray-600 dark:text-[#c4bbae] font-medium mb-8 leading-relaxed">
+        This platform is <strong>100% free and open source</strong>.
+        <br />
+        Every learning path, real-time collaboration feature, and tool is available
+        to everyone at no cost.
+      </p>
 
-      {/* Feature Comparison */}
-      <div className="mb-12">
-        <h2 className="text-3xl font-black text-black dark:text-white uppercase text-center mb-8">
-          Detailed Comparison
+      <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-8 mb-10 text-left">
+        <h2 className="text-lg font-bold uppercase tracking-wider mb-4 text-black dark:text-white">
+          What you get
         </h2>
-        <FeatureTable />
+        <ul className="space-y-3 text-gray-700 dark:text-gray-300">
+          <li className="flex gap-3">
+            <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            Full access to all Git learning paths and exercises
+          </li>
+          <li className="flex gap-3">
+            <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            Real-time collaboration features
+          </li>
+          <li className="flex gap-3">
+            <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            Community bounties & contribution tracking
+          </li>
+          <li className="flex gap-3">
+            <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            No feature gates, no usage limits, no “premium” tiers
+          </li>
+        </ul>
+      </div>
+
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+        The code is open source. Contributions, issues, and pull requests are welcome.
+      </p>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        {user ? (
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center justify-center px-8 py-3 bg-black dark:bg-white text-white dark:text-black font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition"
+          >
+            Go to Dashboard
+          </Link>
+        ) : (
+          <Link
+            to="/signup"
+            className="inline-flex items-center justify-center px-8 py-3 bg-black dark:bg-white text-white dark:text-black font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition"
+          >
+            Get Started Free
+          </Link>
+        )}
+        <a
+          href="https://github.com/nandinigoyaldev/Open-Source-Contribution-Atelier"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center px-8 py-3 border-2 border-black dark:border-white text-black dark:text-white font-bold uppercase tracking-wider rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition"
+        >
+          View Source on GitHub
+        </a>
       </div>
     </div>
   );
