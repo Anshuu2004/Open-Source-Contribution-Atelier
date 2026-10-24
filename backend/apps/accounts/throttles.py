@@ -322,6 +322,31 @@ class MagicLinkVerifyThrottle(_ProxyAwareThrottle):
     scope = "auth_magic_link_verify"
 
 
+class EmailVerifyThrottle(_ProxyAwareThrottle):
+    scope = "auth_email_verify"
+
+
+class ResendVerificationThrottle(_ProxyAwareThrottle):
+    scope = "auth_email_verification_resend"
+
+
+class StrictIdentityResendVerificationThrottle(SlidingWindowAnonThrottle):
+    scope = "auth_email_verification_resend"
+
+    def get_ident(self, request):
+        email = request.data.get("email")
+        if email:
+            return str(email).strip().lower()
+        # A resend from an expired link has no email. Falling back to the IP
+        # would land in the same bucket as ResendVerificationThrottle and
+        # count every request twice, so use the link's payload (the account
+        # it was issued for) instead.
+        key = request.data.get("key")
+        if key:
+            return "key:" + str(key).split(":", 1)[0][:200]
+        return _get_real_ip(request)
+
+
 class OAuthThrottle(_ProxyAwareThrottle):
     scope = "auth_oauth"
 

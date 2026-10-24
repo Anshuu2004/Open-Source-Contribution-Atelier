@@ -569,6 +569,12 @@ TRUSTED_PROXY_COUNT = int(os.getenv("TRUSTED_PROXY_COUNT", "0"))
 PASSWORD_RESET_TIMEOUT_SECONDS = int(os.getenv("PASSWORD_RESET_TIMEOUT_SECONDS", "900"))
 PASSWORD_RESET_TIMEOUT_MINUTES = int(os.getenv("PASSWORD_RESET_TIMEOUT_MINUTES", "15"))
 
+# ── Email Address Verification ───────────────────────────────────────────────
+# How many hours the link sent after signup stays valid.
+EMAIL_VERIFICATION_TIMEOUT_HOURS = int(
+    os.getenv("EMAIL_VERIFICATION_TIMEOUT_HOURS", "24")
+)
+
 # ── OTP Email Verification ───────────────────────────────────────────────────
 # How many minutes an OTP verification code remains valid.
 OTP_TIMEOUT_MINUTES = int(os.getenv("OTP_TIMEOUT_MINUTES", "10"))
@@ -624,6 +630,10 @@ REST_FRAMEWORK = {
             "RATE_AUTH_MAGIC_LINK_REQUEST", "3/minute"
         ),
         "auth_magic_link_verify": os.getenv("RATE_AUTH_MAGIC_LINK_VERIFY", "5/minute"),
+        "auth_email_verify": os.getenv("RATE_AUTH_EMAIL_VERIFY", "10/minute"),
+        "auth_email_verification_resend": os.getenv(
+            "RATE_AUTH_EMAIL_VERIFICATION_RESEND", "3/hour"
+        ),
         # ── Chat ─────────────────────────────────────────────────────────────
         "chat_message": "30/minute",
         # ── Events ───────────────────────────────────────────────────────────

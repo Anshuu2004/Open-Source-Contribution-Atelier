@@ -54,6 +54,7 @@ class LoginResponseSchema(UserResponseSchema):
     pass
 
 
+from . import email_verification
 from .models import MagicLinkToken, OTPToken, PasswordResetToken
 from .serializers import (
     EmailOrUsernameTokenObtainPairSerializer,
@@ -63,6 +64,7 @@ from .serializers import (
     OtpVerifySerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
+    ResendVerificationSerializer,
     SignupSerializer,
     UserListSerializer,
     UserUpdateSerializer,
@@ -73,6 +75,7 @@ from .tasks import (
     send_password_reset_email_task,
 )
 from .throttles import (
+    EmailVerifyThrottle,
     GitHubOAuthCallbackThrottle,
     LoginThrottle,
     MagicLinkRequestThrottle,
@@ -81,10 +84,12 @@ from .throttles import (
     OtpGenerateThrottle,
     OtpVerifyThrottle,
     PasswordResetThrottle,
+    ResendVerificationThrottle,
     SignupThrottle,
     StrictIdentityLoginThrottle,
     StrictIdentityMagicLinkThrottle,
     StrictIdentityPasswordResetThrottle,
+    StrictIdentityResendVerificationThrottle,
     TokenRefreshThrottle,
 )
 
@@ -131,12 +136,132 @@ def frontend_url(path: str, query: Optional[dict[str, str]] = None) -> str:
     return url
 
 
+def send_verification_email(user) -> None:
+    """Queue the verification link for the user's current email address."""
+    key = email_verification.make_key(user)
+    async_task(
+        "apps.accounts.tasks.send_verification_email_task",
+        user_email=user.email,
+        user_username=user.username,
+        verify_url=frontend_url(f"/verify-email/{key}"),
+        timeout_hours=email_verification.timeout_hours(),
+    )
+
+
 @extend_schema(request=SignupSerializer, responses=SignupSerializer)
 class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]
     throttle_classes = [SignupThrottle]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        # Login does not require a verified address yet, so a mail problem
+        # must not turn a successful signup into an error.
+        try:
+            send_verification_email(user)
+        except Exception:
+            logger.exception(
+                "Could not queue verification email for user_id=%s", user.pk
+            )
+
+
+@extend_schema(
+    responses={
+        200: OpenApiResponse(description="Email address verified."),
+        400: OpenApiResponse(description="`code` is `expired_key` or `invalid_key`."),
+    },
+)
+class VerifyEmailView(APIView):
+    """
+    GET /api/auth/verify-email/<key>/
+
+    Confirm the address a verification link was sent to. Safe to call twice:
+    a link that was already used answers `already_verified` rather than an
+    error, so a double-click or a mail client prefetching the page does not
+    show the user a failure.
+    """
+
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    throttle_classes = [EmailVerifyThrottle]
+
+    def get(self, request, key):
+        try:
+            user = email_verification.user_for_key(key)
+        except email_verification.VerificationKeyExpired as exc:
+            if email_verification.is_verified(exc.user):
+                return Response({"status": "already_verified"})
+            return Response(
+                {
+                    "code": "expired_key",
+                    "message": "This verification link has expired. You can request a new one.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except email_verification.VerificationKeyError:
+            return Response(
+                {
+                    "code": "invalid_key",
+                    "message": "This verification link is invalid or no longer applies to this account.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not email_verification.mark_verified(user):
+            return Response({"status": "already_verified"})
+        logger.info("Verified email address for user_id=%s", user.pk)
+        return Response({"status": "verified"})
+
+
+@extend_schema(
+    request=ResendVerificationSerializer,
+    responses=OpenApiResponse(description="Generic confirmation message."),
+)
+class ResendVerificationView(APIView):
+    """
+    POST /api/auth/resend-verification/
+
+    Send a fresh verification link, either to an email address or to the
+    owner of an expired link (`key`). The response never says whether the
+    account exists or is already verified.
+    """
+
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    throttle_classes = [
+        ResendVerificationThrottle,
+        StrictIdentityResendVerificationThrottle,
+    ]
+
+    def post(self, request):
+        serializer = ResendVerificationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get("email")  # type: ignore
+        key = serializer.validated_data.get("key")  # type: ignore
+        if email:
+            user = User.objects.filter(email__iexact=email.strip()).first()
+        else:
+            user = email_verification.user_for_expired_key(key)
+
+        if user and user.is_active and not email_verification.is_verified(user):
+            try:
+                send_verification_email(user)
+            except Exception:
+                # Same generic answer either way, so a queue failure cannot
+                # reveal that the account exists.
+                logger.exception(
+                    "Could not queue verification email for user_id=%s", user.pk
+                )
+
+        return Response(
+            {
+                "message": "If that account still needs verifying, a new link is on its way."
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 @extend_schema(
