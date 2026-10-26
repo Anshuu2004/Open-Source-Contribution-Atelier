@@ -33,6 +33,11 @@ jobs:
       - name: Install backend dependencies
         working-directory: backend
         run: pip install -r requirements.txt
+      - name: Install frontend dependencies
+        working-directory: frontend
+        # openapi-typescript needs typescript to be installed. `npm ci` is not
+        # used because package-lock.json is out of sync with package.json on main.
+        run: npm install --no-package-lock --ignore-scripts
       - name: Regenerate API types from the Django schema
         working-directory: frontend
         # Throwaway values: schema generation only imports settings, it never
