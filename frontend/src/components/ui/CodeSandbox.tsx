@@ -185,6 +185,10 @@ export function CodeSandbox() {
   const { send, isConnected } = useWebSocket({
     url: wsUrl,
     token: token || null,
+    requireToken: true,
+    // The sandbox consumer has no application-level pong, so a ping would
+    // always time out and drop a healthy socket.
+    heartbeat: false,
     onMessage: (data: unknown) => {
       if (collabRoomId) return; // Ignore single-user updates when collaborating
       const msg = data as Record<string, unknown>;
