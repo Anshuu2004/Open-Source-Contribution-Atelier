@@ -54,7 +54,7 @@ We acknowledge and triage all security reports in accordance with the following 
 
 | Scan Type | Frequency | Engine / Tool | Scope |
 | :--- | :--- | :--- | :--- |
-| **Dependency Audits** | Daily | Dependabot & `npm audit` / `pip-audit` | Python packages & npm dependencies |
+| **Dependency Audits** | Daily | `npm audit` / `pip-audit` | Python packages & npm dependencies |
 | **Container & OS CVEs** | Weekly / On Push | Grype (SBOM) & Trivy | Docker base images & runtime layers |
 | **Static Code Analysis** | On PR / Push | CodeQL & Semgrep | Backend Python & Frontend TypeScript |
 | **Secret Scanning** | Real-time / Pre-commit | Gitleaks / GitGuardian | Secret, token, & key leakage prevention |

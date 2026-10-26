@@ -2,8 +2,6 @@
 
 Welcome to the permanent **Hall of Fame & Contributor Legacy** for **Open-Source Contribution Atelier**! 🚀
 
-| 1 | @dependabot[bot] | 💎 Diamond Contributor ⚡ | 24 | 600 | 2026-10-19 |
-
 | 1 | @brandonphelps1212 | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-20 |
 
 | 1 | @Anshuu2004 | 🥈 Silver Contributor ⚡ | 3 | 75 | 2026-10-24 |
