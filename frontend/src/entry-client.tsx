@@ -1,9 +1,11 @@
+```tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Provider } from "react-redux";
 import App from "./app/App";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 import { store } from "./store";
 import { AuthProvider } from "./features/auth/AuthContext";
 import { ThemeProvider } from "./hooks/useTheme";
@@ -20,6 +22,7 @@ import { initializeTracing } from "./tracing";
 
 // Synchronously sync theme before initial hydration to prevent FOUC
 syncThemeOnLoad();
+
 // Initialize Sentry before rendering if DSN is set and package is available
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 if (SENTRY_DSN) {
@@ -90,7 +93,9 @@ ReactDOM.createRoot(container).render(
               <ToastProvider>
                 <NetworkStatusProvider>
                   <BrowserRouter>
-                    <App />
+                    <ErrorBoundary>
+                      <App />
+                    </ErrorBoundary>
                   </BrowserRouter>
                 </NetworkStatusProvider>
               </ToastProvider>
@@ -101,3 +106,4 @@ ReactDOM.createRoot(container).render(
     </Provider>
   </React.StrictMode>,
 );
+```
