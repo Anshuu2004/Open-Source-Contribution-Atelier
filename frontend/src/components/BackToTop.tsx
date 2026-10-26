@@ -23,7 +23,11 @@ const BackToTop: React.FC<BackToTopProps> = ({
   // ===== SCROLL HANDLER =====
   const handleScroll = useCallback(() => {
     const scrollY = window.scrollY || window.pageYOffset;
-    setIsVisible(scrollY > threshold);
+    const pageHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+    );
+    setIsVisible(pageHeight > window.innerHeight && scrollY > threshold);
   }, [threshold]);
 
   // ===== SCROLL TO TOP =====
@@ -56,11 +60,20 @@ const BackToTop: React.FC<BackToTopProps> = ({
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(handleScroll)
+        : null;
+    resizeObserver?.observe(document.body);
+    resizeObserver?.observe(document.documentElement);
     // Initial check
     handleScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      resizeObserver?.disconnect();
     };
   }, [handleScroll, showOnRoutes]);
 
