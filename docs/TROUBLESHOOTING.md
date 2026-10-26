@@ -48,7 +48,7 @@ cp docker-compose.override.yml.example docker-compose.override.yml
   - `5432` (Postgres)
   - `6379` (Redis)
   - `8000` (backend routing / proxying)
-  - `80` / `8080` (Traefik)
+  - `80` (Traefik); `8080` only if you opted in to the dashboard with `docker-compose.dev.yml`
 
 ### Check what is using the port
 On Windows, you can identify the owning process:
@@ -217,6 +217,14 @@ If Redis is unreachable, check that the Redis service is running and that `REDIS
   - frontend service port mapping (`traefik.http.services.frontend.loadbalancer.server.port=80`)
 
 ---
+
+### Traefik dashboard
+
+The dashboard is off by default because it has no authentication. To use it locally, start Compose with the dev override; it listens on `127.0.0.1:8080` only:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
 
 ## 6) Build failures (image build errors)
 

@@ -1,0 +1,15 @@
+# Optional local-only override that turns the Traefik dashboard on.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# The dashboard has no authentication, so it is bound to 127.0.0.1 only.
+# Do not use this file on a shared host or in production.
+services:
+  reverse-proxy:
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "127.0.0.1:8080:8080" # Traefik dashboard, local only
