@@ -1,0 +1,12 @@
+# Reviewed exceptions for the image scan (.github/workflows/image-scan.yml).
+# Policy and review rules: docs/ci/image-scanning.md
+#
+# One finding ID per line. Every entry needs, in the comment lines directly
+# above it, a Reason: and an Owner:, and an exp:YYYY-MM-DD on the ID line
+# itself (at most 90 days ahead). Trivy stops ignoring an entry after its
+# expiry date, so the finding comes back until someone re-reviews it.
+#
+# Example (do not uncomment, the ID is made up):
+#   # Reason: vendor confirmed the code path is not reachable in this image
+#   # Owner: @github-handle  Ref: https://github.com/<owner>/<repo>/issues/<n>
+#   CVE-2099-00000 exp:2099-01-31
