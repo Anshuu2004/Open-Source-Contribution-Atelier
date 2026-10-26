@@ -34,7 +34,9 @@ def webhook_on_lesson_completed(sender, instance, created, **kwargs):
                 else None
             ),
         }
-        dispatch_event("lesson.completed", payload)
+        dispatch_event(
+            "lesson.completed", payload, dedupe_key=f"lesson.completed:{instance.pk}"
+        )
     except Exception as exc:
         logger.error("Failed to dispatch lesson.completed webhook: %s", exc)
 
@@ -60,7 +62,9 @@ def webhook_on_badge_awarded(sender, instance, created, **kwargs):
                 else None
             ),
         }
-        dispatch_event("badge.awarded", payload)
+        dispatch_event(
+            "badge.awarded", payload, dedupe_key=f"badge.awarded:{instance.pk}"
+        )
     except Exception as exc:
         logger.error("Failed to dispatch badge.awarded webhook: %s", exc)
 
@@ -83,7 +87,9 @@ def webhook_on_xp_milestone(sender, instance, created, **kwargs):
                 else None
             ),
         }
-        dispatch_event("xp.milestone", payload)
+        dispatch_event(
+            "xp.milestone", payload, dedupe_key=f"xp.milestone:{instance.pk}"
+        )
     except Exception as exc:
         logger.error("Failed to dispatch xp.milestone webhook: %s", exc)
 
@@ -132,7 +138,9 @@ def webhook_on_issue_created(sender, instance, created, **kwargs):
                 else None
             ),
         }
-        dispatch_event("issue.created", payload)
+        dispatch_event(
+            "issue.created", payload, dedupe_key=f"issue.created:{instance.pk}"
+        )
     except Exception as exc:
         logger.error("Failed to dispatch issue.created webhook: %s", exc)
 
@@ -149,6 +157,8 @@ def webhook_on_pr_merged(sender, instance, created, **kwargs):
                 "status": instance.status,
                 "lesson_slug": getattr(instance, "lesson_slug", ""),
             }
-            dispatch_event("pr.merged", payload)
+            dispatch_event(
+                "pr.merged", payload, dedupe_key=f"pr.merged:{instance.pk}"
+            )
         except Exception as exc:
             logger.error("Failed to dispatch pr.merged webhook: %s", exc)
