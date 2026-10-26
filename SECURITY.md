@@ -66,6 +66,8 @@ We acknowledge and triage all security reports in accordance with the following 
 
 Known false-positive CVEs and vetted non-exploitable risks are documented in `backend/scripts/vuln-allowlist.json`. Entries include technical rationale, review date, and scheduled reassessment windows.
 
+Container image scan exceptions live in `.trivyignore` (reason, owner and expiry per entry). See [docs/ci/image-scanning.md](docs/ci/image-scanning.md).
+
 ---
 
 Thank you for helping keep **Open-Source Contribution Atelier** safe and secure for the global developer community! 🚀
