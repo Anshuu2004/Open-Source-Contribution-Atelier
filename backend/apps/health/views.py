@@ -9,6 +9,7 @@ import time
 from typing import Any, Dict, Optional
 
 import redis
+import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
@@ -17,6 +18,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
+
+# Postgres and Redis decide whether the app can serve traffic at all. The other
+# checks are reported but only mark the overall status "degraded", so a missing
+# worker or search index does not take the whole service out of rotation.
+REQUIRED_CHECKS = ("PostgreSQL", "Redis")
+
+# Kept short so a hung dependency can never hang the probe.
+MEILISEARCH_TIMEOUT_SECONDS = 2
 
 
 def _check_db_pool() -> dict[str, Any]:
@@ -211,19 +220,53 @@ class HealthChecker:
             logger.error(f"WebSocket health check failed: {e}")
         return result
 
+    async def check_meilisearch(self) -> Dict[str, Any]:
+        """Check Meilisearch, if it is configured."""
+        result = {
+            "name": "Meilisearch",
+            "status": "healthy",
+            "details": {},
+        }
+        meili_url = (getattr(settings, "MEILI_URL", "") or "").rstrip("/")
+        if not meili_url:
+            result["status"] = "not_configured"
+            return result
+
+        def _probe() -> int:
+            response = requests.get(
+                f"{meili_url}/health", timeout=MEILISEARCH_TIMEOUT_SECONDS
+            )
+            return response.status_code
+
+        try:
+            start = time.time()
+            status_code = await asyncio.to_thread(_probe)
+            result["details"]["response_time_ms"] = round(
+                (time.time() - start) * 1000, 2
+            )
+            if status_code != 200:
+                result["status"] = "unhealthy"
+                result["details"]["error"] = f"Meilisearch returned HTTP {status_code}"
+        except Exception as e:
+            result["status"] = "unhealthy"
+            result["details"]["error"] = str(e)
+            logger.error(f"Meilisearch health check failed: {e}")
+        return result
+
     async def run_checks(self) -> Dict[str, Any]:
         """Run all health checks asynchronously."""
+        names = ["PostgreSQL", "Redis", "Celery Worker", "WebSocket", "Meilisearch"]
         tasks = [
             self.check_postgres(),
             self.check_redis(),
             self.check_celery(),
             self.check_websocket(),
+            self.check_meilisearch(),
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                names = ["PostgreSQL", "Redis", "Celery Worker", "WebSocket"]
                 self.results[names[i]] = {
                     "name": names[i],
                     "status": "unhealthy",
@@ -236,9 +279,21 @@ class HealthChecker:
         healthy_checks = sum(
             1 for r in self.results.values() if r["status"] == "healthy"
         )
-        unhealthy_checks = total_checks - healthy_checks
+        unhealthy_checks = sum(
+            1 for r in self.results.values() if r["status"] == "unhealthy"
+        )
 
-        overall_status = "healthy" if unhealthy_checks == 0 else "unhealthy"
+        required_down = any(
+            self.results[name]["status"] != "healthy"
+            for name in REQUIRED_CHECKS
+            if name in self.results
+        )
+        if required_down:
+            overall_status = "unhealthy"
+        elif unhealthy_checks > 0:
+            overall_status = "degraded"
+        else:
+            overall_status = "healthy"
 
         return {
             "status": overall_status,
@@ -294,7 +349,8 @@ def health_view(request):
     finally:
         loop.close()
 
-    status_code = 200 if result["status"] == "healthy" else 503
+    # "degraded" (an optional dependency is down) still serves traffic.
+    status_code = 503 if result["status"] == "unhealthy" else 200
 
     response_body = (
         result if _has_internal_access(request) else _minimal_response(result)
@@ -323,7 +379,8 @@ def health_ready_view(request):
 
     GET /health/ready/
 
-    Returns 200 if all services are ready, 503 otherwise. Never includes
+    Returns 200 if the required services (Postgres, Redis) are up, 503
+    otherwise. Optional services only make /health/ report "degraded". Never includes
     verbose infrastructure details, regardless of caller — a readiness
     probe only needs the boolean outcome.
     """
@@ -336,7 +393,7 @@ def health_ready_view(request):
     finally:
         loop.close()
 
-    if result["status"] == "healthy":
+    if result["status"] != "unhealthy":
         return JsonResponse({"status": "ready"}, status=200)
     else:
         return JsonResponse(
