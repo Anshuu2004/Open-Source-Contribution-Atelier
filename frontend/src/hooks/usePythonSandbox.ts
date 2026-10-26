@@ -25,10 +25,10 @@ export function usePythonSandbox() {
       return executeCode<PythonExecutionResult>(
         { pythonCode: code, timeoutMs },
         timeoutMs,
-        (data: any) => ({
-          output: data.results || "",
-          error: data.error || null,
-        }),
+        (data) => {
+          const d = data as { results?: string; error?: string | null };
+          return { output: d.results || "", error: d.error || null };
+        },
         {
           output: "",
           error:

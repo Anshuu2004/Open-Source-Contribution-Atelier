@@ -5,7 +5,7 @@ export interface TraceEvent {
   line: number;
   event: string;
 
-  locals: Record<string, any>;
+  locals: Record<string, unknown>;
   stdout: string;
   error?: string;
 }

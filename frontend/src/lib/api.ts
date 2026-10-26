@@ -147,7 +147,22 @@ export const safeGenerateUUID = (): string => {
   });
 };
 
-export async function fetchApi(endpoint: string, options: RequestOptions = {}) {
+/**
+ * Typed entry point. `T` is the caller's expected response body and defaults to
+ * `any` so existing untyped callers keep compiling. Prefer `apiGet` (schema
+ * types) or pass an explicit `T` for endpoints the schema does not describe.
+ */
+export async function fetchApi<T = any>(
+  endpoint: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  return (await fetchApiRaw(endpoint, options)) as T;
+}
+
+async function fetchApiRaw(
+  endpoint: string,
+  options: RequestOptions = {},
+): Promise<any> {
   const method = (options.method || "GET").toUpperCase();
   const isIdempotent = isIdempotentMethod(method);
 
@@ -284,7 +299,7 @@ export async function fetchApi(endpoint: string, options: RequestOptions = {}) {
               }
               const newAccessToken = await refreshPromise;
               if (newAccessToken) {
-                return await fetchApi(endpoint, {
+                return await fetchApiRaw(endpoint, {
                   ...options,
                   _isRetry: true,
                 });
@@ -1139,8 +1154,8 @@ export async function apiGet<P extends ApiGetPath>(
     query?: Record<string, unknown>;
   };
   const endpoint = buildApiEndpoint(path, pathParams, query);
-  return (await fetchApi(endpoint, {
+  return fetchApi<ApiGetResponse<P>>(endpoint, {
     ...rest,
     method: "GET",
-  })) as ApiGetResponse<P>;
+  });
 }

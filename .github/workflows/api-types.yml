@@ -1,0 +1,43 @@
+name: API Types Freshness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/src/types/api.d.ts"
+      - "frontend/package.json"
+      - ".github/workflows/api-types.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api-types:
+    runs-on: ubuntu-latest
+    # Advisory until the committed src/types/api.d.ts has been regenerated once
+    # with this exact pipeline; then remove continue-on-error to make it blocking.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Regenerate API types from the Django schema
+        working-directory: frontend
+        run: npm run generate:api
+      - name: Fail if the committed types are out of date
+        run: |
+          git diff --exit-code -- frontend/src/types/api.d.ts || {
+            echo "::error::frontend/src/types/api.d.ts is stale. Run 'npm run generate:api' in frontend/ and commit the result."
+            exit 1
+          }

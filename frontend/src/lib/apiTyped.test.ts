@@ -5,6 +5,7 @@ vi.mock("./otelProvider", () => ({ getTraceHeaders: () => ({}) }));
 
 import {
   apiGet,
+  fetchApi,
   buildApiEndpoint,
   type ApiGetPath,
   type ApiGetResponse,
@@ -89,5 +90,12 @@ describe("types", () => {
     >().toEqualTypeOf<components["schemas"]["PaginatedMessageList"]>();
     expectTypeOf<"/api/search/">().toExtend<ApiGetPath>();
     expectTypeOf<"/api/not-a-real-path/">().not.toExtend<ApiGetPath>();
+  });
+  it("lets fetchApi take an explicit response type", () => {
+    const typed = () => fetchApi<{ ok: boolean }>("/x");
+    const loose = () => fetchApi("/x");
+    expectTypeOf(typed).returns.resolves.toEqualTypeOf<{ ok: boolean }>();
+    // default stays loose so existing callers keep compiling
+    expectTypeOf(loose).returns.resolves.toBeAny();
   });
 });

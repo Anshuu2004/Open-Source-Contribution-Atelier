@@ -38,7 +38,7 @@ export function useFeatureRequests() {
     },
   ]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const refetch = useCallback(async () => {
     // Mock refetching

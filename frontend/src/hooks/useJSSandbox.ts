@@ -8,6 +8,14 @@ export interface JSExecutionResult {
   trace_events?: TraceEvent[];
 }
 
+/** Message posted back by the JS sandbox worker. */
+interface JSWorkerResponse {
+  output?: string;
+  results?: string;
+  error?: string | null;
+  trace_events?: TraceEvent[];
+}
+
 export const EXAMPLES: Record<string, string> = {
   "Hello World": `// Hello World Example
 console.log('Hello, World!');
@@ -211,10 +219,13 @@ export function useJSSandbox(
       const res = await executeCode<JSExecutionResult>(
         { code, action: "execute_code" },
         timeoutMs,
-        (data: any) => ({
-          output: data.output || data.results || "",
-          error: data.error || null,
-        }),
+        (data) => {
+          const d = data as JSWorkerResponse;
+          return {
+            output: d.output || d.results || "",
+            error: d.error || null,
+          };
+        },
         {
           output: "",
           error:
@@ -249,7 +260,7 @@ export function useJSSandbox(
       return executeCode<TraceEvent[]>(
         { code, action: "execute_trace" },
         timeoutMs,
-        (data: any) => data.trace_events || [],
+        (data) => (data as JSWorkerResponse).trace_events || [],
         [
           {
             step: 0,
