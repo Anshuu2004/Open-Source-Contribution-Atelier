@@ -85,6 +85,7 @@ For detailed guides and deep dives, explore our documentation in [`docs/`](docs/
 - 🏛️ **[System Architecture](docs/ARCHITECTURE.md)**
 - 🔑 **[Authentication & JWT Guide](docs/AUTHENTICATION.md)**
 - 🌐 **[API Documentation](docs/API_GUIDE.md)**
+- 🔧 **[Local Development Troubleshooting](docs/TROUBLESHOOTING_SETUP.md)**
 - 🧪 **[Testing Guidelines](docs/testing/)**
 - 🛡️ **[Security Policy](SECURITY.md)**
 - 🤝 **[Code of Conduct](CODE_OF_CONDUCT.md)**
