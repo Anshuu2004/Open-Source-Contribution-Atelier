@@ -1,4 +1,3 @@
-```tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -15,6 +14,7 @@ import { initKeepAlive } from "./lib/hfKeepAlive";
 import { syncThemeOnLoad } from "./hooks/themeUtils";
 import i18n from "./lib/i18n";
 import { I18nextProvider } from "react-i18next";
+import "./index.css";
 import "./styles.css";
 import "./plugins/coreLessonPlugins";
 import { NetworkStatusProvider } from "./context/NetworkStatusContext";
@@ -106,4 +106,3 @@ ReactDOM.createRoot(container).render(
     </Provider>
   </React.StrictMode>,
 );
-```
