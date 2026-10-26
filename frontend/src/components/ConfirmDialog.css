@@ -12,7 +12,9 @@
 }
 
 .confirm-dialog {
-  background: white;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
   border-radius: 16px;
   padding: 24px 32px;
   max-width: 420px;
@@ -20,26 +22,18 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-.dark .confirm-dialog {
-  background: #1a1a2e;
-  border: 2px solid #4a4238;
-}
-
 .confirm-title {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .confirm-message {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 20px;
   line-height: 1.5;
-}
-
-.dark .confirm-message {
-  color: #9b8f80;
 }
 
 .confirm-actions {
@@ -62,13 +56,9 @@
 }
 
 .confirm-btn.cancel {
-  background: #f3f4f6;
-  color: #333;
-}
-
-.dark .confirm-btn.cancel {
-  background: #2d2d44;
-  color: #e5e7eb;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .confirm-btn.danger {
@@ -94,9 +84,11 @@
   .confirm-dialog {
     padding: 20px;
   }
+
   .confirm-actions {
     flex-direction: column-reverse;
   }
+
   .confirm-btn {
     width: 100%;
   }
