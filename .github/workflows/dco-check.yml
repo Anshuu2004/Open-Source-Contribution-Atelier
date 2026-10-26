@@ -15,12 +15,7 @@ jobs:
   dco:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
+      # The API provides PR commits; checking out fork code is unnecessary here.
       - name: Check DCO sign-off
         uses: actions/github-script@v8
         with:

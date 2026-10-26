@@ -2,16 +2,17 @@ name: Conventional Commits
 
 # Enforce conventional commit messages (feat/fix/chore/docs/...) on every PR
 # and push to keep history clean and drive the release-drafter changelog.
+# Use the unprivileged PR event when reading commit history and PR config.
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, edited, synchronize]
   push:
     branches: [main]
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   commitlint:
@@ -25,4 +26,4 @@ jobs:
       - name: Lint commit messages
         uses: wagoid/commitlint-github-action@v3
         with:
-          configPath: ./commitlint.config.js
+          configFile: ./commitlint.config.js
