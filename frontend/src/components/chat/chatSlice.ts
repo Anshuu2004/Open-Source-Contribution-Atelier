@@ -14,7 +14,7 @@ interface ChatState {
 
 const initialState: ChatState = {
   offlineQueue: [],
-  isOnline: navigator.onLine,
+  isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
 };
 
 export const chatSlice = createSlice({
