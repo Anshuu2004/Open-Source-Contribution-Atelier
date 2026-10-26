@@ -157,8 +157,6 @@ def webhook_on_pr_merged(sender, instance, created, **kwargs):
                 "status": instance.status,
                 "lesson_slug": getattr(instance, "lesson_slug", ""),
             }
-            dispatch_event(
-                "pr.merged", payload, dedupe_key=f"pr.merged:{instance.pk}"
-            )
+            dispatch_event("pr.merged", payload, dedupe_key=f"pr.merged:{instance.pk}")
         except Exception as exc:
             logger.error("Failed to dispatch pr.merged webhook: %s", exc)
