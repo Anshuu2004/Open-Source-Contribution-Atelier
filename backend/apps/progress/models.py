@@ -192,6 +192,7 @@ class XPEvent(models.Model):
         indexes = [
             models.Index(fields=["user", "source_type"], name="idx_xp_user_source"),
             models.Index(fields=["-created_at"], name="idx_xp_created_desc"),
+            models.Index(fields=["user", "created_at"], name="idx_xp_user_created"),
         ]
         constraints = [
             models.CheckConstraint(
@@ -289,6 +290,7 @@ class LessonProgress(models.Model):
             models.Index(
                 fields=["user", "-updated_at"], name="idx_progress_user_updated"
             ),
+            models.Index(fields=["updated_at"], name="idx_progress_updated"),
         ]
 
 
