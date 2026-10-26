@@ -1,0 +1,27 @@
+name: Docker Smoke Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "docker-compose.*.yml"
+      - "backend/Dockerfile"
+      - ".github/workflows/docker-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compose-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose configuration
+        run: docker compose -f docker-compose.yml config --quiet
+      - name: Validate Dockerfiles
+        run: |
+          docker build --check -f Dockerfile .
+          docker build --check -f backend/Dockerfile backend

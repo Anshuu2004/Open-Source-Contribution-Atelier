@@ -28,16 +28,16 @@ jobs:
             const repo = context.repo.repo;
             const author = pr.user.login;
 
-            // Search total merged PRs authored by this user
-            let mergedCount = 1;
-            let recentMergedCount = 1;
+            // Count merged PRs from the API so pagination and search failures are explicit.
+            let mergedCount = 0;
+            let recentMergedCount = 0;
             try {
               const searchRes = await github.rest.search.issuesAndPullRequests({
                 q: `repo:${owner}/${repo} is:pr is:merged author:${author}`
               });
 
               const mergedPRs = searchRes.data.items || [];
-              mergedCount = searchRes.data.total_count || 1;
+              mergedCount = searchRes.data.total_count;
 
               // Calculate 7-Day Hot Streak
               const sevenDaysAgo = new Date();
@@ -48,7 +48,8 @@ jobs:
                 return closedAt >= sevenDaysAgo;
               }).length;
             } catch (e) {
-              console.warn('Search API call failed (rate limited or error), falling back to count=1:', e);
+              core.setFailed(`Could not calculate contributor totals: ${e.message}`);
+              return;
             }
 
             const isHotStreak = recentMergedCount >= 2;
@@ -106,18 +107,18 @@ jobs:
             const linkedinText = encodeURIComponent(`https://github.com/${owner}/${repo}/pull/${pr.number}`);
 
             const certBody = [
-              `## 🏆 Congratulations, @${author}! Your PR Has Been Merged! 🎉`,
+              `# 🎉 Your contribution just shipped, @${author}!`,
               ``,
-              `Your pull request **#${pr.number}** (\`${pr.title}\`) has been successfully merged into \`main\`!`,
+              `Your pull request [**#${pr.number} — ${pr.title}**](https://github.com/${owner}/${repo}/pull/${pr.number}) is now part of \`main\`. Thank you for making the Atelier better!`,
               ``,
-              `### 📜 Contributor Badge & Certificate`,
+              `## 🏅 Your contributor card`,
               ``,
               `[![Open Source Contributor](https://img.shields.io/badge/Open_Source-Contributor-4ECDC4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/${owner}/${repo}/pull/${pr.number})  [![${tierName}](${tierBadge})](https://github.com/${owner}/${repo}/blob/main/LEADERBOARD.md)${streakBadge}${nsocBadge}`,
               ``,
-              `**Current Tier**: **${tierName}** (${mergedCount} merged PRs)${streakNotice}${nsocNotice}`,
+              `**${mergedCount} merged contribution${mergedCount === 1 ? '' : 's'}** · **${tierName}**${streakNotice}${nsocNotice}`,
               ``,
               `<details>`,
-              `<summary>📋 Copy Markdown snippet for your README / Portfolio</summary>`,
+              `<summary>✨ Copy a compact badge for your profile</summary>`,
               ``,
               `\`\`\`markdown`,
               `[![Open Source Contributor](https://img.shields.io/badge/Open_Source-Contributor-4ECDC4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/${owner}/${repo}/pull/${pr.number})`,
@@ -127,14 +128,12 @@ jobs:
               ``,
               `</details>`,
               ``,
-              `---`,
+              `### 🚀 Want another small win?`,
+              `Pick an issue that matches your interests, or help review someone else's PR. Every thoughtful improvement counts.`,
               ``,
-              `### 📣 Share Your Contribution Achievement!`,
-              `Showcase your open-source contribution to your network:`,
-              `- 🐦 **[Share on Twitter / X](https://twitter.com/intent/tweet?text=${tweetText})**`,
-              `- 💼 **[Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=${linkedinText})**`,
+              `Share your milestone: [X](https://twitter.com/intent/tweet?text=${tweetText}) · [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=${linkedinText})`,
               ``,
-              `> Thank you for making **Open-Source Contribution Atelier** better! Pick another issue to keep your streak going! 🚀`
+              `> Keep learning, keep building, and keep the open-source door open. 💛`
             ].filter(Boolean).join('\n');
 
             await github.rest.issues.createComment({
@@ -153,9 +152,11 @@ jobs:
               const streakText = isHotStreak ? '⚡ Hot Streak' : 'Active';
 
               if (content.includes(`@${author}`)) {
-                const rowRegex = new RegExp(`\\| \\d+ \\| @${author} \\| .* \\| \\d+ \\| \\d+ \\| .* \\|`);
                 const newRow = `| 1 | @${author} | ${tierName} ${isHotStreak ? '⚡' : ''} | ${mergedCount} | ${points} | ${today} |`;
-                content = content.replace(rowRegex, newRow);
+                const lines = content.split('\n');
+                const rowIndex = lines.findIndex(line => line.startsWith(`| 1 | @${author} |`));
+                if (rowIndex >= 0) lines[rowIndex] = newRow;
+                content = lines.join('\n');
               } else {
                 const newRow = `| 1 | @${author} | ${tierName} ${isHotStreak ? '⚡' : ''} | ${mergedCount} | ${points} | ${today} |\n`;
                 content = content.replace('---', `${newRow}\n---`);

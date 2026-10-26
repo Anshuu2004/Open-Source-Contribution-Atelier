@@ -60,13 +60,13 @@ install-tools: ## Install pinned vulnerability scanners
 
 scan-vulns: install-tools ## Scan dependencies and the Docker image
 	@echo "=== pip-audit (Python) ==="
-	pip-audit --require-hashes --strict -r backend/requirements.txt || true
+	pip-audit --strict -r backend/requirements.txt
 	@echo ""
 	@echo "=== npm audit (Frontend) ==="
-	cd frontend && npm audit --audit-level=high || true
+	cd frontend && npm audit --audit-level=high
 	@echo ""
 	@echo "=== Grype (Docker image) ==="
-	grype open-contribution-atelier-backend:latest --fail-on HIGH --only-fixed || true
+	grype open-contribution-atelier-backend:latest --fail-on HIGH --only-fixed
 	@echo ""
 	@echo "=== Allowlist Check ==="
 	python backend/scripts/check_dependency_allowlist.py \

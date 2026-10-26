@@ -10,10 +10,10 @@ At **Open-Source Contribution Atelier**, security and user trust are paramount. 
 
 Only the latest release/main branch receives active security updates and patches.
 
-| Version | Supported          | Status |
-| ------- | ------------------ | :---: |
-| `main` (latest) | :white_check_mark: | Actively Supported |
-| `< 1.0.0` (legacy) | :x: | End of Life |
+| Version            | Supported          |       Status       |
+| ------------------ | ------------------ | :----------------: |
+| `main` (latest)    | :white_check_mark: | Actively Supported |
+| `< 1.0.0` (legacy) | :x:                |    End of Life     |
 
 ---
 
@@ -29,6 +29,7 @@ If you discover a security vulnerability or potential exploit, please report it 
 ### 📋 What to Include in Your Report
 
 To help us triage and resolve issues quickly, please provide:
+
 - A descriptive title and vulnerability classification (e.g., OWASP Top 10 category, CWE identifier).
 - Detailed step-by-step reproduction instructions or Proof-of-Concept (PoC) payload.
 - Affected endpoints, components, or files.
@@ -41,23 +42,23 @@ To help us triage and resolve issues quickly, please provide:
 
 We acknowledge and triage all security reports in accordance with the following SLA:
 
-| Severity | Initial Response | Remediation / Patch SLA |
-| :--- | :---: | :---: |
-| **🔴 Critical (CVSS 9.0 - 10.0)** | Within 24 hours | Within 48 hours |
-| **🟠 High (CVSS 7.0 - 8.9)** | Within 48 hours | Within 7 days |
-| **🟡 Medium (CVSS 4.0 - 6.9)** | Within 72 hours | Within 30 days |
-| **🔵 Low (CVSS 0.1 - 3.9)** | Within 5 days | Within 90 days / Next release |
+| Severity                          | Initial Response |    Remediation / Patch SLA    |
+| :-------------------------------- | :--------------: | :---------------------------: |
+| **🔴 Critical (CVSS 9.0 - 10.0)** | Within 24 hours  |        Within 48 hours        |
+| **🟠 High (CVSS 7.0 - 8.9)**      | Within 48 hours  |         Within 7 days         |
+| **🟡 Medium (CVSS 4.0 - 6.9)**    | Within 72 hours  |        Within 30 days         |
+| **🔵 Low (CVSS 0.1 - 3.9)**       |  Within 5 days   | Within 90 days / Next release |
 
 ---
 
 ## 🔍 Automated Security Scanning Schedule
 
-| Scan Type | Frequency | Engine / Tool | Scope |
-| :--- | :--- | :--- | :--- |
-| **Dependency Audits** | Daily | `npm audit` / `pip-audit` | Python packages & npm dependencies |
-| **Container & OS CVEs** | Weekly / On Push | Grype (SBOM) & Trivy | Docker base images & runtime layers |
-| **Static Code Analysis** | On PR / Push | CodeQL & Semgrep | Backend Python & Frontend TypeScript |
-| **Secret Scanning** | Real-time / Pre-commit | Gitleaks / GitGuardian | Secret, token, & key leakage prevention |
+| Scan Type                | Frequency              | Engine / Tool                                                    | Scope                                   |
+| :----------------------- | :--------------------- | :--------------------------------------------------------------- | :-------------------------------------- |
+| **Dependency Audits**    | Daily                  | `.github/workflows/security-audit.yml`, `npm audit`, `pip-audit` | Python packages & npm dependencies      |
+| **Container & OS CVEs**  | Weekly / On Push       | Grype (SBOM) & Trivy                                             | Docker base images & runtime layers     |
+| **Static Code Analysis** | On PR / Push           | CodeQL & Semgrep                                                 | Backend Python & Frontend TypeScript    |
+| **Secret Scanning**      | Real-time / Pre-commit | Gitleaks / GitGuardian                                           | Secret, token, & key leakage prevention |
 
 ---
 
