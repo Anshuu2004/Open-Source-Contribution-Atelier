@@ -191,7 +191,7 @@ export function LoginPage() {
   const activeStep = workspaceSteps[activeWorkspaceStep];
 
   return (
-    <div className="h-[100dvh] overflow-hidden bg-[#f2f1ec] text-slate-900 dark:bg-[#11131a] dark:text-slate-100">
+    <div className="min-h-[100dvh] bg-[#f2f1ec] text-slate-900 dark:bg-[#11131a] dark:text-slate-100">
       <header className="relative mx-auto flex h-[60px] w-full max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           to="/"
@@ -213,8 +213,8 @@ export function LoginPage() {
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </header>
-      <main className="mx-auto h-[calc(100dvh-60px)] w-full max-w-6xl px-5 py-2 sm:px-8">
-        <div className="relative h-full w-full overflow-hidden rounded-[28px] border border-slate-900/10 bg-[#171923] shadow-[0_28px_80px_rgba(15,23,42,0.18)] dark:border-white/10">
+      <main className="mx-auto min-h-[calc(100dvh-60px)] w-full max-w-6xl px-5 py-2 sm:px-8">
+        <div className="relative min-h-full w-full overflow-hidden rounded-[28px] border border-slate-900/10 bg-[#171923] shadow-[0_28px_80px_rgba(15,23,42,0.18)] dark:border-white/10">
           <div className="absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(255,255,255,.38)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.38)_1px,transparent_1px)] [background-size:32px_32px]" />
           <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3 font-mono text-[11px] text-slate-400 sm:px-6">
             <span className="flex items-center gap-2">
@@ -302,7 +302,7 @@ export function LoginPage() {
               </button>
             </div>
           </aside>
-          <section className="relative ml-auto h-[calc(100%-45px)] w-full max-w-[29rem] border-white/10 bg-white p-5 sm:p-6 lg:border-l dark:bg-[#20232f]">
+          <section className="relative ml-auto min-h-[calc(100dvh-105px)] w-full max-w-[29rem] border-white/10 bg-white p-5 sm:p-6 lg:border-l dark:bg-[#20232f]">
             <span className="absolute left-0 top-9 hidden -translate-x-1/2 rounded-full border border-white/20 bg-[#171923] px-2 py-1 font-mono text-[9px] text-emerald-300 lg:block">
               HEAD
             </span>
