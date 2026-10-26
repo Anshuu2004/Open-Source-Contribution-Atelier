@@ -4,12 +4,12 @@ import { render, screen } from "@testing-library/react";
 import { PasswordStrengthMeter } from "../components/PasswordStrengthMeter";
 import {
   calculatePasswordEntropy,
-  checkPasswordStrength,
 } from "../utils/passwordStrength";
 
-describe("Password Strength Entropy Meter", () => {
+describe("Password Strength Meter", () => {
   it("calculates entropy bits correctly based on character pool size", () => {
     expect(calculatePasswordEntropy("")).toBe(0);
+
     // Lowercase only (26 pool size): 8 * log2(26) = ~37 bits
     const lowerEntropy = calculatePasswordEntropy("abcdefgh");
     expect(lowerEntropy).toBeGreaterThanOrEqual(37);
@@ -24,11 +24,11 @@ describe("Password Strength Entropy Meter", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders entropy bits, tier label, and met criteria badges", () => {
+  it("renders estimated crack time, tier label, and met criteria badges", () => {
     render(<PasswordStrengthMeter password="SuperSecret123!" />);
 
     expect(screen.getByRole("status")).toBeInTheDocument();
-    expect(screen.getByText(/bits entropy/i)).toBeInTheDocument();
+    expect(screen.getByText(/Estimated crack time:/i)).toBeInTheDocument();
     expect(screen.getByText("✓ 8+ chars")).toBeInTheDocument();
     expect(screen.getByText("✓ Uppercase")).toBeInTheDocument();
     expect(screen.getByText("✓ Lowercase")).toBeInTheDocument();
