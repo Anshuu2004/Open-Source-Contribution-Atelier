@@ -22,6 +22,69 @@ def user():
     )
 
 
+# ---------------------------------------------------------------------------
+# Tenant fixtures: two organizations, each with one member user.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def org_a(db):
+    from apps.organizations.models import Organization
+
+    return Organization.objects.create(name="Org A")
+
+
+@pytest.fixture
+def org_b(db):
+    from apps.organizations.models import Organization
+
+    return Organization.objects.create(name="Org B")
+
+
+def _create_tenant_member(username, organization):
+    from apps.organizations.models import OrganizationMembership
+
+    user = User.objects.create_user(
+        username=username, email=f"{username}@example.com", password="pw123456"
+    )
+    # Profile is auto-created by signal in apps.accounts; set the org.
+    profile = getattr(user, "user_profile", None)
+    if profile is None:
+        from apps.accounts.models import UserProfile
+
+        profile = UserProfile.objects.create(user=user)
+    profile.organization = organization
+    profile.save()
+    OrganizationMembership.objects.create(
+        organization=organization,
+        user=user,
+        role=OrganizationMembership.ROLE_MEMBER,
+    )
+    return user
+
+
+@pytest.fixture
+def user_a(db, org_a):
+    return _create_tenant_member("alice", org_a)
+
+
+@pytest.fixture
+def user_b(db, org_b):
+    return _create_tenant_member("bob", org_b)
+
+
+@pytest.fixture
+def authed_client_a(api_client, user_a):
+    api_client.force_authenticate(user=user_a)
+    return api_client
+
+
+@pytest.fixture
+def authed_client_b(api_client, user_b):
+    api_client.force_authenticate(user=user_b)
+    return api_client
+
+
 @pytest.fixture(autouse=True)
 def _disable_auth_throttle(settings):
     rates = settings.REST_FRAMEWORK.get("DEFAULT_THROTTLE_RATES", {})

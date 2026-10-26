@@ -4,6 +4,9 @@ Integration tests for cross-tenant data isolation (issue #1940).
 These tests verify that an authenticated user in Organization A cannot
 list or retrieve resources owned by Organization B, and that the
 tenant-scoping primitives behave correctly.
+
+The org_a/org_b/user_a/user_b/authed_client_* fixtures live in
+``backend/conftest.py`` so other apps can reuse them.
 """
 
 import pytest
@@ -14,80 +17,8 @@ from apps.core.tenant import (
     get_current_tenant_id,
     set_current_tenant,
 )
-from apps.organizations.models import Organization, OrganizationMembership
 
 User = get_user_model()
-
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture
-def org_a(db):
-    return Organization.objects.create(name="Org A")
-
-
-@pytest.fixture
-def org_b(db):
-    return Organization.objects.create(name="Org B")
-
-
-@pytest.fixture
-def user_a(db, org_a):
-    user = User.objects.create_user(
-        username="alice", email="alice@example.com", password="pw123456"
-    )
-    # Profile is auto-created by signal in apps.accounts; set the org.
-    profile = getattr(user, "user_profile", None)
-    if profile is None:
-        from apps.accounts.models import UserProfile
-
-        profile = UserProfile.objects.create(user=user)
-    profile.organization = org_a
-    profile.save()
-    OrganizationMembership.objects.create(
-        organization=org_a, user=user, role=OrganizationMembership.ROLE_MEMBER
-    )
-    return user
-
-
-@pytest.fixture
-def user_b(db, org_b):
-    user = User.objects.create_user(
-        username="bob", email="bob@example.com", password="pw123456"
-    )
-    profile = getattr(user, "user_profile", None)
-    if profile is None:
-        from apps.accounts.models import UserProfile
-
-        profile = UserProfile.objects.create(user=user)
-    profile.organization = org_b
-    profile.save()
-    OrganizationMembership.objects.create(
-        organization=org_b, user=user, role=OrganizationMembership.ROLE_MEMBER
-    )
-    return user
-
-
-@pytest.fixture
-def api_client():
-    from rest_framework.test import APIClient
-
-    return APIClient()
-
-
-@pytest.fixture
-def authed_client_a(api_client, user_a):
-    api_client.force_authenticate(user=user_a)
-    return api_client
-
-
-@pytest.fixture
-def authed_client_b(api_client, user_b):
-    api_client.force_authenticate(user=user_b)
-    return api_client
 
 
 # ---------------------------------------------------------------------------
