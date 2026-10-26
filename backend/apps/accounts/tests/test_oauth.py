@@ -11,6 +11,31 @@ class OAuthSecurityTests(TestCase):
         cache.clear()
         self.client = Client()
         self.callback_url = reverse("github-callback")
+        self.exchange_url = reverse("github-exchange")
+
+    def test_oauth_exchange_is_single_use(self):
+        cache.set(
+            "github-oauth-login:test-code",
+            {"access": "access-token", "refresh": "refresh-token"},
+            timeout=60,
+        )
+
+        response = self.client.post(
+            self.exchange_url,
+            {"code": "test-code"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["access"], "access-token")
+        self.assertEqual(
+            self.client.post(
+                self.exchange_url,
+                {"code": "test-code"},
+                content_type="application/json",
+            ).status_code,
+            400,
+        )
 
     def test_missing_state_returns_401(self):
         response = self.client.get(self.callback_url, {"code": "some-code"})

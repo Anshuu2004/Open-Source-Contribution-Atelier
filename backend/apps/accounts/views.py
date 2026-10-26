@@ -947,13 +947,19 @@ class GitHubOAuthCallbackView(APIView):
                 )
 
             refresh = RefreshToken.for_user(user)
+            login_code = secrets.token_urlsafe(32)
+            cache.set(
+                f"github-oauth-login:{login_code}",
+                {
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                },
+                timeout=60,
+            )
             return redirect(
                 frontend_url(
                     "/auth/github/callback",
-                    {
-                        "access": str(refresh.access_token),
-                        "refresh": str(refresh),
-                    },
+                    {"code": login_code},
                 )
             )
         except CircuitOpenError:
@@ -970,6 +976,30 @@ class GitHubOAuthCallbackView(APIView):
             return redirect(
                 frontend_url("/", {"auth_error": "GitHub authentication failed."})
             )
+
+
+class GitHubOAuthExchangeView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [GitHubOAuthCallbackThrottle]
+
+    def post(self, request):
+        code = request.data.get("code")
+        if not isinstance(code, str) or not code.strip():
+            return Response(
+                {"detail": "Invalid authorization code."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        code = code.strip()
+        payload = cache.get(f"github-oauth-login:{code}")
+        if payload is None:
+            return Response(
+                {"detail": "Authorization code is invalid or expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cache.delete(f"github-oauth-login:{code}")
+        return Response(payload)
 
 
 from apps.core.mixins import OrganizationScopedQuerySetMixin

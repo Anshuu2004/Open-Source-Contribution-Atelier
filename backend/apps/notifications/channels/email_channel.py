@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.core.signing import TimestampSigner
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -64,7 +65,8 @@ class EmailChannel(NotificationChannel):
             original_url = match.group(0)
             if "track/open" in original_url or "track/click" in original_url:
                 return original_url
-            encoded = quote(original_url, safe="")
+            signed_target = TimestampSigner().sign(original_url)
+            encoded = quote(signed_target, safe="")
             return f"{backend_url}/api/notifications/track/click/{delivery.id}/?target={encoded}"
 
         # Replace href="http..." links in HTML

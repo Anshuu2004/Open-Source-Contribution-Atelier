@@ -5,6 +5,7 @@ from .views import (
     AvatarUploadView,
     ChangePasswordView,
     ExportDataView,
+    GitHubOAuthExchangeView,
     GitHubOAuthStartView,
     GoogleLoginView,
     LoginView,
@@ -68,6 +69,11 @@ urlpatterns = [
     ),
     path("google/", GoogleLoginView.as_view(), name="google-login"),
     path("github/", GitHubOAuthStartView.as_view(), name="github-login"),
+    path(
+        "github/exchange/",
+        GitHubOAuthExchangeView.as_view(),
+        name="github-exchange",
+    ),
     path(
         "github/callback/",
         SecureGitHubOAuthCallbackView.as_view(),

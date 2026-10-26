@@ -258,11 +258,16 @@ class TrackClickView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, delivery_id):
+        from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
         from django.shortcuts import redirect
 
         from .models import NotificationDelivery
 
-        target = request.query_params.get("target", "/")
+        signed_target = request.query_params.get("target", "")
+        try:
+            target = TimestampSigner().unsign(signed_target, max_age=60 * 60 * 24 * 30)
+        except (BadSignature, SignatureExpired):
+            target = "/"
         try:
             delivery = NotificationDelivery.objects.get(pk=delivery_id)
             delivery.status = "clicked"

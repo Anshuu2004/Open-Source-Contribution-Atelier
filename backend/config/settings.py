@@ -1,5 +1,7 @@
+import base64
 import logging
 import os
+import secrets
 import sys
 from datetime import timedelta
 from pathlib import Path
@@ -31,11 +33,14 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 stripe.api_key = STRIPE_SECRET_KEY
 
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-dev-key-not-for-production-use-32bytes!!"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "").strip()
 if not SECRET_KEY:
-    raise ImproperlyConfigured("SECRET_KEY environment variable is not set")
+    if TESTING:
+        SECRET_KEY = secrets.token_urlsafe(50)
+    else:
+        raise ImproperlyConfigured("SECRET_KEY environment variable is not set")
+if len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured("SECRET_KEY must be at least 50 characters long")
 
 # Base64 encoded 32-byte key for AES-GCM field encryption.
 # Can be a comma-separated list of keys to support double-read during key rotation.
@@ -48,8 +53,14 @@ if FIELD_ENCRYPTION_KEY_RAW:
     else:
         FIELD_ENCRYPTION_KEY = FIELD_ENCRYPTION_KEY_RAW.strip()
 else:
-    # Default for development only; this must be set in prod!
-    FIELD_ENCRYPTION_KEY = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+    if TESTING:
+        FIELD_ENCRYPTION_KEY = base64.urlsafe_b64encode(
+            secrets.token_bytes(32)
+        ).decode()
+    else:
+        raise ImproperlyConfigured(
+            "FIELD_ENCRYPTION_KEY environment variable is not set"
+        )
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
@@ -117,6 +128,7 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+
 def _parse_allowed_hosts(raw: str) -> list[str]:
     return [host.strip() for host in raw.split(",") if host.strip()]
 
@@ -131,9 +143,7 @@ def _validate_allowed_hosts(hosts: list[str]) -> list[str]:
     return hosts
 
 
-ALLOWED_HOSTS = _parse_allowed_hosts(
-    os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
-)
+ALLOWED_HOSTS = _parse_allowed_hosts(os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1"))
 if TESTING and "testserver" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append("testserver")
 ALLOWED_HOSTS = _validate_allowed_hosts(ALLOWED_HOSTS)

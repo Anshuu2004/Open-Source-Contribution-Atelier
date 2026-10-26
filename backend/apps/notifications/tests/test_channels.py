@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.signing import TimestampSigner
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -179,8 +180,9 @@ class TestNotificationChannels:
         assert delivery.status == "opened"
 
         # Track click
+        signed_target = TimestampSigner().sign("https://example.com")
         res_click = client.get(
-            f"/api/notifications/track/click/{delivery.id}/?target=https://example.com"
+            f"/api/notifications/track/click/{delivery.id}/?target={signed_target}"
         )
         assert res_click.status_code == 302
         assert res_click.url == "https://example.com"
