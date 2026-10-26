@@ -4,6 +4,7 @@ import { clearAccessToken, getAccessToken, setAccessToken } from "./authToken";
 import { broadcastAuthEvent } from "./authSync";
 import { getTraceHeaders } from "./otelProvider";
 import toast from "react-hot-toast";
+import type { paths as ApiPaths } from "../types/api";
 import {
   ApiError,
   createApiError,
@@ -1047,4 +1048,99 @@ export async function fetchReviewThreads(
   return fetchApi(`/sandbox/review-threads/?session=${sessionId}`, {
     method: "GET",
   });
+}
+
+// ---------------------------------------------------------------------------
+// Typed GET helper backed by the generated OpenAPI types (src/types/api.d.ts).
+// fetchApi itself is unchanged; this is an opt-in wrapper for callers that
+// want the response type inferred from the schema.
+// ---------------------------------------------------------------------------
+
+type JsonBody<R> = R extends { content: { "application/json": infer B } }
+  ? B
+  : unknown;
+
+/** Paths in the generated schema that expose a GET operation. */
+export type ApiGetPath = {
+  [P in keyof ApiPaths]: ApiPaths[P] extends { get: infer G }
+    ? [G] extends [never]
+      ? never
+      : P
+    : never;
+}[keyof ApiPaths];
+
+/** 200 JSON response body for GET `P`, or `unknown` if the schema has none. */
+export type ApiGetResponse<P extends ApiGetPath> = ApiPaths[P] extends {
+  get: { responses: { 200: infer R } };
+}
+  ? JsonBody<R>
+  : unknown;
+
+type ApiGetQuery<P extends ApiGetPath> = ApiPaths[P] extends {
+  get: { parameters: { query?: infer Q } };
+}
+  ? Exclude<Q, undefined | never>
+  : never;
+
+type ApiPathParams<P extends ApiGetPath> = ApiPaths[P] extends {
+  get: { parameters: { path: infer PP } };
+}
+  ? PP extends Record<string, string | number>
+    ? PP
+    : never
+  : never;
+
+export type ApiGetOptions<P extends ApiGetPath> = Omit<
+  RequestOptions,
+  "method" | "body"
+> &
+  ([ApiPathParams<P>] extends [never]
+    ? { pathParams?: undefined }
+    : { pathParams: ApiPathParams<P> }) &
+  ([ApiGetQuery<P>] extends [never]
+    ? { query?: undefined }
+    : { query?: ApiGetQuery<P> });
+
+/** Build the fetchApi endpoint ("/search/?q=x") from a schema path ("/api/search/"). */
+export function buildApiEndpoint(
+  path: string,
+  pathParams?: Record<string, string | number>,
+  query?: Record<string, unknown>,
+): string {
+  let endpoint = path.replace(/^\/api(?=\/)/, "");
+  endpoint = endpoint.replace(/\{(\w+)\}/g, (_m, key: string) => {
+    const value = pathParams?.[key];
+    if (value === undefined) {
+      throw new Error(`Missing path parameter "${key}" for ${path}`);
+    }
+    return encodeURIComponent(String(value));
+  });
+  if (query) {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(query)) {
+      if (v !== undefined && v !== null) qs.append(k, String(v));
+    }
+    const s = qs.toString();
+    if (s) endpoint += `?${s}`;
+  }
+  return endpoint;
+}
+
+/**
+ * GET an endpoint described by the generated OpenAPI schema. The response type
+ * comes from the schema; path/query params are type-checked too.
+ */
+export async function apiGet<P extends ApiGetPath>(
+  path: P,
+  options?: ApiGetOptions<P>,
+): Promise<ApiGetResponse<P>> {
+  const { pathParams, query, ...rest } = (options ?? {}) as RequestOptions & {
+    pathParams?: Record<string, string | number>;
+    query?: Record<string, unknown>;
+  };
+  const endpoint = buildApiEndpoint(path, pathParams, query);
+  return (await fetchApi(endpoint, {
+    ...rest,
+    method: "GET",
+  })) as ApiGetResponse<P>;
 }
