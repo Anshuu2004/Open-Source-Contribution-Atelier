@@ -4,6 +4,38 @@
  */
 
 export interface paths {
+    "/.well-known/jwks.json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations[".well_known_jwks.json_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/.well-known/openid-configuration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations[".well_known_openid_configuration_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accessibility/issues/": {
         parameters: {
             query?: never;
@@ -477,7 +509,36 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * @description Main AI Tutor endpoint handling Socratic questions, attempts, and hints.
+         *
+         *     Accepts POST with:
+         *     - question: str
+         *     - lesson_slug: optional str
+         *     - history: optional list of {question, answer}
+         *     - action: optional str ('ask' | 'evaluate' | 'hint')
+         *     - expected_command: optional str (for 'evaluate' action)
+         *     - hint_level: optional int (1, 2, 3 for 'hint' action)
+         *     - stream: optional bool (default True)
+         */
         post: operations["api_ai_tutor_ask_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/tutor/evaluate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Convenience dedicated endpoint for evaluating learner attempts. */
+        post: operations["api_ai_tutor_evaluate_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -637,6 +698,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/github/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_auth_github_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/github/callback/": {
         parameters: {
             query?: never;
@@ -654,6 +731,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/github/exchange/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_auth_github_exchange_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/google/": {
         parameters: {
             query?: never;
@@ -663,6 +756,19 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * @description Sign in / sign up with Google.
+         *
+         *     Accepts whichever payload the configured OAuth flow produced:
+         *
+         *     * ``access_token`` — OAuth2 access token (implicit flow, no client secret)
+         *     * ``id_token`` / ``credential`` — Google ID token (OpenID Connect / GIS)
+         *     * ``code`` — OAuth2 authorization code (auth-code flow), exchanged for
+         *       tokens server-side when ``GOOGLE_CLIENT_SECRET`` is configured
+         *
+         *     Whichever combination arrives, the identity is verified against Google
+         *     before a JWT is issued.
+         */
         post: operations["api_auth_google_create"];
         delete?: never;
         options?: never;
@@ -854,6 +960,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/passkey/register/begin/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/v1/auth/passkey/register/begin/
+         *
+         *     Initiates WebAuthn passkey registration by generating a challenge
+         *     for the client's authenticator.
+         */
+        post: operations["api_auth_passkey_register_begin_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/passkey/register/finish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/v1/auth/passkey/register/finish/
+         *
+         *     Completes WebAuthn passkey registration by verifying the
+         *     authenticator's response and storing the credential.
+         */
+        post: operations["api_auth_passkey_register_finish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/password-reset/": {
         parameters: {
             query?: never;
@@ -962,6 +1112,29 @@ export interface paths {
          *     token if the refresh token is valid.
          */
         post: operations["api_auth_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/resend-verification/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/auth/resend-verification/
+         *
+         *     Send a fresh verification link, either to an email address or to the
+         *     owner of an expired link (`key`). The response never says whether the
+         *     account exists or is already verified.
+         */
+        post: operations["api_auth_resend_verification_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1083,6 +1256,30 @@ export interface paths {
             cookie?: never;
         };
         get: operations["api_auth_users_suggestions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/verify-email/{key}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET /api/auth/verify-email/<key>/
+         *
+         *     Confirm the address a verification link was sent to. Safe to call twice:
+         *     a link that was already used answers `already_verified` rather than an
+         *     error, so a double-click or a mail client prefetching the page does not
+         *     show the user a failure.
+         */
+        get: operations["api_auth_verify_email_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1790,6 +1987,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/content/drafts/{id}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_content_drafts_restore_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/content/feedback/{id}/": {
         parameters: {
             query?: never;
@@ -1942,6 +2155,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/content/lessons/{id}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_content_lessons_restore_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/content/modules/": {
         parameters: {
             query?: never;
@@ -1972,6 +2201,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["api_content_modules_partial_update"];
+        trace?: never;
+    };
+    "/api/content/modules/{id}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_content_modules_restore_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/content/modules/reorder/": {
@@ -2861,6 +3106,286 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/flashcards/cards/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a flashcard. */
+        get: operations["api_flashcards_cards_retrieve"];
+        /** @description Retrieve, update, or delete a flashcard. */
+        put: operations["api_flashcards_cards_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a flashcard. */
+        delete: operations["api_flashcards_cards_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a flashcard. */
+        patch: operations["api_flashcards_cards_partial_update"];
+        trace?: never;
+    };
+    "/api/flashcards/decks/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create flashcard decks. */
+        get: operations["api_flashcards_decks_list"];
+        put?: never;
+        /** @description List or create flashcard decks. */
+        post: operations["api_flashcards_decks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/decks/{deck_id}/cards/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create flashcards in a deck. */
+        get: operations["api_flashcards_decks_cards_list"];
+        put?: never;
+        /** @description List or create flashcards in a deck. */
+        post: operations["api_flashcards_decks_cards_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/decks/{deck_id}/cards/bulk/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Bulk-create flashcards in a deck. */
+        post: operations["api_flashcards_decks_cards_bulk_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/decks/{deck_id}/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get statistics for a specific deck. */
+        get: operations["api_flashcards_decks_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/decks/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        get: operations["api_flashcards_decks_retrieve"];
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        put: operations["api_flashcards_decks_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        delete: operations["api_flashcards_decks_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        patch: operations["api_flashcards_decks_partial_update"];
+        trace?: never;
+    };
+    "/api/flashcards/decks/clone/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clone a public deck for the authenticated user. */
+        post: operations["api_flashcards_decks_clone_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/decks/public/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List public decks available for cloning. */
+        get: operations["api_flashcards_decks_public_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/review-logs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List all review logs for the authenticated user. */
+        get: operations["api_flashcards_review_logs_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/reviews/due/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get cards due for review. */
+        get: operations["api_flashcards_reviews_due_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/reviews/history/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List review history for the user. */
+        get: operations["api_flashcards_reviews_history_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/reviews/new/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get new (unseen) cards for initial learning. */
+        get: operations["api_flashcards_reviews_new_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/reviews/submit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Submit a review for a flashcard. */
+        post: operations["api_flashcards_reviews_submit_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Start a study session. */
+        post: operations["api_flashcards_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/sessions/{session_id}/end/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description End a study session and record results. */
+        post: operations["api_flashcards_sessions_end_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flashcards/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get overall study statistics for the user. */
+        get: operations["api_flashcards_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/gamification/anti-cheat/check/": {
         parameters: {
             query?: never;
@@ -3694,6 +4219,675 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/learning-analytics/daily-metrics/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List daily learning metrics for the user. */
+        get: operations["api_learning_analytics_daily_metrics_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Full analytics dashboard for the user. */
+        get: operations["api_learning_analytics_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/goals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create learning goals. */
+        get: operations["api_learning_analytics_goals_list"];
+        put?: never;
+        /** @description List or create learning goals. */
+        post: operations["api_learning_analytics_goals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/goals/{goal_id}/predict/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Predict when the user will reach a given goal. */
+        get: operations["api_learning_analytics_goals_predict_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/goals/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a learning goal. */
+        get: operations["api_learning_analytics_goals_retrieve"];
+        /** @description Retrieve, update, or delete a learning goal. */
+        put: operations["api_learning_analytics_goals_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a learning goal. */
+        delete: operations["api_learning_analytics_goals_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a learning goal. */
+        patch: operations["api_learning_analytics_goals_partial_update"];
+        trace?: never;
+    };
+    "/api/learning-analytics/insights/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List unread learning insights for the user. */
+        get: operations["api_learning_analytics_insights_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/insights/bulk-read/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark multiple insights as read. */
+        post: operations["api_learning_analytics_insights_bulk_read_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/insights/dismiss/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Dismiss a learning insight. */
+        post: operations["api_learning_analytics_insights_dismiss_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/insights/refresh/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Generate fresh insights for the user. */
+        post: operations["api_learning_analytics_insights_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/monthly-recap/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return the user's monthly learning recap. */
+        get: operations["api_learning_analytics_monthly_recap_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List the user's learning paths (lightweight, no steps). */
+        get: operations["api_learning_analytics_paths_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/{path_id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Archive / delete a learning path. */
+        delete: operations["api_learning_analytics_paths_archive_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Full detail of a single learning path including all steps. */
+        get: operations["api_learning_analytics_paths_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/estimate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Estimate when the user will finish all active paths. */
+        get: operations["api_learning_analytics_paths_estimate_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/generate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Generate or regenerate personalised learning paths. */
+        post: operations["api_learning_analytics_paths_generate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/progress/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return recent progress snapshots for the user. */
+        get: operations["api_learning_analytics_paths_progress_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/steps/complete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark a learning path step as completed. */
+        post: operations["api_learning_analytics_paths_steps_complete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/steps/skip/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Skip a learning path step. */
+        post: operations["api_learning_analytics_paths_steps_skip_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/paths/steps/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark a learning path step as in-progress. */
+        post: operations["api_learning_analytics_paths_steps_start_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List or create learning sessions.
+         *
+         *     GET  → paginated list of the user's sessions
+         *     POST → record a new session (auto-computes duration & tags)
+         */
+        get: operations["api_learning_analytics_sessions_list"];
+        put?: never;
+        /**
+         * @description List or create learning sessions.
+         *
+         *     GET  → paginated list of the user's sessions
+         *     POST → record a new session (auto-computes duration & tags)
+         */
+        post: operations["api_learning_analytics_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/sessions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or delete a single learning session. */
+        get: operations["api_learning_analytics_sessions_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Retrieve or delete a single learning session. */
+        delete: operations["api_learning_analytics_sessions_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/skills/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List all available skill tags. */
+        get: operations["api_learning_analytics_skills_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/skills/profiles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List the current user's skill profiles with levels. */
+        get: operations["api_learning_analytics_skills_profiles_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/skills/refresh/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Force a refresh of all skill levels for the authenticated user. */
+        post: operations["api_learning_analytics_skills_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/velocity/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return the user's current learning velocity. */
+        get: operations["api_learning_analytics_velocity_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-analytics/weekly-summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return the user's weekly learning summary. */
+        get: operations["api_learning_analytics_weekly_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/entries/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create journal entries. */
+        get: operations["api_learning_journal_entries_list"];
+        put?: never;
+        /** @description List or create journal entries. */
+        post: operations["api_learning_journal_entries_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/entries/{entry_id}/comments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or add comments to a journal entry. */
+        get: operations["api_learning_journal_entries_comments_list"];
+        put?: never;
+        /** @description List or add comments to a journal entry. */
+        post: operations["api_learning_journal_entries_comments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/entries/{entry_id}/react/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Toggle a reaction on a journal entry. */
+        post: operations["api_learning_journal_entries_react_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/entries/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a journal entry. */
+        get: operations["api_learning_journal_entries_retrieve"];
+        /** @description Retrieve, update, or delete a journal entry. */
+        put: operations["api_learning_journal_entries_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a journal entry. */
+        delete: operations["api_learning_journal_entries_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a journal entry. */
+        patch: operations["api_learning_journal_entries_partial_update"];
+        trace?: never;
+    };
+    "/api/learning-journal/entries/today/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get or create today's journal entry. */
+        get: operations["api_learning_journal_entries_today_retrieve"];
+        put?: never;
+        /** @description Get or create today's journal entry. */
+        post: operations["api_learning_journal_entries_today_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/feed/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get public journal entries from the community. */
+        get: operations["api_learning_journal_feed_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/prompt/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get a reflection prompt. */
+        get: operations["api_learning_journal_prompt_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get comprehensive journal statistics. */
+        get: operations["api_learning_journal_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/streak/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get your journaling streak. */
+        get: operations["api_learning_journal_streak_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/templates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create journal templates. */
+        get: operations["api_learning_journal_templates_list"];
+        put?: never;
+        /** @description List or create journal templates. */
+        post: operations["api_learning_journal_templates_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/weekly/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Generate or retrieve your weekly reflection summary. */
+        get: operations["api_learning_journal_weekly_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning-journal/weekly/list/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List your weekly reflection summaries. */
+        get: operations["api_learning_journal_weekly_list_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/lessons/{lesson_id}/notes": {
         parameters: {
             query?: never;
@@ -3756,6 +4950,340 @@ export interface paths {
         get: operations["api_localization_dictionary_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/analytics/mentee/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get analytics for your learning journey as a mentee. */
+        get: operations["api_mentorship_analytics_mentee_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/analytics/mentor/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get analytics for your mentorship program. */
+        get: operations["api_mentorship_analytics_mentor_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/analytics/program/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get platform-wide mentorship program statistics. */
+        get: operations["api_mentorship_analytics_program_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/matches/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List your active mentorship matches. */
+        get: operations["api_mentorship_matches_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/matches/{match_id}/feedback/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or submit feedback for a match. */
+        get: operations["api_mentorship_matches_feedback_list"];
+        put?: never;
+        /** @description List or submit feedback for a match. */
+        post: operations["api_mentorship_matches_feedback_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/matches/{match_id}/goals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create goals for a mentorship match. */
+        get: operations["api_mentorship_matches_goals_list"];
+        put?: never;
+        /** @description List or create goals for a mentorship match. */
+        post: operations["api_mentorship_matches_goals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/matches/{match_id}/recommendations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get session topic recommendations for a match. */
+        get: operations["api_mentorship_matches_recommendations_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/matches/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or update a mentorship match. */
+        get: operations["api_mentorship_matches_retrieve"];
+        /** @description Retrieve or update a mentorship match. */
+        put: operations["api_mentorship_matches_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Retrieve or update a mentorship match. */
+        patch: operations["api_mentorship_matches_partial_update"];
+        trace?: never;
+    };
+    "/api/mentorship/mentors/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List available mentors or create/update your mentor profile. */
+        get: operations["api_mentorship_mentors_list"];
+        put?: never;
+        /** @description List available mentors or create/update your mentor profile. */
+        post: operations["api_mentorship_mentors_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/mentors/find/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Find the best mentors for a given skill or general guidance. */
+        get: operations["api_mentorship_mentors_find_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/mentors/me/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get your own mentor profile (create if not exists). */
+        get: operations["api_mentorship_mentors_me_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/mentors/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or update a mentor profile. */
+        get: operations["api_mentorship_mentors_profile_retrieve"];
+        /** @description Retrieve or update a mentor profile. */
+        put: operations["api_mentorship_mentors_profile_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Retrieve or update a mentor profile. */
+        patch: operations["api_mentorship_mentors_profile_partial_update"];
+        trace?: never;
+    };
+    "/api/mentorship/requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List your requests (as mentee) or create a new request. */
+        get: operations["api_mentorship_requests_list"];
+        put?: never;
+        /** @description List your requests (as mentee) or create a new request. */
+        post: operations["api_mentorship_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/requests/{request_id}/respond/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Accept or decline a mentorship request. */
+        post: operations["api_mentorship_requests_respond_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/requests/incoming/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List requests received as a mentor. */
+        get: operations["api_mentorship_requests_incoming_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create mentorship sessions. */
+        get: operations["api_mentorship_sessions_list"];
+        put?: never;
+        /** @description List or create mentorship sessions. */
+        post: operations["api_mentorship_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/sessions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or update a session. */
+        get: operations["api_mentorship_sessions_retrieve"];
+        /** @description Retrieve or update a session. */
+        put: operations["api_mentorship_sessions_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Retrieve or update a session. */
+        patch: operations["api_mentorship_sessions_partial_update"];
+        trace?: never;
+    };
+    "/api/mentorship/sessions/{session_id}/complete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Complete a session with ratings and feedback. */
+        post: operations["api_mentorship_sessions_complete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mentorship/sessions/{session_id}/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark a session as in-progress. */
+        post: operations["api_mentorship_sessions_start_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4211,7 +5739,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["api_notifications_channel_preferences_partial_update"];
         trace?: never;
     };
     "/api/notifications/channels/": {
@@ -4292,7 +5820,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["api_notifications_prefs_partial_update"];
         trace?: never;
     };
     "/api/notifications/push/subscribe/": {
@@ -4355,6 +5883,70 @@ export interface paths {
         get: operations["api_notifications_track_open_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oauth/clients/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_oauth_clients_list"];
+        put?: never;
+        post: operations["api_oauth_clients_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oauth/clients/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_oauth_clients_retrieve"];
+        put: operations["api_oauth_clients_update"];
+        post?: never;
+        delete: operations["api_oauth_clients_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["api_oauth_clients_partial_update"];
+        trace?: never;
+    };
+    "/api/oauth/user-apps/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_oauth_user_apps_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oauth/user-apps/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_oauth_user_apps_revoke_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4591,6 +6183,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/plugins/{plugin_name}/{subpath}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_plugins_retrieve_2"];
+        put: operations["api_plugins_update"];
+        post: operations["api_plugins_create"];
+        delete: operations["api_plugins_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["api_plugins_partial_update"];
         trace?: never;
     };
     "/api/plugins/{plugin_name}/toggle/": {
@@ -5403,6 +7011,28 @@ export interface paths {
         get: operations["api_progress_recommendations_list"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/progress/rewards/claim/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/progress/rewards/claim/
+         *
+         *     Claims all reward tiers for a completed multi-stage challenge in a
+         *     single atomic transaction.
+         */
+        post: operations["api_progress_rewards_claim_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7071,6 +8701,371 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/study-groups/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List user's groups or create a new group. */
+        get: operations["api_study_groups_list"];
+        put?: never;
+        /** @description List user's groups or create a new group. */
+        post: operations["api_study_groups_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/activities/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List recent activities in a group. */
+        get: operations["api_study_groups_activities_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/challenges/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create group challenges. */
+        get: operations["api_study_groups_challenges_list"];
+        put?: never;
+        /** @description List or create group challenges. */
+        post: operations["api_study_groups_challenges_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/challenges/{challenge_id}/join/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Join a group challenge. */
+        post: operations["api_study_groups_challenges_join_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/challenges/{challenge_id}/leaderboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get the leaderboard for a group challenge. */
+        get: operations["api_study_groups_challenges_leaderboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/goals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create group goals. */
+        get: operations["api_study_groups_goals_list"];
+        put?: never;
+        /** @description List or create group goals. */
+        post: operations["api_study_groups_goals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/invites/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Create an invite to a group. */
+        post: operations["api_study_groups_invites_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/join/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Join a public study group. */
+        post: operations["api_study_groups_join_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/leaderboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get the group leaderboard. */
+        get: operations["api_study_groups_leaderboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/leave/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Leave a study group. */
+        post: operations["api_study_groups_leave_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/members/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List members of a study group. */
+        get: operations["api_study_groups_members_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/messages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or post messages in group discussion. */
+        get: operations["api_study_groups_messages_list"];
+        put?: never;
+        /** @description List or post messages in group discussion. */
+        post: operations["api_study_groups_messages_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/resources/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or share resources in a group. */
+        get: operations["api_study_groups_resources_list"];
+        put?: never;
+        /** @description List or share resources in a group. */
+        post: operations["api_study_groups_resources_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/resources/{resource_id}/upvote/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upvote a group resource. */
+        post: operations["api_study_groups_resources_upvote_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{group_id}/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get comprehensive stats for a group. */
+        get: operations["api_study_groups_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a study group. */
+        get: operations["api_study_groups_retrieve"];
+        /** @description Retrieve, update, or delete a study group. */
+        put: operations["api_study_groups_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a study group. */
+        delete: operations["api_study_groups_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a study group. */
+        patch: operations["api_study_groups_partial_update"];
+        trace?: never;
+    };
+    "/api/study-groups/discover/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Discover public study groups. */
+        get: operations["api_study_groups_discover_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/invites/accept/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Accept a group invite using the invite token. */
+        post: operations["api_study_groups_invites_accept_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/invites/mine/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List pending invites for the user. */
+        get: operations["api_study_groups_invites_mine_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/messages/{message_id}/replies/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List replies to a specific message. */
+        get: operations["api_study_groups_messages_replies_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/study-groups/platform-stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get platform-wide study group statistics. */
+        get: operations["api_study_groups_platform_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/uploads/": {
         parameters: {
             query?: never;
@@ -7195,6 +9190,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["api_users_me_learning_path_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/.well-known/jwks.json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_.well_known_jwks.json_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/.well-known/openid-configuration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_.well_known_openid_configuration_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -7676,7 +9703,36 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * @description Main AI Tutor endpoint handling Socratic questions, attempts, and hints.
+         *
+         *     Accepts POST with:
+         *     - question: str
+         *     - lesson_slug: optional str
+         *     - history: optional list of {question, answer}
+         *     - action: optional str ('ask' | 'evaluate' | 'hint')
+         *     - expected_command: optional str (for 'evaluate' action)
+         *     - hint_level: optional int (1, 2, 3 for 'hint' action)
+         *     - stream: optional bool (default True)
+         */
         post: operations["api_v1_api_ai_tutor_ask_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/ai/tutor/evaluate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Convenience dedicated endpoint for evaluating learner attempts. */
+        post: operations["api_v1_api_ai_tutor_evaluate_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7836,6 +9892,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/auth/github/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_api_auth_github_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/auth/github/callback/": {
         parameters: {
             query?: never;
@@ -7853,6 +9925,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/auth/github/exchange/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_api_auth_github_exchange_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/auth/google/": {
         parameters: {
             query?: never;
@@ -7862,6 +9950,19 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * @description Sign in / sign up with Google.
+         *
+         *     Accepts whichever payload the configured OAuth flow produced:
+         *
+         *     * ``access_token`` — OAuth2 access token (implicit flow, no client secret)
+         *     * ``id_token`` / ``credential`` — Google ID token (OpenID Connect / GIS)
+         *     * ``code`` — OAuth2 authorization code (auth-code flow), exchanged for
+         *       tokens server-side when ``GOOGLE_CLIENT_SECRET`` is configured
+         *
+         *     Whichever combination arrives, the identity is verified against Google
+         *     before a JWT is issued.
+         */
         post: operations["api_v1_api_auth_google_create"];
         delete?: never;
         options?: never;
@@ -8053,6 +10154,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/auth/passkey/register/begin/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/v1/auth/passkey/register/begin/
+         *
+         *     Initiates WebAuthn passkey registration by generating a challenge
+         *     for the client's authenticator.
+         */
+        post: operations["api_v1_api_auth_passkey_register_begin_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/auth/passkey/register/finish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/v1/auth/passkey/register/finish/
+         *
+         *     Completes WebAuthn passkey registration by verifying the
+         *     authenticator's response and storing the credential.
+         */
+        post: operations["api_v1_api_auth_passkey_register_finish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/auth/password-reset/": {
         parameters: {
             query?: never;
@@ -8161,6 +10306,29 @@ export interface paths {
          *     token if the refresh token is valid.
          */
         post: operations["api_v1_api_auth_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/auth/resend-verification/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/auth/resend-verification/
+         *
+         *     Send a fresh verification link, either to an email address or to the
+         *     owner of an expired link (`key`). The response never says whether the
+         *     account exists or is already verified.
+         */
+        post: operations["api_v1_api_auth_resend_verification_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8282,6 +10450,30 @@ export interface paths {
             cookie?: never;
         };
         get: operations["api_v1_api_auth_users_suggestions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/auth/verify-email/{key}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET /api/auth/verify-email/<key>/
+         *
+         *     Confirm the address a verification link was sent to. Safe to call twice:
+         *     a link that was already used answers `already_verified` rather than an
+         *     error, so a double-click or a mail client prefetching the page does not
+         *     show the user a failure.
+         */
+        get: operations["api_v1_api_auth_verify_email_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -8989,6 +11181,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/content/drafts/{id}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_api_content_drafts_restore_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/content/feedback/{id}/": {
         parameters: {
             query?: never;
@@ -9141,6 +11349,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/content/lessons/{id}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_api_content_lessons_restore_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/content/modules/": {
         parameters: {
             query?: never;
@@ -9171,6 +11395,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["api_v1_api_content_modules_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/content/modules/{id}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_api_content_modules_restore_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/api/content/modules/reorder/": {
@@ -10060,6 +12300,286 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/flashcards/cards/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a flashcard. */
+        get: operations["api_v1_api_flashcards_cards_retrieve"];
+        /** @description Retrieve, update, or delete a flashcard. */
+        put: operations["api_v1_api_flashcards_cards_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a flashcard. */
+        delete: operations["api_v1_api_flashcards_cards_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a flashcard. */
+        patch: operations["api_v1_api_flashcards_cards_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create flashcard decks. */
+        get: operations["api_v1_api_flashcards_decks_list"];
+        put?: never;
+        /** @description List or create flashcard decks. */
+        post: operations["api_v1_api_flashcards_decks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/{deck_id}/cards/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create flashcards in a deck. */
+        get: operations["api_v1_api_flashcards_decks_cards_list"];
+        put?: never;
+        /** @description List or create flashcards in a deck. */
+        post: operations["api_v1_api_flashcards_decks_cards_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/{deck_id}/cards/bulk/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Bulk-create flashcards in a deck. */
+        post: operations["api_v1_api_flashcards_decks_cards_bulk_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/{deck_id}/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get statistics for a specific deck. */
+        get: operations["api_v1_api_flashcards_decks_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        get: operations["api_v1_api_flashcards_decks_retrieve"];
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        put: operations["api_v1_api_flashcards_decks_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        delete: operations["api_v1_api_flashcards_decks_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a flashcard deck. */
+        patch: operations["api_v1_api_flashcards_decks_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/clone/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Clone a public deck for the authenticated user. */
+        post: operations["api_v1_api_flashcards_decks_clone_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/decks/public/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List public decks available for cloning. */
+        get: operations["api_v1_api_flashcards_decks_public_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/review-logs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List all review logs for the authenticated user. */
+        get: operations["api_v1_api_flashcards_review_logs_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/reviews/due/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get cards due for review. */
+        get: operations["api_v1_api_flashcards_reviews_due_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/reviews/history/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List review history for the user. */
+        get: operations["api_v1_api_flashcards_reviews_history_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/reviews/new/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get new (unseen) cards for initial learning. */
+        get: operations["api_v1_api_flashcards_reviews_new_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/reviews/submit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Submit a review for a flashcard. */
+        post: operations["api_v1_api_flashcards_reviews_submit_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Start a study session. */
+        post: operations["api_v1_api_flashcards_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/sessions/{session_id}/end/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description End a study session and record results. */
+        post: operations["api_v1_api_flashcards_sessions_end_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/flashcards/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get overall study statistics for the user. */
+        get: operations["api_v1_api_flashcards_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/gamification/anti-cheat/check/": {
         parameters: {
             query?: never;
@@ -10893,6 +13413,675 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/learning-analytics/daily-metrics/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List daily learning metrics for the user. */
+        get: operations["api_v1_api_learning_analytics_daily_metrics_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Full analytics dashboard for the user. */
+        get: operations["api_v1_api_learning_analytics_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/goals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create learning goals. */
+        get: operations["api_v1_api_learning_analytics_goals_list"];
+        put?: never;
+        /** @description List or create learning goals. */
+        post: operations["api_v1_api_learning_analytics_goals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/goals/{goal_id}/predict/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Predict when the user will reach a given goal. */
+        get: operations["api_v1_api_learning_analytics_goals_predict_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/goals/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a learning goal. */
+        get: operations["api_v1_api_learning_analytics_goals_retrieve"];
+        /** @description Retrieve, update, or delete a learning goal. */
+        put: operations["api_v1_api_learning_analytics_goals_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a learning goal. */
+        delete: operations["api_v1_api_learning_analytics_goals_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a learning goal. */
+        patch: operations["api_v1_api_learning_analytics_goals_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/insights/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List unread learning insights for the user. */
+        get: operations["api_v1_api_learning_analytics_insights_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/insights/bulk-read/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark multiple insights as read. */
+        post: operations["api_v1_api_learning_analytics_insights_bulk_read_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/insights/dismiss/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Dismiss a learning insight. */
+        post: operations["api_v1_api_learning_analytics_insights_dismiss_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/insights/refresh/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Generate fresh insights for the user. */
+        post: operations["api_v1_api_learning_analytics_insights_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/monthly-recap/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return the user's monthly learning recap. */
+        get: operations["api_v1_api_learning_analytics_monthly_recap_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List the user's learning paths (lightweight, no steps). */
+        get: operations["api_v1_api_learning_analytics_paths_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/{path_id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Archive / delete a learning path. */
+        delete: operations["api_v1_api_learning_analytics_paths_archive_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Full detail of a single learning path including all steps. */
+        get: operations["api_v1_api_learning_analytics_paths_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/estimate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Estimate when the user will finish all active paths. */
+        get: operations["api_v1_api_learning_analytics_paths_estimate_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/generate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Generate or regenerate personalised learning paths. */
+        post: operations["api_v1_api_learning_analytics_paths_generate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/progress/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return recent progress snapshots for the user. */
+        get: operations["api_v1_api_learning_analytics_paths_progress_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/steps/complete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark a learning path step as completed. */
+        post: operations["api_v1_api_learning_analytics_paths_steps_complete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/steps/skip/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Skip a learning path step. */
+        post: operations["api_v1_api_learning_analytics_paths_steps_skip_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/paths/steps/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark a learning path step as in-progress. */
+        post: operations["api_v1_api_learning_analytics_paths_steps_start_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List or create learning sessions.
+         *
+         *     GET  → paginated list of the user's sessions
+         *     POST → record a new session (auto-computes duration & tags)
+         */
+        get: operations["api_v1_api_learning_analytics_sessions_list"];
+        put?: never;
+        /**
+         * @description List or create learning sessions.
+         *
+         *     GET  → paginated list of the user's sessions
+         *     POST → record a new session (auto-computes duration & tags)
+         */
+        post: operations["api_v1_api_learning_analytics_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/sessions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or delete a single learning session. */
+        get: operations["api_v1_api_learning_analytics_sessions_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Retrieve or delete a single learning session. */
+        delete: operations["api_v1_api_learning_analytics_sessions_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/skills/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List all available skill tags. */
+        get: operations["api_v1_api_learning_analytics_skills_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/skills/profiles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List the current user's skill profiles with levels. */
+        get: operations["api_v1_api_learning_analytics_skills_profiles_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/skills/refresh/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Force a refresh of all skill levels for the authenticated user. */
+        post: operations["api_v1_api_learning_analytics_skills_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/velocity/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return the user's current learning velocity. */
+        get: operations["api_v1_api_learning_analytics_velocity_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-analytics/weekly-summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Return the user's weekly learning summary. */
+        get: operations["api_v1_api_learning_analytics_weekly_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/entries/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create journal entries. */
+        get: operations["api_v1_api_learning_journal_entries_list"];
+        put?: never;
+        /** @description List or create journal entries. */
+        post: operations["api_v1_api_learning_journal_entries_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/entries/{entry_id}/comments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or add comments to a journal entry. */
+        get: operations["api_v1_api_learning_journal_entries_comments_list"];
+        put?: never;
+        /** @description List or add comments to a journal entry. */
+        post: operations["api_v1_api_learning_journal_entries_comments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/entries/{entry_id}/react/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Toggle a reaction on a journal entry. */
+        post: operations["api_v1_api_learning_journal_entries_react_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/entries/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a journal entry. */
+        get: operations["api_v1_api_learning_journal_entries_retrieve"];
+        /** @description Retrieve, update, or delete a journal entry. */
+        put: operations["api_v1_api_learning_journal_entries_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a journal entry. */
+        delete: operations["api_v1_api_learning_journal_entries_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a journal entry. */
+        patch: operations["api_v1_api_learning_journal_entries_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/entries/today/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get or create today's journal entry. */
+        get: operations["api_v1_api_learning_journal_entries_today_retrieve"];
+        put?: never;
+        /** @description Get or create today's journal entry. */
+        post: operations["api_v1_api_learning_journal_entries_today_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/feed/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get public journal entries from the community. */
+        get: operations["api_v1_api_learning_journal_feed_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/prompt/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get a reflection prompt. */
+        get: operations["api_v1_api_learning_journal_prompt_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get comprehensive journal statistics. */
+        get: operations["api_v1_api_learning_journal_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/streak/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get your journaling streak. */
+        get: operations["api_v1_api_learning_journal_streak_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/templates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create journal templates. */
+        get: operations["api_v1_api_learning_journal_templates_list"];
+        put?: never;
+        /** @description List or create journal templates. */
+        post: operations["api_v1_api_learning_journal_templates_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/weekly/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Generate or retrieve your weekly reflection summary. */
+        get: operations["api_v1_api_learning_journal_weekly_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/learning-journal/weekly/list/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List your weekly reflection summaries. */
+        get: operations["api_v1_api_learning_journal_weekly_list_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/lessons/{lesson_id}/notes": {
         parameters: {
             query?: never;
@@ -10955,6 +14144,340 @@ export interface paths {
         get: operations["api_v1_api_localization_dictionary_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/analytics/mentee/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get analytics for your learning journey as a mentee. */
+        get: operations["api_v1_api_mentorship_analytics_mentee_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/analytics/mentor/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get analytics for your mentorship program. */
+        get: operations["api_v1_api_mentorship_analytics_mentor_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/analytics/program/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get platform-wide mentorship program statistics. */
+        get: operations["api_v1_api_mentorship_analytics_program_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/matches/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List your active mentorship matches. */
+        get: operations["api_v1_api_mentorship_matches_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/matches/{match_id}/feedback/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or submit feedback for a match. */
+        get: operations["api_v1_api_mentorship_matches_feedback_list"];
+        put?: never;
+        /** @description List or submit feedback for a match. */
+        post: operations["api_v1_api_mentorship_matches_feedback_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/matches/{match_id}/goals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create goals for a mentorship match. */
+        get: operations["api_v1_api_mentorship_matches_goals_list"];
+        put?: never;
+        /** @description List or create goals for a mentorship match. */
+        post: operations["api_v1_api_mentorship_matches_goals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/matches/{match_id}/recommendations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get session topic recommendations for a match. */
+        get: operations["api_v1_api_mentorship_matches_recommendations_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/matches/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or update a mentorship match. */
+        get: operations["api_v1_api_mentorship_matches_retrieve"];
+        /** @description Retrieve or update a mentorship match. */
+        put: operations["api_v1_api_mentorship_matches_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Retrieve or update a mentorship match. */
+        patch: operations["api_v1_api_mentorship_matches_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/mentors/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List available mentors or create/update your mentor profile. */
+        get: operations["api_v1_api_mentorship_mentors_list"];
+        put?: never;
+        /** @description List available mentors or create/update your mentor profile. */
+        post: operations["api_v1_api_mentorship_mentors_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/mentors/find/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Find the best mentors for a given skill or general guidance. */
+        get: operations["api_v1_api_mentorship_mentors_find_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/mentors/me/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get your own mentor profile (create if not exists). */
+        get: operations["api_v1_api_mentorship_mentors_me_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/mentors/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or update a mentor profile. */
+        get: operations["api_v1_api_mentorship_mentors_profile_retrieve"];
+        /** @description Retrieve or update a mentor profile. */
+        put: operations["api_v1_api_mentorship_mentors_profile_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Retrieve or update a mentor profile. */
+        patch: operations["api_v1_api_mentorship_mentors_profile_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List your requests (as mentee) or create a new request. */
+        get: operations["api_v1_api_mentorship_requests_list"];
+        put?: never;
+        /** @description List your requests (as mentee) or create a new request. */
+        post: operations["api_v1_api_mentorship_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/requests/{request_id}/respond/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Accept or decline a mentorship request. */
+        post: operations["api_v1_api_mentorship_requests_respond_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/requests/incoming/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List requests received as a mentor. */
+        get: operations["api_v1_api_mentorship_requests_incoming_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create mentorship sessions. */
+        get: operations["api_v1_api_mentorship_sessions_list"];
+        put?: never;
+        /** @description List or create mentorship sessions. */
+        post: operations["api_v1_api_mentorship_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/sessions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve or update a session. */
+        get: operations["api_v1_api_mentorship_sessions_retrieve"];
+        /** @description Retrieve or update a session. */
+        put: operations["api_v1_api_mentorship_sessions_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Retrieve or update a session. */
+        patch: operations["api_v1_api_mentorship_sessions_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/sessions/{session_id}/complete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Complete a session with ratings and feedback. */
+        post: operations["api_v1_api_mentorship_sessions_complete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/mentorship/sessions/{session_id}/start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Mark a session as in-progress. */
+        post: operations["api_v1_api_mentorship_sessions_start_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -11410,7 +14933,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["api_v1_api_notifications_channel_preferences_partial_update"];
         trace?: never;
     };
     "/api/v1/api/notifications/channels/": {
@@ -11491,7 +15014,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["api_v1_api_notifications_prefs_partial_update"];
         trace?: never;
     };
     "/api/v1/api/notifications/push/subscribe/": {
@@ -11554,6 +15077,70 @@ export interface paths {
         get: operations["api_v1_api_notifications_track_open_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/oauth/clients/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_api_oauth_clients_list"];
+        put?: never;
+        post: operations["api_v1_api_oauth_clients_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/oauth/clients/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_api_oauth_clients_retrieve"];
+        put: operations["api_v1_api_oauth_clients_update"];
+        post?: never;
+        delete: operations["api_v1_api_oauth_clients_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["api_v1_api_oauth_clients_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/oauth/user-apps/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_api_oauth_user_apps_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/oauth/user-apps/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_api_oauth_user_apps_revoke_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -11790,6 +15377,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/plugins/{plugin_name}/{subpath}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_api_plugins_retrieve_2"];
+        put: operations["api_v1_api_plugins_update"];
+        post: operations["api_v1_api_plugins_create"];
+        delete: operations["api_v1_api_plugins_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["api_v1_api_plugins_partial_update"];
         trace?: never;
     };
     "/api/v1/api/plugins/{plugin_name}/toggle/": {
@@ -12602,6 +16205,28 @@ export interface paths {
         get: operations["api_v1_api_progress_recommendations_list"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/progress/rewards/claim/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/progress/rewards/claim/
+         *
+         *     Claims all reward tiers for a completed multi-stage challenge in a
+         *     single atomic transaction.
+         */
+        post: operations["api_v1_api_progress_rewards_claim_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -14270,6 +17895,371 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/study-groups/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List user's groups or create a new group. */
+        get: operations["api_v1_api_study_groups_list"];
+        put?: never;
+        /** @description List user's groups or create a new group. */
+        post: operations["api_v1_api_study_groups_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/activities/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List recent activities in a group. */
+        get: operations["api_v1_api_study_groups_activities_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/challenges/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create group challenges. */
+        get: operations["api_v1_api_study_groups_challenges_list"];
+        put?: never;
+        /** @description List or create group challenges. */
+        post: operations["api_v1_api_study_groups_challenges_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/challenges/{challenge_id}/join/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Join a group challenge. */
+        post: operations["api_v1_api_study_groups_challenges_join_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/challenges/{challenge_id}/leaderboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get the leaderboard for a group challenge. */
+        get: operations["api_v1_api_study_groups_challenges_leaderboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/goals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or create group goals. */
+        get: operations["api_v1_api_study_groups_goals_list"];
+        put?: never;
+        /** @description List or create group goals. */
+        post: operations["api_v1_api_study_groups_goals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/invites/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Create an invite to a group. */
+        post: operations["api_v1_api_study_groups_invites_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/join/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Join a public study group. */
+        post: operations["api_v1_api_study_groups_join_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/leaderboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get the group leaderboard. */
+        get: operations["api_v1_api_study_groups_leaderboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/leave/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Leave a study group. */
+        post: operations["api_v1_api_study_groups_leave_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/members/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List members of a study group. */
+        get: operations["api_v1_api_study_groups_members_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/messages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or post messages in group discussion. */
+        get: operations["api_v1_api_study_groups_messages_list"];
+        put?: never;
+        /** @description List or post messages in group discussion. */
+        post: operations["api_v1_api_study_groups_messages_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/resources/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List or share resources in a group. */
+        get: operations["api_v1_api_study_groups_resources_list"];
+        put?: never;
+        /** @description List or share resources in a group. */
+        post: operations["api_v1_api_study_groups_resources_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/resources/{resource_id}/upvote/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upvote a group resource. */
+        post: operations["api_v1_api_study_groups_resources_upvote_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{group_id}/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get comprehensive stats for a group. */
+        get: operations["api_v1_api_study_groups_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieve, update, or delete a study group. */
+        get: operations["api_v1_api_study_groups_retrieve"];
+        /** @description Retrieve, update, or delete a study group. */
+        put: operations["api_v1_api_study_groups_update"];
+        post?: never;
+        /** @description Retrieve, update, or delete a study group. */
+        delete: operations["api_v1_api_study_groups_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Retrieve, update, or delete a study group. */
+        patch: operations["api_v1_api_study_groups_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/discover/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Discover public study groups. */
+        get: operations["api_v1_api_study_groups_discover_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/invites/accept/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Accept a group invite using the invite token. */
+        post: operations["api_v1_api_study_groups_invites_accept_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/invites/mine/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List pending invites for the user. */
+        get: operations["api_v1_api_study_groups_invites_mine_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/messages/{message_id}/replies/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List replies to a specific message. */
+        get: operations["api_v1_api_study_groups_messages_replies_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/study-groups/platform-stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get platform-wide study group statistics. */
+        get: operations["api_v1_api_study_groups_platform_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/api/uploads/": {
         parameters: {
             query?: never;
@@ -14727,6 +18717,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/oauth/authorize/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["api_v1_oauth_authorize_retrieve"];
+        put?: never;
+        post: operations["api_v1_oauth_authorize_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/oauth/introspect/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_oauth_introspect_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/oauth/oauth/authorize/": {
         parameters: {
             query?: never;
@@ -14785,6 +18807,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["api_v1_oauth_oauth_token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/oauth/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_oauth_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/oauth/token/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["api_v1_oauth_token_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -15116,6 +19170,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/oauth/authorize/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["oauth_authorize_retrieve"];
+        put?: never;
+        post: operations["oauth_authorize_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth/introspect/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["oauth_introspect_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/oauth/oauth/authorize/": {
         parameters: {
             query?: never;
@@ -15174,6 +19260,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["oauth_oauth_token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["oauth_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth/token/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["oauth_token_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -15247,6 +19365,16 @@ export interface components {
          */
         ActionTakenEnum: "NONE" | "HIDDEN" | "REMOVED";
         /**
+         * @description * `lesson` - Lesson
+         *     * `exercise` - Exercise
+         *     * `quiz` - Quiz
+         *     * `sandbox` - Sandbox
+         *     * `peer_review` - Peer Review
+         *     * `challenge` - Challenge
+         * @enum {string}
+         */
+        ActivityTypeD42Enum: "lesson" | "exercise" | "quiz" | "sandbox" | "peer_review" | "challenge";
+        /**
          * @description * `manual` - Manual
          *     * `auto` - Auto-tagged
          *     * `suggested` - Suggested
@@ -15302,6 +19430,13 @@ export interface components {
          * @enum {string}
          */
         AutoFixPRStatusEnum: "OPEN" | "MERGED" | "CLOSED";
+        /**
+         * @description * `available` - Available
+         *     * `busy` - Busy
+         *     * `unavailable` - Unavailable
+         * @enum {string}
+         */
+        AvailabilityEnum: "available" | "busy" | "unavailable";
         AvatarUpload: {
             /** Format: uri */
             avatar: string;
@@ -15444,15 +19579,15 @@ export interface components {
             parent?: number | null;
         };
         /**
-         * @description * `SPAM` - Spam
-         *     * `ABUSIVE` - Abusive Language
-         *     * `HARASSMENT` - Harassment
-         *     * `MISINFORMATION` - Misinformation
-         *     * `PLAGIARISM` - Plagiarism
-         *     * `OTHER` - Other
+         * @description * `open_source` - Open Source
+         *     * `python` - Python
+         *     * `javascript` - JavaScript
+         *     * `devops` - DevOps
+         *     * `data_science` - Data Science
+         *     * `general` - General
          * @enum {string}
          */
-        CategoryEnum: "SPAM" | "ABUSIVE" | "HARASSMENT" | "MISINFORMATION" | "PLAGIARISM" | "OTHER";
+        Category541Enum: "open_source" | "python" | "javascript" | "devops" | "data_science" | "general";
         CategorySuggestion: {
             readonly id: number;
             /** Format: int64 */
@@ -15714,13 +19849,23 @@ export interface components {
             readonly content_summary: string;
             content_type_app: string;
             content_type_model: string;
-            category: components["schemas"]["CategoryEnum"];
+            category: components["schemas"]["ContentReportCategoryEnum"];
             description?: string;
             readonly status: components["schemas"]["ContentReportStatusEnum"];
             readonly action_taken: components["schemas"]["ActionTakenEnum"];
             /** Format: date-time */
             readonly created_at: string;
         };
+        /**
+         * @description * `SPAM` - Spam
+         *     * `ABUSIVE` - Abusive Language
+         *     * `HARASSMENT` - Harassment
+         *     * `MISINFORMATION` - Misinformation
+         *     * `PLAGIARISM` - Plagiarism
+         *     * `OTHER` - Other
+         * @enum {string}
+         */
+        ContentReportCategoryEnum: "SPAM" | "ABUSIVE" | "HARASSMENT" | "MISINFORMATION" | "PLAGIARISM" | "OTHER";
         /**
          * @description * `PENDING` - Pending
          *     * `APPROVED` - Approved
@@ -15858,6 +20003,62 @@ export interface components {
          * @enum {string}
          */
         DXTestRunStatusEnum: "pending" | "running" | "completed" | "failed";
+        DailyLearningMetric: {
+            readonly id: number;
+            /** Format: date */
+            date: string;
+            /** Format: int64 */
+            total_minutes?: number;
+            /** Format: int64 */
+            lessons_completed?: number;
+            /** Format: int64 */
+            exercises_completed?: number;
+            /** Format: int64 */
+            quizzes_taken?: number;
+            /** Format: double */
+            average_quiz_score?: number;
+            /** Format: int64 */
+            xp_earned?: number;
+            /** Format: int64 */
+            streak_days?: number;
+            /** Format: int64 */
+            unique_skills_practiced?: number;
+            /**
+             * Format: double
+             * @description 0-1 ratio of focused vs idle time.
+             */
+            focus_score?: number;
+        };
+        Deck: {
+            readonly id: number;
+            title: string;
+            description?: string;
+            deck_type?: components["schemas"]["DeckTypeEnum"];
+            source_lesson?: number | null;
+            /** @description Skill tag slug this deck is associated with. */
+            source_skill_slug?: string;
+            /** @description Hex color for UI display. */
+            color?: string;
+            icon_emoji?: string;
+            /** @description Allow other users to clone this deck. */
+            is_public?: boolean;
+            readonly clone_count: number;
+            readonly card_count: number;
+            readonly is_due: string;
+            readonly due_count: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `custom` - Custom
+         *     * `lesson` - Lesson-Based
+         *     * `skill` - Skill-Based
+         *     * `imported` - Imported
+         * @enum {string}
+         */
+        DeckTypeEnum: "custom" | "lesson" | "skill" | "imported";
         DependencyDiff: {
             readonly id: number;
             /** @description Name of the package or file. */
@@ -15867,6 +20068,13 @@ export interface components {
             /** @description Mock code diff showing the dependency being added. */
             diff_text: string;
         };
+        /**
+         * @description * `easy` - Easy
+         *     * `medium` - Medium
+         *     * `hard` - Hard
+         * @enum {string}
+         */
+        Difficulty3d0Enum: "easy" | "medium" | "hard";
         DirectMessage: {
             readonly id: number;
             readonly sender_username: string;
@@ -16137,6 +20345,34 @@ export interface components {
             readonly updated_at: string;
         };
         /**
+         * @description * `mentor_on_mentee` - Mentor → Mentee
+         *     * `mentee_on_mentor` - Mentee → Mentor
+         * @enum {string}
+         */
+        FeedbackTypeEnum: "mentor_on_mentee" | "mentee_on_mentor";
+        Flashcard: {
+            readonly id: number;
+            /** @description Question or prompt on the front of the card. */
+            front: string;
+            /** @description Answer or explanation on the back. */
+            back: string;
+            /** @description Optional hint shown before flipping. */
+            hint?: string;
+            difficulty?: components["schemas"]["Difficulty3d0Enum"];
+            /** @description Free-form tags for filtering. */
+            tags?: unknown;
+            /** @description Optional image/audio URL attached to the card. */
+            media_url?: string;
+            /** Format: int64 */
+            order?: number;
+            /** @description Suspended cards are excluded from review sessions. */
+            is_suspended?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
          * @description * `pdf` - PDF
          *     * `html` - HTML
          * @enum {string}
@@ -16159,6 +20395,182 @@ export interface components {
             /** Format: date-time */
             readonly expires_at: string;
         };
+        /**
+         * @description * `xp_target` - XP Target
+         *     * `lesson_count` - Lesson Count
+         *     * `streak_target` - Streak Target
+         *     * `skill_level` - Skill Level
+         *     * `quiz_average` - Quiz Average
+         * @enum {string}
+         */
+        GoalType098Enum: "xp_target" | "lesson_count" | "streak_target" | "skill_level" | "quiz_average";
+        GroupActivity: {
+            readonly id: number;
+            activity_type: components["schemas"]["GroupActivityActivityTypeEnum"];
+            title: string;
+            description?: string;
+            /** Format: int64 */
+            xp_value?: number;
+            metadata?: unknown;
+            user: number;
+            readonly username: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `join` - Member Joined
+         *     * `leave` - Member Left
+         *     * `lesson` - Lesson Completed
+         *     * `quiz` - Quiz Passed
+         *     * `xp` - XP Earned
+         *     * `resource` - Resource Shared
+         *     * `milestone` - Group Milestone
+         *     * `streak` - Streak Achievement
+         *     * `challenge` - Challenge Completed
+         *     * `note` - Note Posted
+         * @enum {string}
+         */
+        GroupActivityActivityTypeEnum: "join" | "leave" | "lesson" | "quiz" | "xp" | "resource" | "milestone" | "streak" | "challenge" | "note";
+        GroupChallenge: {
+            readonly id: number;
+            title: string;
+            description: string;
+            status?: components["schemas"]["GroupChallengeStatusEnum"];
+            /**
+             * Format: int64
+             * @description Target count (lessons, XP, minutes, etc.).
+             */
+            target_value?: number;
+            target_type?: components["schemas"]["TargetTypeEnum"];
+            /** Format: int64 */
+            xp_reward?: number;
+            /** Format: date-time */
+            start_date: string;
+            /** Format: date-time */
+            end_date: string;
+            created_by: number;
+            readonly created_by_username: string;
+            readonly participant_count: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `upcoming` - Upcoming
+         *     * `active` - Active
+         *     * `completed` - Completed
+         * @enum {string}
+         */
+        GroupChallengeStatusEnum: "upcoming" | "active" | "completed";
+        GroupGoal: {
+            readonly id: number;
+            goal_type: components["schemas"]["GroupGoalGoalTypeEnum"];
+            title: string;
+            /** Format: int64 */
+            target_value: number;
+            readonly current_value: number;
+            readonly is_completed: boolean;
+            /** Format: date */
+            deadline?: string | null;
+            /**
+             * Format: int64
+             * @description XP split among members on completion.
+             */
+            xp_reward?: number;
+            readonly progress_pct: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `total_xp` - Total XP
+         *     * `lesson_count` - Lesson Count
+         *     * `member_active` - Active Members
+         *     * `weekly_minutes` - Weekly Minutes
+         *     * `quiz_average` - Quiz Average Score
+         * @enum {string}
+         */
+        GroupGoalGoalTypeEnum: "total_xp" | "lesson_count" | "member_active" | "weekly_minutes" | "quiz_average";
+        GroupInvite: {
+            readonly id: number;
+            invited_user?: number | null;
+            /** @description For inviting non-registered users. */
+            email?: string;
+            /** @description Personal message with the invite. */
+            message?: string;
+            readonly status: components["schemas"]["GroupInviteStatusEnum"];
+            readonly token: string;
+            readonly invited_by: number;
+            readonly invited_by_username: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `accepted` - Accepted
+         *     * `declined` - Declined
+         *     * `expired` - Expired
+         * @enum {string}
+         */
+        GroupInviteStatusEnum: "pending" | "accepted" | "declined" | "expired";
+        GroupMembership: {
+            readonly id: number;
+            readonly user: number;
+            readonly username: string;
+            role?: components["schemas"]["GroupMembershipRoleEnum"];
+            status?: components["schemas"]["GroupMembershipStatusEnum"];
+            /** @description Display name within this group. */
+            nickname?: string;
+            /** Format: date-time */
+            readonly joined_at: string;
+            /** Format: date-time */
+            readonly last_active: string;
+            readonly total_minutes_contributed: number;
+            readonly total_xp_contributed: number;
+            readonly lessons_completed: number;
+            readonly quizzes_passed: number;
+        };
+        /**
+         * @description * `owner` - Owner
+         *     * `admin` - Admin
+         *     * `moderator` - Moderator
+         *     * `member` - Member
+         * @enum {string}
+         */
+        GroupMembershipRoleEnum: "owner" | "admin" | "moderator" | "member";
+        /**
+         * @description * `active` - Active
+         *     * `pending` - Pending
+         *     * `banned` - Banned
+         * @enum {string}
+         */
+        GroupMembershipStatusEnum: "active" | "pending" | "banned";
+        GroupMessage: {
+            readonly id: number;
+            content: string;
+            is_pinned?: boolean;
+            parent?: number | null;
+            readonly upvotes: number;
+            user: number;
+            readonly username: string;
+            readonly reply_count: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        GroupResource: {
+            readonly id: number;
+            resource_type: components["schemas"]["ResourceTypeEnum"];
+            title: string;
+            description?: string;
+            url?: string;
+            flashcard_deck?: number | null;
+            metadata?: unknown;
+            readonly upvotes: number;
+            shared_by: number;
+            readonly shared_by_username: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         HelpRequest: {
             readonly id: number;
             readonly user: number;
@@ -16177,6 +20589,18 @@ export interface components {
          * @enum {string}
          */
         HelpRequestStatusEnum: "open" | "resolved";
+        /**
+         * @description * `streak` - Streak Insight
+         *     * `skill_gap` - Skill Gap
+         *     * `momentum` - Momentum Change
+         *     * `milestone` - Milestone Near
+         *     * `warning` - Warning
+         *     * `tip` - Learning Tip
+         *     * `weekly_summary` - Weekly Summary
+         *     * `monthly_recap` - Monthly Recap
+         * @enum {string}
+         */
+        InsightTypeEnum: "streak" | "skill_gap" | "momentum" | "milestone" | "warning" | "tip" | "weekly_summary" | "monthly_recap";
         Intervention: {
             /** Format: uuid */
             readonly id: string;
@@ -16336,6 +20760,8 @@ export interface components {
             readonly user: number | null;
             /** Format: uri */
             image?: string | null;
+            /** @description Designates whether this report is a verified issue. */
+            readonly is_verified: boolean;
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
@@ -16441,6 +20867,81 @@ export interface components {
          * @enum {string}
          */
         JobTypeEnum: "lint" | "test" | "security" | "build";
+        JournalComment: {
+            readonly id: number;
+            readonly entry: number;
+            readonly user: number;
+            readonly username: string;
+            content: string;
+            /** @description Comment from a mentor with feedback. */
+            is_mentor_note?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        JournalEntry: {
+            readonly id: number;
+            readonly user: number;
+            readonly username: string;
+            /**
+             * Format: date
+             * @description The calendar date this entry reflects on.
+             */
+            date: string;
+            /** @description Optional title for the entry. */
+            title?: string;
+            /** @description What did you learn today? */
+            what_i_learned: string;
+            /** @description What was difficult or confusing? */
+            challenges_faced?: string;
+            /** @description Key insights or takeaways. */
+            key_takeaways?: string;
+            /** @description What do you want to learn or accomplish tomorrow? */
+            tomorrow_goals?: string;
+            /** @description Free-form tags, e.g. ["python", "debugging"]. */
+            tags?: unknown;
+            mood?: components["schemas"]["MoodEnum"];
+            /** @description Self-rated productivity 1-10. */
+            productivity_score?: number;
+            /**
+             * Format: double
+             * @description Approximate hours spent learning.
+             */
+            hours_spent?: number;
+            visibility?: components["schemas"]["JournalEntryVisibilityEnum"];
+            /** @description Lesson slugs linked to this entry, e.g. ["git-basics"]. */
+            linked_lessons?: unknown;
+            linked_flashcard_decks?: unknown;
+            readonly xp_earned: number;
+            readonly word_count: number;
+            is_bookmarked?: boolean;
+            readonly reactions_count: string;
+            readonly comments_count: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `private` - Private
+         *     * `mentors` - Mentors Only
+         *     * `public` - Public
+         * @enum {string}
+         */
+        JournalEntryVisibilityEnum: "private" | "mentors" | "public";
+        JournalTemplate: {
+            readonly id: number;
+            name: string;
+            description?: string;
+            /** @description List of section titles, e.g. ["What I learned", "Challenges", "Goals"]. */
+            sections?: unknown;
+            default_tags?: unknown;
+            is_public?: boolean;
+            readonly clone_count: number;
+            readonly created_by: number;
+            readonly created_by_username: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         JourneyEvent: {
             /** Format: uuid */
             readonly id: string;
@@ -16459,6 +20960,69 @@ export interface components {
             readonly issues_solved: number;
             readonly xp: number;
         };
+        LearningGoal: {
+            readonly id: number;
+            goal_type: components["schemas"]["GoalType098Enum"];
+            title: string;
+            /**
+             * Format: int64
+             * @description Numeric target (e.g. 1000 XP, 10 lessons).
+             */
+            target_value: number;
+            /** Format: int64 */
+            current_value?: number;
+            readonly skill_tag: components["schemas"]["SkillTag"];
+            readonly skill_tag_slug: string;
+            /** Format: date */
+            start_date?: string;
+            /** Format: date */
+            deadline?: string | null;
+            readonly is_completed: boolean;
+            is_archived?: boolean;
+            readonly progress_pct: number;
+            readonly is_overdue: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        LearningGoalCreate: {
+            goal_type: components["schemas"]["GoalType098Enum"];
+            title: string;
+            /**
+             * Format: int64
+             * @description Numeric target (e.g. 1000 XP, 10 lessons).
+             */
+            target_value: number;
+            skill_slug?: string;
+            /** Format: date */
+            deadline?: string | null;
+        };
+        LearningInsight: {
+            readonly id: number;
+            insight_type: components["schemas"]["InsightTypeEnum"];
+            title: string;
+            body: string;
+            priority?: components["schemas"]["LearningInsightPriorityEnum"];
+            /** @description Deep-link the user to the relevant page. */
+            action_url?: string;
+            is_read?: boolean;
+            is_dismissed?: boolean;
+            /** @description Extra payload for the frontend to render. */
+            data?: unknown;
+            /** Format: date-time */
+            readonly generated_at: string;
+            /** Format: date-time */
+            expires_at?: string | null;
+            readonly is_expired: boolean;
+        };
+        /**
+         * @description * `0` - Low
+         *     * `1` - Medium
+         *     * `2` - High
+         * @enum {integer}
+         */
+        LearningInsightPriorityEnum: 0 | 1 | 2;
         LearningPath: {
             readonly id: number;
             title: string;
@@ -16473,6 +21037,97 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        /** @description Lightweight list serializer (no steps embedded). */
+        LearningPathList: {
+            readonly id: number;
+            title: string;
+            /** @description Why this path was generated and what it covers. */
+            description?: string;
+            difficulty?: components["schemas"]["LearningPathListDifficultyEnum"];
+            status?: components["schemas"]["LearningPathListStatusEnum"];
+            /**
+             * Format: int64
+             * @description Estimated total duration in minutes.
+             */
+            estimated_minutes?: number;
+            /** Format: int64 */
+            total_steps?: number;
+            /** Format: int64 */
+            completed_steps?: number;
+            readonly progress_pct: number;
+            readonly next_step: string;
+            /**
+             * Format: double
+             * @description Engine-generated priority (0-100). Higher = more relevant.
+             */
+            priority_score?: number;
+            /**
+             * Format: int64
+             * @description Total XP earned from this path so far.
+             */
+            xp_reward?: number;
+            /** Format: date-time */
+            readonly generated_at: string;
+        };
+        /**
+         * @description * `beginner` - Beginner
+         *     * `intermediate` - Intermediate
+         *     * `advanced` - Advanced
+         *     * `mixed` - Mixed
+         * @enum {string}
+         */
+        LearningPathListDifficultyEnum: "beginner" | "intermediate" | "advanced" | "mixed";
+        /**
+         * @description * `active` - Active
+         *     * `completed` - Completed
+         *     * `archived` - Archived
+         *     * `paused` - Paused
+         * @enum {string}
+         */
+        LearningPathListStatusEnum: "active" | "completed" | "archived" | "paused";
+        LearningSession: {
+            readonly id: number;
+            activity_type: components["schemas"]["ActivityTypeD42Enum"];
+            /**
+             * Format: int64
+             * @description FK id of the related Lesson/Exercise/etc.
+             */
+            activity_id?: number | null;
+            /** Format: date-time */
+            started_at?: string;
+            /** Format: date-time */
+            ended_at?: string | null;
+            /**
+             * Format: int64
+             * @description Elapsed seconds for the session.
+             */
+            duration_seconds?: number;
+            readonly duration_display: string;
+            /** Format: int64 */
+            xp_earned?: number;
+            /**
+             * Format: int64
+             * @description Quiz score 0-100 if applicable.
+             */
+            score?: number | null;
+            completed?: boolean;
+            metadata?: unknown;
+            readonly skill_tags: components["schemas"]["SessionSkillTag"][];
+        };
+        LearningSessionCreate: {
+            activity_type: components["schemas"]["ActivityTypeD42Enum"];
+            activity_id?: number | null;
+            /** @default 0 */
+            xp_earned: number;
+            score?: number | null;
+            /** @default true */
+            completed: boolean;
+            /** @default [] */
+            skill_slugs: string[];
+            metadata?: {
+                [key: string]: unknown;
+            };
         };
         Lesson: {
             readonly id: number;
@@ -16498,6 +21153,11 @@ export interface components {
         LessonDraft: {
             readonly id: number;
             readonly quizzes: components["schemas"]["QuizDraft"][];
+            is_deleted?: boolean;
+            /** Format: date-time */
+            deleted_at?: string | null;
+            /** @description Reason for deletion */
+            deletion_reason?: string;
             title: string;
             slug: string;
             description?: string;
@@ -16514,6 +21174,8 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+            /** @description User who soft-deleted this record. */
+            deleted_by?: number | null;
             module?: number | null;
         };
         /** @description Serializer for lesson feedback with star ratings and comments. */
@@ -16651,6 +21313,203 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        MentorProfile: {
+            readonly id: number;
+            readonly user: number;
+            readonly username: string;
+            /** @description Short bio describing mentoring style and expertise. */
+            bio?: string;
+            /** @description List of skill slugs, e.g. ["python", "git-basics"]. */
+            expertise_areas?: unknown;
+            /**
+             * Format: int64
+             * @description Approximate years of programming experience.
+             */
+            years_experience?: number;
+            /** @description Maximum concurrent mentees. */
+            max_mentees?: number;
+            readonly current_mentee_count: number;
+            availability?: components["schemas"]["AvailabilityEnum"];
+            /**
+             * Format: int64
+             * @description Preferred session length in minutes.
+             */
+            preferred_session_duration?: number;
+            /** @description Spoken languages, e.g. ["en", "es"]. */
+            languages?: unknown;
+            timezone_name?: string;
+            readonly total_sessions_mentored: number;
+            /** Format: double */
+            readonly total_hours_mentored: number;
+            /** Format: double */
+            readonly average_rating: number;
+            readonly rating_count: number;
+            /** @description Verified by an admin after review. */
+            is_verified?: boolean;
+            is_active?: boolean;
+            /** Format: double */
+            readonly acceptance_rate: number;
+            readonly is_full: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        MentorshipFeedback: {
+            readonly id: number;
+            readonly from_user: number;
+            readonly from_username: string;
+            readonly to_user: number;
+            readonly to_username: string;
+            readonly feedback_type: components["schemas"]["FeedbackTypeEnum"];
+            overall_rating: number;
+            communication_rating: number;
+            helpfulness_rating: number;
+            comment?: string;
+            /** @description Hide the reviewer's identity from the report. */
+            is_anonymous?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        MentorshipGoal: {
+            readonly id: number;
+            title: string;
+            description?: string;
+            status?: components["schemas"]["MentorshipGoalStatusEnum"];
+            /** Format: date */
+            target_date?: string | null;
+            /** Format: date */
+            readonly achieved_date: string | null;
+            progress_pct?: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `active` - Active
+         *     * `achieved` - Achieved
+         *     * `abandoned` - Abandoned
+         * @enum {string}
+         */
+        MentorshipGoalStatusEnum: "active" | "achieved" | "abandoned";
+        MentorshipMatch: {
+            readonly id: number;
+            mentor: number;
+            readonly mentor_username: string;
+            mentee: number;
+            readonly mentee_username: string;
+            /** @description Primary skill this mentorship focuses on. */
+            skill_focus?: string;
+            /** @description Structured learning goals for this mentorship. */
+            goals?: unknown;
+            status?: components["schemas"]["MentorshipMatchStatusEnum"];
+            /** Format: date-time */
+            start_date?: string;
+            /** Format: date-time */
+            end_date?: string | null;
+            /** Format: int64 */
+            total_sessions?: number;
+            /** Format: double */
+            total_hours?: number;
+            /** Format: int64 */
+            mentor_xp_earned?: number;
+            /** Format: int64 */
+            mentee_xp_earned?: number;
+            /** @description Shared notes between mentor and mentee. */
+            notes?: string;
+            readonly goal_count: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `active` - Active
+         *     * `paused` - Paused
+         *     * `completed` - Completed
+         *     * `terminated` - Terminated
+         * @enum {string}
+         */
+        MentorshipMatchStatusEnum: "active" | "paused" | "completed" | "terminated";
+        MentorshipRequest: {
+            readonly id: number;
+            readonly mentee: number;
+            readonly mentee_username: string;
+            mentor: number;
+            readonly mentor_username: string;
+            /** @description What you want to learn. */
+            subject: string;
+            /** @description Introduction and learning goals. */
+            message?: string;
+            /** @description Specific skill slug the mentee wants help with. */
+            skill_wanted?: string;
+            preferred_frequency?: components["schemas"]["PreferredFrequencyEnum"];
+            readonly status: components["schemas"]["MentorshipRequestStatusEnum"];
+            /** @description Mentor's response message. */
+            readonly response_message: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly responded_at: string | null;
+            /**
+             * Format: date-time
+             * @description Request auto-expires after this time.
+             */
+            readonly expires_at: string;
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `accepted` - Accepted
+         *     * `declined` - Declined
+         *     * `cancelled` - Cancelled
+         *     * `expired` - Expired
+         * @enum {string}
+         */
+        MentorshipRequestStatusEnum: "pending" | "accepted" | "declined" | "cancelled" | "expired";
+        MentorshipSession: {
+            readonly id: number;
+            match: number;
+            readonly mentor: number;
+            readonly mentor_username: string;
+            mentee: number;
+            readonly mentee_username: string;
+            title: string;
+            description?: string;
+            status?: components["schemas"]["MentorshipSessionStatusEnum"];
+            /** Format: date-time */
+            scheduled_at: string;
+            /**
+             * Format: int64
+             * @description Actual or planned session duration.
+             */
+            duration_minutes?: number;
+            /** @description Topics discussed, e.g. ["git merge", "rebasing"]. */
+            topics_covered?: unknown;
+            /** @description Follow-up tasks for the mentee. */
+            action_items?: unknown;
+            /** @description Notes from the mentee's perspective. */
+            mentee_notes?: string;
+            /** @description Notes from the mentor's perspective. */
+            mentor_notes?: string;
+            /** @description Mentee's rating of the mentor for this session. */
+            mentor_rating?: number | null;
+            /** @description Mentor's rating of the mentee for this session. */
+            mentee_rating?: number | null;
+            mentor_feedback?: string;
+            mentee_feedback?: string;
+            readonly xp_awarded_mentor: number;
+            readonly xp_awarded_mentee: number;
+            /** Format: date-time */
+            readonly started_at: string | null;
+            /** Format: date-time */
+            readonly ended_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `scheduled` - Scheduled
+         *     * `in_progress` - In Progress
+         *     * `completed` - Completed
+         *     * `cancelled` - Cancelled
+         *     * `no_show` - No Show
+         * @enum {string}
+         */
+        MentorshipSessionStatusEnum: "scheduled" | "in_progress" | "completed" | "cancelled" | "no_show";
         Message: {
             readonly id: number;
             room_id: string;
@@ -16668,7 +21527,10 @@ export interface components {
             readonly reason: string;
             /** Format: date-time */
             readonly created_at: string;
+            readonly moderator_id: number;
             readonly moderator_username: string;
+            readonly target_user_id: number;
+            readonly target_username: string;
             readonly content_report_id: number;
         };
         ModerationScenario: {
@@ -16688,6 +21550,11 @@ export interface components {
         ModuleDraft: {
             readonly id: number;
             readonly lessons: components["schemas"]["LessonDraft"][];
+            is_deleted?: boolean;
+            /** Format: date-time */
+            deleted_at?: string | null;
+            /** @description Reason for deletion */
+            deletion_reason?: string;
             title: string;
             slug: string;
             description?: string;
@@ -16697,7 +21564,25 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+            /** @description User who soft-deleted this record. */
+            deleted_by?: number | null;
         };
+        /**
+         * @description * `1` - 😫 Terrible
+         *     * `2` - 😕 Bad
+         *     * `3` - 😐 Okay
+         *     * `4` - 😊 Good
+         *     * `5` - 🤩 Great
+         * @enum {integer}
+         */
+        MoodEnum: 1 | 2 | 3 | 4 | 5;
+        /**
+         * @description * `improving` - Improving
+         *     * `stable` - Stable
+         *     * `declining` - Declining
+         * @enum {string}
+         */
+        MoodTrendEnum: "improving" | "stable" | "declining";
         NewcomerFriendlinessScore: {
             readonly id: number;
             /** Format: double */
@@ -16925,10 +21810,17 @@ export interface components {
             readonly id: number;
             user: number;
             readonly username: string;
-            role?: components["schemas"]["RoleEnum"];
+            role?: components["schemas"]["OrganizationMembershipRoleEnum"];
             /** Format: date-time */
             readonly joined_at: string;
         };
+        /**
+         * @description * `owner` - Owner
+         *     * `admin` - Admin
+         *     * `member` - Member
+         * @enum {string}
+         */
+        OrganizationMembershipRoleEnum: "owner" | "admin" | "member";
         OrganizationSponsor: {
             readonly id: number;
             name: string;
@@ -17048,6 +21940,36 @@ export interface components {
             results: components["schemas"]["Badge"][];
         };
         PaginatedChallengeList: components["schemas"]["Challenge"][];
+        PaginatedDeckList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Deck"][];
+        };
+        PaginatedGroupActivityList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["GroupActivity"][];
+        };
         PaginatedLeaderboardList: {
             /** @example 123 */
             count: number;
@@ -17062,6 +21984,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Leaderboard"][];
+        };
+        PaginatedLearningSessionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["LearningSession"][];
         };
         PaginatedLessonList: components["schemas"]["Lesson"][];
         PaginatedMessageList: {
@@ -17538,6 +22475,28 @@ export interface components {
             /** Format: date-time */
             completed_at?: string | null;
         };
+        PatchedDeck: {
+            readonly id?: number;
+            title?: string;
+            description?: string;
+            deck_type?: components["schemas"]["DeckTypeEnum"];
+            source_lesson?: number | null;
+            /** @description Skill tag slug this deck is associated with. */
+            source_skill_slug?: string;
+            /** @description Hex color for UI display. */
+            color?: string;
+            icon_emoji?: string;
+            /** @description Allow other users to clone this deck. */
+            is_public?: boolean;
+            readonly clone_count?: number;
+            readonly card_count?: number;
+            readonly is_due?: string;
+            readonly due_count?: string;
+            /** Format: date-time */
+            readonly created_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
+        };
         PatchedExperiment: {
             readonly id?: number;
             name?: string;
@@ -17662,6 +22621,28 @@ export interface components {
             /** Format: date-time */
             readonly updated_at?: string;
         };
+        PatchedFlashcard: {
+            readonly id?: number;
+            /** @description Question or prompt on the front of the card. */
+            front?: string;
+            /** @description Answer or explanation on the back. */
+            back?: string;
+            /** @description Optional hint shown before flipping. */
+            hint?: string;
+            difficulty?: components["schemas"]["Difficulty3d0Enum"];
+            /** @description Free-form tags for filtering. */
+            tags?: unknown;
+            /** @description Optional image/audio URL attached to the card. */
+            media_url?: string;
+            /** Format: int64 */
+            order?: number;
+            /** @description Suspended cards are excluded from review sessions. */
+            is_suspended?: boolean;
+            /** Format: date-time */
+            readonly created_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
+        };
         PatchedIntervention: {
             /** Format: uuid */
             readonly id?: string;
@@ -17753,6 +22734,8 @@ export interface components {
             readonly user?: number | null;
             /** Format: uri */
             image?: string | null;
+            /** @description Designates whether this report is a verified issue. */
+            readonly is_verified?: boolean;
             /** Format: date-time */
             readonly created_at?: string;
             /** Format: date-time */
@@ -17824,6 +22807,49 @@ export interface components {
             tag?: number;
             assigned_by?: number | null;
         };
+        PatchedJournalEntry: {
+            readonly id?: number;
+            readonly user?: number;
+            readonly username?: string;
+            /**
+             * Format: date
+             * @description The calendar date this entry reflects on.
+             */
+            date?: string;
+            /** @description Optional title for the entry. */
+            title?: string;
+            /** @description What did you learn today? */
+            what_i_learned?: string;
+            /** @description What was difficult or confusing? */
+            challenges_faced?: string;
+            /** @description Key insights or takeaways. */
+            key_takeaways?: string;
+            /** @description What do you want to learn or accomplish tomorrow? */
+            tomorrow_goals?: string;
+            /** @description Free-form tags, e.g. ["python", "debugging"]. */
+            tags?: unknown;
+            mood?: components["schemas"]["MoodEnum"];
+            /** @description Self-rated productivity 1-10. */
+            productivity_score?: number;
+            /**
+             * Format: double
+             * @description Approximate hours spent learning.
+             */
+            hours_spent?: number;
+            visibility?: components["schemas"]["JournalEntryVisibilityEnum"];
+            /** @description Lesson slugs linked to this entry, e.g. ["git-basics"]. */
+            linked_lessons?: unknown;
+            linked_flashcard_decks?: unknown;
+            readonly xp_earned?: number;
+            readonly word_count?: number;
+            is_bookmarked?: boolean;
+            readonly reactions_count?: string;
+            readonly comments_count?: string;
+            /** Format: date-time */
+            readonly created_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
+        };
         PatchedJourneyEvent: {
             /** Format: uuid */
             readonly id?: string;
@@ -17833,6 +22859,32 @@ export interface components {
             readonly created_at?: string;
             /** Format: uuid */
             journey?: string;
+        };
+        PatchedLearningGoal: {
+            readonly id?: number;
+            goal_type?: components["schemas"]["GoalType098Enum"];
+            title?: string;
+            /**
+             * Format: int64
+             * @description Numeric target (e.g. 1000 XP, 10 lessons).
+             */
+            target_value?: number;
+            /** Format: int64 */
+            current_value?: number;
+            readonly skill_tag?: components["schemas"]["SkillTag"];
+            readonly skill_tag_slug?: string;
+            /** Format: date */
+            start_date?: string;
+            /** Format: date */
+            deadline?: string | null;
+            readonly is_completed?: boolean;
+            is_archived?: boolean;
+            readonly progress_pct?: number;
+            readonly is_overdue?: boolean;
+            /** Format: date-time */
+            readonly created_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
         };
         PatchedLearningPath: {
             readonly id?: number;
@@ -17873,6 +22925,11 @@ export interface components {
         PatchedLessonDraft: {
             readonly id?: number;
             readonly quizzes?: components["schemas"]["QuizDraft"][];
+            is_deleted?: boolean;
+            /** Format: date-time */
+            deleted_at?: string | null;
+            /** @description Reason for deletion */
+            deletion_reason?: string;
             title?: string;
             slug?: string;
             description?: string;
@@ -17889,6 +22946,8 @@ export interface components {
             readonly created_at?: string;
             /** Format: date-time */
             readonly updated_at?: string;
+            /** @description User who soft-deleted this record. */
+            deleted_by?: number | null;
             module?: number | null;
         };
         /** @description Serializer for lesson feedback with star ratings and comments. */
@@ -17944,9 +23003,123 @@ export interface components {
             primary_domains?: number[];
             secondary_domains?: number[];
         };
+        PatchedMentorProfile: {
+            readonly id?: number;
+            readonly user?: number;
+            readonly username?: string;
+            /** @description Short bio describing mentoring style and expertise. */
+            bio?: string;
+            /** @description List of skill slugs, e.g. ["python", "git-basics"]. */
+            expertise_areas?: unknown;
+            /**
+             * Format: int64
+             * @description Approximate years of programming experience.
+             */
+            years_experience?: number;
+            /** @description Maximum concurrent mentees. */
+            max_mentees?: number;
+            readonly current_mentee_count?: number;
+            availability?: components["schemas"]["AvailabilityEnum"];
+            /**
+             * Format: int64
+             * @description Preferred session length in minutes.
+             */
+            preferred_session_duration?: number;
+            /** @description Spoken languages, e.g. ["en", "es"]. */
+            languages?: unknown;
+            timezone_name?: string;
+            readonly total_sessions_mentored?: number;
+            /** Format: double */
+            readonly total_hours_mentored?: number;
+            /** Format: double */
+            readonly average_rating?: number;
+            readonly rating_count?: number;
+            /** @description Verified by an admin after review. */
+            is_verified?: boolean;
+            is_active?: boolean;
+            /** Format: double */
+            readonly acceptance_rate?: number;
+            readonly is_full?: boolean;
+            /** Format: date-time */
+            readonly created_at?: string;
+        };
+        PatchedMentorshipMatch: {
+            readonly id?: number;
+            mentor?: number;
+            readonly mentor_username?: string;
+            mentee?: number;
+            readonly mentee_username?: string;
+            /** @description Primary skill this mentorship focuses on. */
+            skill_focus?: string;
+            /** @description Structured learning goals for this mentorship. */
+            goals?: unknown;
+            status?: components["schemas"]["MentorshipMatchStatusEnum"];
+            /** Format: date-time */
+            start_date?: string;
+            /** Format: date-time */
+            end_date?: string | null;
+            /** Format: int64 */
+            total_sessions?: number;
+            /** Format: double */
+            total_hours?: number;
+            /** Format: int64 */
+            mentor_xp_earned?: number;
+            /** Format: int64 */
+            mentee_xp_earned?: number;
+            /** @description Shared notes between mentor and mentee. */
+            notes?: string;
+            readonly goal_count?: string;
+            /** Format: date-time */
+            readonly created_at?: string;
+        };
+        PatchedMentorshipSession: {
+            readonly id?: number;
+            match?: number;
+            readonly mentor?: number;
+            readonly mentor_username?: string;
+            mentee?: number;
+            readonly mentee_username?: string;
+            title?: string;
+            description?: string;
+            status?: components["schemas"]["MentorshipSessionStatusEnum"];
+            /** Format: date-time */
+            scheduled_at?: string;
+            /**
+             * Format: int64
+             * @description Actual or planned session duration.
+             */
+            duration_minutes?: number;
+            /** @description Topics discussed, e.g. ["git merge", "rebasing"]. */
+            topics_covered?: unknown;
+            /** @description Follow-up tasks for the mentee. */
+            action_items?: unknown;
+            /** @description Notes from the mentee's perspective. */
+            mentee_notes?: string;
+            /** @description Notes from the mentor's perspective. */
+            mentor_notes?: string;
+            /** @description Mentee's rating of the mentor for this session. */
+            mentor_rating?: number | null;
+            /** @description Mentor's rating of the mentee for this session. */
+            mentee_rating?: number | null;
+            mentor_feedback?: string;
+            mentee_feedback?: string;
+            readonly xp_awarded_mentor?: number;
+            readonly xp_awarded_mentee?: number;
+            /** Format: date-time */
+            readonly started_at?: string | null;
+            /** Format: date-time */
+            readonly ended_at?: string | null;
+            /** Format: date-time */
+            readonly created_at?: string;
+        };
         PatchedModuleDraft: {
             readonly id?: number;
             readonly lessons?: components["schemas"]["LessonDraft"][];
+            is_deleted?: boolean;
+            /** Format: date-time */
+            deleted_at?: string | null;
+            /** @description Reason for deletion */
+            deletion_reason?: string;
             title?: string;
             slug?: string;
             description?: string;
@@ -17956,6 +23129,8 @@ export interface components {
             readonly created_at?: string;
             /** Format: date-time */
             readonly updated_at?: string;
+            /** @description User who soft-deleted this record. */
+            deleted_by?: number | null;
         };
         PatchedNewcomerFriendlinessScore: {
             readonly id?: number;
@@ -18122,7 +23297,7 @@ export interface components {
             readonly id?: number;
             user?: number;
             readonly username?: string;
-            role?: components["schemas"]["RoleEnum"];
+            role?: components["schemas"]["OrganizationMembershipRoleEnum"];
             /** Format: date-time */
             readonly joined_at?: string;
         };
@@ -18480,6 +23655,38 @@ export interface components {
             feature_request?: string;
             user?: number | null;
         };
+        PatchedStudyGroup: {
+            readonly id?: number;
+            name?: string;
+            slug?: string;
+            description?: string;
+            visibility?: components["schemas"]["VisibilityA14Enum"];
+            category?: components["schemas"]["Category541Enum"];
+            readonly owner?: number;
+            readonly owner_username?: string;
+            /** @description URL to a cover/banner image. */
+            cover_image_url?: string;
+            icon_emoji?: string;
+            color?: string;
+            max_members?: number;
+            readonly member_count?: number;
+            /** @description Aggregate XP earned by all members. */
+            readonly total_xp?: number;
+            /** @description Consecutive days with at least one member active. */
+            readonly streak_days?: number;
+            /**
+             * Format: int64
+             * @description Group weekly learning goal in minutes.
+             */
+            weekly_goal_minutes?: number;
+            is_archived?: boolean;
+            readonly is_member?: string;
+            readonly my_role?: string;
+            /** Format: date-time */
+            readonly created_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
+        };
         PatchedUserSearchProfile: {
             readonly id?: number;
             /** @description List of recent searches */
@@ -18675,6 +23882,14 @@ export interface components {
          */
         PredictedPriorityEnum: "critical" | "high" | "medium" | "low";
         /**
+         * @description * `weekly` - Weekly
+         *     * `biweekly` - Bi-Weekly
+         *     * `monthly` - Monthly
+         *     * `flexible` - Flexible
+         * @enum {string}
+         */
+        PreferredFrequencyEnum: "weekly" | "biweekly" | "monthly" | "flexible";
+        /**
          * @description * `low` - Low
          *     * `medium` - Medium
          *     * `high` - High
@@ -18809,6 +24024,15 @@ export interface components {
             readonly updated_at: string;
             lesson: number;
         };
+        /**
+         * @description * `0` - Again (Blackout)
+         *     * `1` - Hard
+         *     * `2` - Good
+         *     * `3` - Easy
+         *     * `4` - Perfect
+         * @enum {integer}
+         */
+        RatingEnum: 0 | 1 | 2 | 3 | 4;
         Recommendation: {
             readonly id: number;
             content_type: components["schemas"]["ContentTypeEnum"];
@@ -18829,6 +24053,20 @@ export interface components {
          * @enum {string}
          */
         RecommendationStatusEnum: "pending" | "accepted" | "rejected" | "completed";
+        /** @description Either the address to resend to, or the key from an expired link. */
+        ResendVerification: {
+            /** Format: email */
+            email?: string;
+            key?: string;
+        };
+        /**
+         * @description * `deck` - Flashcard Deck
+         *     * `link` - External Link
+         *     * `note` - Study Note
+         *     * `file` - File
+         * @enum {string}
+         */
+        ResourceTypeEnum: "deck" | "link" | "note" | "file";
         ReviewConfig: {
             readonly id: number;
             repository: string;
@@ -18849,6 +24087,30 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        ReviewLog: {
+            readonly id: number;
+            flashcard: number;
+            rating: components["schemas"]["RatingEnum"];
+            /** Format: double */
+            prev_easiness: number;
+            /** Format: int64 */
+            prev_interval: number;
+            /** Format: int64 */
+            prev_repetition: number;
+            /** Format: double */
+            new_easiness: number;
+            /** Format: int64 */
+            new_interval: number;
+            /** Format: int64 */
+            new_repetition: number;
+            /**
+             * Format: int64
+             * @description Milliseconds the user took to answer.
+             */
+            response_time_ms?: number;
+            /** Format: date-time */
+            readonly reviewed_at: string;
         };
         RoadmapMilestone: {
             readonly id: number;
@@ -18873,13 +24135,6 @@ export interface components {
             name: string;
             description?: string;
         };
-        /**
-         * @description * `owner` - Owner
-         *     * `admin` - Admin
-         *     * `member` - Member
-         * @enum {string}
-         */
-        RoleEnum: "owner" | "admin" | "member";
         RoutingMetric: {
             readonly id: number;
             /** Format: date */
@@ -18968,6 +24223,14 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        SessionSkillTag: {
+            readonly skill_tag: components["schemas"]["SkillTag"];
+            /**
+             * Format: double
+             * @description 0-1 confidence of the tag assignment.
+             */
+            confidence?: number;
+        };
         /**
          * @description * `declining_activity` - Declining Activity
          *     * `negative_sentiment` - Negative Sentiment
@@ -19000,9 +24263,9 @@ export interface components {
         SkillTag: {
             readonly id: number;
             name: string;
-            category: string;
-            /** Format: date-time */
-            readonly created_at: string;
+            slug: string;
+            description?: string;
+            icon_emoji?: string;
         };
         SnippetCollection: {
             /** Format: uuid */
@@ -19034,6 +24297,55 @@ export interface components {
             feature_request: string;
             user?: number | null;
         };
+        StudyGroup: {
+            readonly id: number;
+            name: string;
+            slug: string;
+            description?: string;
+            visibility?: components["schemas"]["VisibilityA14Enum"];
+            category?: components["schemas"]["Category541Enum"];
+            readonly owner: number;
+            readonly owner_username: string;
+            /** @description URL to a cover/banner image. */
+            cover_image_url?: string;
+            icon_emoji?: string;
+            color?: string;
+            max_members?: number;
+            readonly member_count: number;
+            /** @description Aggregate XP earned by all members. */
+            readonly total_xp: number;
+            /** @description Consecutive days with at least one member active. */
+            readonly streak_days: number;
+            /**
+             * Format: int64
+             * @description Group weekly learning goal in minutes.
+             */
+            weekly_goal_minutes?: number;
+            is_archived?: boolean;
+            readonly is_member: string;
+            readonly my_role: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        StudyGroupCreate: {
+            name: string;
+            slug: string;
+            description?: string;
+            visibility?: components["schemas"]["VisibilityA14Enum"];
+            category?: components["schemas"]["Category541Enum"];
+            /** @description URL to a cover/banner image. */
+            cover_image_url?: string;
+            icon_emoji?: string;
+            color?: string;
+            max_members?: number;
+            /**
+             * Format: int64
+             * @description Group weekly learning goal in minutes.
+             */
+            weekly_goal_minutes?: number;
+        };
         /**
          * @description * `skill` - Skill
          *     * `technology` - Technology
@@ -19044,6 +24356,15 @@ export interface components {
          * @enum {string}
          */
         TagTypeEnum: "skill" | "technology" | "domain" | "difficulty" | "area" | "custom";
+        /**
+         * @description * `lessons` - Lessons
+         *     * `xp` - XP
+         *     * `minutes` - Study Minutes
+         *     * `quiz_score` - Quiz Score
+         *     * `streak_days` - Streak Days
+         * @enum {string}
+         */
+        TargetTypeEnum: "lessons" | "xp" | "minutes" | "quiz_score" | "streak_days";
         TaskRun: {
             readonly id: number;
             task_id: string;
@@ -19076,6 +24397,13 @@ export interface components {
             readonly access: string;
             refresh: string;
         };
+        /**
+         * @description * `rising` - Rising
+         *     * `stable` - Stable
+         *     * `declining` - Declining
+         * @enum {string}
+         */
+        TrendEnum: "rising" | "stable" | "declining";
         TriageIssue: {
             /** Format: uuid */
             readonly id: string;
@@ -19089,17 +24417,10 @@ export interface components {
             readonly correct_labels: unknown;
             /** @description Optional hint for the user. */
             hint?: string;
-            difficulty?: components["schemas"]["TriageIssueDifficultyEnum"];
+            difficulty?: components["schemas"]["Difficulty3d0Enum"];
             /** Format: date-time */
             readonly created_at: string;
         };
-        /**
-         * @description * `easy` - Easy
-         *     * `medium` - Medium
-         *     * `hard` - Hard
-         * @enum {string}
-         */
-        TriageIssueDifficultyEnum: "easy" | "medium" | "hard";
         UserAchievement: {
             readonly id: number;
             readonly badge: components["schemas"]["Badge"];
@@ -19140,6 +24461,10 @@ export interface components {
             readonly github_url: string;
             readonly active_track_status: string;
             readonly next_milestone: string;
+            readonly global_rank: string;
+            readonly percentile_standing: string;
+            readonly streak_days: string;
+            readonly longest_streak: string;
         };
         UserSearchProfile: {
             readonly id: number;
@@ -19177,6 +24502,25 @@ export interface components {
             /** Format: date-time */
             readonly last_activity: string;
         };
+        UserSkillProfile: {
+            readonly id: number;
+            readonly skill_tag: components["schemas"]["SkillTag"];
+            readonly skill_tag_slug: string;
+            /**
+             * Format: int64
+             * @description Computed skill level 0-100.
+             */
+            level?: number;
+            /** Format: int64 */
+            total_sessions?: number;
+            /** Format: int64 */
+            total_xp?: number;
+            /** Format: double */
+            average_score?: number;
+            /** Format: date-time */
+            last_practiced?: string | null;
+            trend?: components["schemas"]["TrendEnum"];
+        };
         UserUpdate: {
             /** Email address */
             email?: string;
@@ -19192,6 +24536,13 @@ export interface components {
             bio?: string;
             receive_weekly_digest?: boolean;
         };
+        /**
+         * @description * `public` - Public
+         *     * `private` - Private
+         *     * `invite_only` - Invite Only
+         * @enum {string}
+         */
+        VisibilityA14Enum: "public" | "private" | "invite_only";
         Vote: {
             readonly id: number;
             vote_type: components["schemas"]["VoteTypeEnum"];
@@ -19326,6 +24677,34 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        WeeklyReflection: {
+            readonly id: number;
+            /**
+             * Format: date
+             * @description Monday of the ISO week.
+             */
+            week_start: string;
+            /** @description Auto-generated summary of the week's entries. */
+            summary: string;
+            /** Format: int64 */
+            entries_count?: number;
+            /** Format: int64 */
+            total_words?: number;
+            /** Format: double */
+            total_hours?: number;
+            /** Format: double */
+            average_mood?: number;
+            /** Format: double */
+            average_productivity?: number;
+            mood_trend?: components["schemas"]["MoodTrendEnum"];
+            top_tags?: unknown;
+            /** @description Key highlights from the week's entries. */
+            highlights?: unknown;
+            goals_for_next_week?: string;
+            is_read?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -19335,6 +24714,42 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    ".well_known_jwks.json_retrieve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ".well_known_openid_configuration_retrieve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_accessibility_issues_list: {
         parameters: {
             query?: {
@@ -20197,6 +25612,24 @@ export interface operations {
             };
         };
     };
+    api_ai_tutor_evaluate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_audit_list: {
         parameters: {
             query?: {
@@ -20356,7 +25789,43 @@ export interface operations {
             };
         };
     };
+    api_auth_github_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_auth_github_callback_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_auth_github_exchange_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -20618,6 +26087,42 @@ export interface operations {
             };
         };
     };
+    api_auth_passkey_register_begin_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_auth_passkey_register_finish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_auth_password_reset_create: {
         parameters: {
             query?: never;
@@ -20755,6 +26260,30 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TokenRefresh"];
                 };
+            };
+        };
+    };
+    api_auth_resend_verification_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ResendVerification"];
+                "application/x-www-form-urlencoded": components["schemas"]["ResendVerification"];
+                "multipart/form-data": components["schemas"]["ResendVerification"];
+            };
+        };
+        responses: {
+            /** @description Generic confirmation message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -20902,6 +26431,33 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserList"][];
                 };
+            };
+        };
+    };
+    api_auth_verify_email_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Email address verified. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description `code` is `expired_key` or `invalid_key`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -22543,6 +28099,26 @@ export interface operations {
             };
         };
     };
+    api_content_drafts_restore_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_content_feedback_retrieve: {
         parameters: {
             query?: never;
@@ -23032,6 +28608,34 @@ export interface operations {
             };
         };
     };
+    api_content_lessons_restore_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this lesson draft. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LessonDraft"];
+                "application/x-www-form-urlencoded": components["schemas"]["LessonDraft"];
+                "multipart/form-data": components["schemas"]["LessonDraft"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LessonDraft"];
+                };
+            };
+        };
+    };
     api_content_modules_list: {
         parameters: {
             query?: never;
@@ -23162,6 +28766,34 @@ export interface operations {
                 "application/json": components["schemas"]["PatchedModuleDraft"];
                 "application/x-www-form-urlencoded": components["schemas"]["PatchedModuleDraft"];
                 "multipart/form-data": components["schemas"]["PatchedModuleDraft"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModuleDraft"];
+                };
+            };
+        };
+    };
+    api_content_modules_restore_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this module draft. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModuleDraft"];
+                "application/x-www-form-urlencoded": components["schemas"]["ModuleDraft"];
+                "multipart/form-data": components["schemas"]["ModuleDraft"];
             };
         };
         responses: {
@@ -25540,6 +31172,516 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["FeedPost"];
                 };
+            };
+        };
+    };
+    api_flashcards_cards_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_flashcards_cards_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Flashcard"];
+                "application/x-www-form-urlencoded": components["schemas"]["Flashcard"];
+                "multipart/form-data": components["schemas"]["Flashcard"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_flashcards_cards_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_cards_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFlashcard"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFlashcard"];
+                "multipart/form-data": components["schemas"]["PatchedFlashcard"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"][];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Deck"];
+                "application/x-www-form-urlencoded": components["schemas"]["Deck"];
+                "multipart/form-data": components["schemas"]["Deck"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_cards_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"][];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_cards_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Flashcard"];
+                "application/x-www-form-urlencoded": components["schemas"]["Flashcard"];
+                "multipart/form-data": components["schemas"]["Flashcard"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_cards_bulk_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_decks_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_decks_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Deck"];
+                "application/x-www-form-urlencoded": components["schemas"]["Deck"];
+                "multipart/form-data": components["schemas"]["Deck"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_decks_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDeck"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDeck"];
+                "multipart/form-data": components["schemas"]["PatchedDeck"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_flashcards_decks_clone_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_decks_public_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDeckList"];
+                };
+            };
+        };
+    };
+    api_flashcards_review_logs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewLog"][];
+                };
+            };
+        };
+    };
+    api_flashcards_reviews_due_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_reviews_history_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewLog"][];
+                };
+            };
+        };
+    };
+    api_flashcards_reviews_new_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_reviews_submit_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_sessions_end_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_flashcards_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -28061,6 +34203,1037 @@ export interface operations {
             };
         };
     };
+    api_learning_analytics_daily_metrics_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyLearningMetric"][];
+                };
+            };
+        };
+    };
+    api_learning_analytics_dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_goals_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"][];
+                };
+            };
+        };
+    };
+    api_learning_analytics_goals_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningGoalCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["LearningGoalCreate"];
+                "multipart/form-data": components["schemas"]["LearningGoalCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoalCreate"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_goals_predict_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_goals_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_goals_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["LearningGoal"];
+                "multipart/form-data": components["schemas"]["LearningGoal"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_goals_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_goals_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedLearningGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedLearningGoal"];
+                "multipart/form-data": components["schemas"]["PatchedLearningGoal"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_insights_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningInsight"][];
+                };
+            };
+        };
+    };
+    api_learning_analytics_insights_bulk_read_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_insights_dismiss_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_insights_refresh_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_monthly_recap_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningPathList"][];
+                };
+            };
+        };
+    };
+    api_learning_analytics_paths_archive_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                path_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningPath"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_paths_estimate_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_generate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_progress_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_steps_complete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_steps_skip_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_paths_steps_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_sessions_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLearningSessionList"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningSessionCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["LearningSessionCreate"];
+                "multipart/form-data": components["schemas"]["LearningSessionCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningSessionCreate"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningSession"];
+                };
+            };
+        };
+    };
+    api_learning_analytics_sessions_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_skills_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillTag"][];
+                };
+            };
+        };
+    };
+    api_learning_analytics_skills_profiles_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSkillProfile"][];
+                };
+            };
+        };
+    };
+    api_learning_analytics_skills_refresh_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_velocity_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_analytics_weekly_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_entries_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"][];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalEntry"];
+                "multipart/form-data": components["schemas"]["JournalEntry"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_comments_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalComment"][];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_comments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalComment"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalComment"];
+                "multipart/form-data": components["schemas"]["JournalComment"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalComment"];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_react_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_entries_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalEntry"];
+                "multipart/form-data": components["schemas"]["JournalEntry"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_entries_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedJournalEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedJournalEntry"];
+                "multipart/form-data": components["schemas"]["PatchedJournalEntry"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_learning_journal_entries_today_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_entries_today_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_feed_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_prompt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_streak_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_templates_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalTemplate"][];
+                };
+            };
+        };
+    };
+    api_learning_journal_templates_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalTemplate"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalTemplate"];
+                "multipart/form-data": components["schemas"]["JournalTemplate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalTemplate"];
+                };
+            };
+        };
+    };
+    api_learning_journal_weekly_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_learning_journal_weekly_list_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReflection"][];
+                };
+            };
+        };
+    };
     api_lessons_notes_retrieve: {
         parameters: {
             query?: never;
@@ -28147,6 +35320,661 @@ export interface operations {
             header?: never;
             path: {
                 lang_code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_analytics_mentee_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_analytics_mentor_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_analytics_program_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_matches_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"][];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_feedback_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipFeedback"][];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_feedback_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipFeedback"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipFeedback"];
+                "multipart/form-data": components["schemas"]["MentorshipFeedback"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipFeedback"];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_goals_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipGoal"][];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_goals_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipGoal"];
+                "multipart/form-data": components["schemas"]["MentorshipGoal"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipGoal"];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_recommendations_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_matches_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipMatch"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipMatch"];
+                "multipart/form-data": components["schemas"]["MentorshipMatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"];
+                };
+            };
+        };
+    };
+    api_mentorship_matches_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMentorshipMatch"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMentorshipMatch"];
+                "multipart/form-data": components["schemas"]["PatchedMentorshipMatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"];
+                };
+            };
+        };
+    };
+    api_mentorship_mentors_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"][];
+                };
+            };
+        };
+    };
+    api_mentorship_mentors_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MentorProfile"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorProfile"];
+                "multipart/form-data": components["schemas"]["MentorProfile"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_mentorship_mentors_find_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_mentors_me_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_mentors_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_mentorship_mentors_profile_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MentorProfile"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorProfile"];
+                "multipart/form-data": components["schemas"]["MentorProfile"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_mentorship_mentors_profile_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMentorProfile"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMentorProfile"];
+                "multipart/form-data": components["schemas"]["PatchedMentorProfile"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_mentorship_requests_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipRequest"][];
+                };
+            };
+        };
+    };
+    api_mentorship_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipRequest"];
+                "multipart/form-data": components["schemas"]["MentorshipRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipRequest"];
+                };
+            };
+        };
+    };
+    api_mentorship_requests_respond_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_requests_incoming_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipRequest"][];
+                };
+            };
+        };
+    };
+    api_mentorship_sessions_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"][];
+                };
+            };
+        };
+    };
+    api_mentorship_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipSession"];
+                "multipart/form-data": components["schemas"]["MentorshipSession"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_mentorship_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_mentorship_sessions_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipSession"];
+                "multipart/form-data": components["schemas"]["MentorshipSession"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_mentorship_sessions_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMentorshipSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMentorshipSession"];
+                "multipart/form-data": components["schemas"]["PatchedMentorshipSession"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_mentorship_sessions_complete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_mentorship_sessions_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
             };
             cookie?: never;
         };
@@ -28842,6 +36670,24 @@ export interface operations {
             };
         };
     };
+    api_notifications_channel_preferences_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_notifications_channels_retrieve: {
         parameters: {
             query?: never;
@@ -28974,6 +36820,24 @@ export interface operations {
             };
         };
     };
+    api_notifications_prefs_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_notifications_push_subscribe_create: {
         parameters: {
             query?: never;
@@ -29036,6 +36900,187 @@ export interface operations {
             header?: never;
             path: {
                 delivery_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_oauth_clients_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"][];
+                };
+            };
+        };
+    };
+    api_oauth_clients_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OAuthClient"];
+                "application/x-www-form-urlencoded": components["schemas"]["OAuthClient"];
+                "multipart/form-data": components["schemas"]["OAuthClient"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_oauth_clients_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_oauth_clients_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OAuthClient"];
+                "application/x-www-form-urlencoded": components["schemas"]["OAuthClient"];
+                "multipart/form-data": components["schemas"]["OAuthClient"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_oauth_clients_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_oauth_clients_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedOAuthClient"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedOAuthClient"];
+                "multipart/form-data": components["schemas"]["PatchedOAuthClient"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_oauth_user_apps_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_oauth_user_apps_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
             cookie?: never;
         };
@@ -29913,6 +37958,111 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_plugins_retrieve_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_plugins_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_plugins_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_plugins_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_plugins_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -31563,6 +39713,24 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Lesson"][];
                 };
+            };
+        };
+    };
+    api_progress_rewards_claim_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -35538,6 +43706,639 @@ export interface operations {
             };
         };
     };
+    api_study_groups_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"][];
+                };
+            };
+        };
+    };
+    api_study_groups_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudyGroupCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudyGroupCreate"];
+                "multipart/form-data": components["schemas"]["StudyGroupCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroupCreate"];
+                };
+            };
+        };
+    };
+    api_study_groups_activities_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedGroupActivityList"];
+                };
+            };
+        };
+    };
+    api_study_groups_challenges_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupChallenge"][];
+                };
+            };
+        };
+    };
+    api_study_groups_challenges_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupChallenge"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupChallenge"];
+                "multipart/form-data": components["schemas"]["GroupChallenge"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupChallenge"];
+                };
+            };
+        };
+    };
+    api_study_groups_challenges_join_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                challenge_id: number;
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_challenges_leaderboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                challenge_id: number;
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_goals_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupGoal"][];
+                };
+            };
+        };
+    };
+    api_study_groups_goals_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupGoal"];
+                "multipart/form-data": components["schemas"]["GroupGoal"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupGoal"];
+                };
+            };
+        };
+    };
+    api_study_groups_invites_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_join_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_leaderboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_leave_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_members_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMembership"][];
+                };
+            };
+        };
+    };
+    api_study_groups_messages_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMessage"][];
+                };
+            };
+        };
+    };
+    api_study_groups_messages_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupMessage"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupMessage"];
+                "multipart/form-data": components["schemas"]["GroupMessage"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMessage"];
+                };
+            };
+        };
+    };
+    api_study_groups_resources_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResource"][];
+                };
+            };
+        };
+    };
+    api_study_groups_resources_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupResource"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupResource"];
+                "multipart/form-data": components["schemas"]["GroupResource"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResource"];
+                };
+            };
+        };
+    };
+    api_study_groups_resources_upvote_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+                resource_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"];
+                };
+            };
+        };
+    };
+    api_study_groups_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudyGroup"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudyGroup"];
+                "multipart/form-data": components["schemas"]["StudyGroup"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"];
+                };
+            };
+        };
+    };
+    api_study_groups_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedStudyGroup"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedStudyGroup"];
+                "multipart/form-data": components["schemas"]["PatchedStudyGroup"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"];
+                };
+            };
+        };
+    };
+    api_study_groups_discover_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_invites_accept_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_study_groups_invites_mine_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupInvite"][];
+                };
+            };
+        };
+    };
+    api_study_groups_messages_replies_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMessage"][];
+                };
+            };
+        };
+    };
+    api_study_groups_platform_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_uploads_create: {
         parameters: {
             query?: never;
@@ -35680,6 +44481,42 @@ export interface operations {
         };
     };
     api_users_me_learning_path_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "api_v1_.well_known_jwks.json_retrieve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "api_v1_.well_known_openid_configuration_retrieve": {
         parameters: {
             query?: never;
             header?: never;
@@ -36559,6 +45396,24 @@ export interface operations {
             };
         };
     };
+    api_v1_api_ai_tutor_evaluate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_audit_list: {
         parameters: {
             query?: {
@@ -36718,7 +45573,43 @@ export interface operations {
             };
         };
     };
+    api_v1_api_auth_github_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_auth_github_callback_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_auth_github_exchange_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -36980,6 +45871,42 @@ export interface operations {
             };
         };
     };
+    api_v1_api_auth_passkey_register_begin_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_auth_passkey_register_finish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_auth_password_reset_create: {
         parameters: {
             query?: never;
@@ -37117,6 +46044,30 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TokenRefresh"];
                 };
+            };
+        };
+    };
+    api_v1_api_auth_resend_verification_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ResendVerification"];
+                "application/x-www-form-urlencoded": components["schemas"]["ResendVerification"];
+                "multipart/form-data": components["schemas"]["ResendVerification"];
+            };
+        };
+        responses: {
+            /** @description Generic confirmation message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -37264,6 +46215,33 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserList"][];
                 };
+            };
+        };
+    };
+    api_v1_api_auth_verify_email_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Email address verified. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description `code` is `expired_key` or `invalid_key`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -38905,6 +47883,26 @@ export interface operations {
             };
         };
     };
+    api_v1_api_content_drafts_restore_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_content_feedback_retrieve: {
         parameters: {
             query?: never;
@@ -39394,6 +48392,34 @@ export interface operations {
             };
         };
     };
+    api_v1_api_content_lessons_restore_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this lesson draft. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LessonDraft"];
+                "application/x-www-form-urlencoded": components["schemas"]["LessonDraft"];
+                "multipart/form-data": components["schemas"]["LessonDraft"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LessonDraft"];
+                };
+            };
+        };
+    };
     api_v1_api_content_modules_list: {
         parameters: {
             query?: never;
@@ -39524,6 +48550,34 @@ export interface operations {
                 "application/json": components["schemas"]["PatchedModuleDraft"];
                 "application/x-www-form-urlencoded": components["schemas"]["PatchedModuleDraft"];
                 "multipart/form-data": components["schemas"]["PatchedModuleDraft"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModuleDraft"];
+                };
+            };
+        };
+    };
+    api_v1_api_content_modules_restore_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this module draft. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModuleDraft"];
+                "application/x-www-form-urlencoded": components["schemas"]["ModuleDraft"];
+                "multipart/form-data": components["schemas"]["ModuleDraft"];
             };
         };
         responses: {
@@ -41902,6 +50956,516 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["FeedPost"];
                 };
+            };
+        };
+    };
+    api_v1_api_flashcards_cards_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_cards_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Flashcard"];
+                "application/x-www-form-urlencoded": components["schemas"]["Flashcard"];
+                "multipart/form-data": components["schemas"]["Flashcard"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_cards_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_cards_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFlashcard"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFlashcard"];
+                "multipart/form-data": components["schemas"]["PatchedFlashcard"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"][];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Deck"];
+                "application/x-www-form-urlencoded": components["schemas"]["Deck"];
+                "multipart/form-data": components["schemas"]["Deck"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_cards_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"][];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_cards_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Flashcard"];
+                "application/x-www-form-urlencoded": components["schemas"]["Flashcard"];
+                "multipart/form-data": components["schemas"]["Flashcard"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Flashcard"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_cards_bulk_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Deck"];
+                "application/x-www-form-urlencoded": components["schemas"]["Deck"];
+                "multipart/form-data": components["schemas"]["Deck"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDeck"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDeck"];
+                "multipart/form-data": components["schemas"]["PatchedDeck"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deck"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_clone_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_decks_public_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDeckList"];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_review_logs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewLog"][];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_reviews_due_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_reviews_history_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewLog"][];
+                };
+            };
+        };
+    };
+    api_v1_api_flashcards_reviews_new_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_reviews_submit_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_sessions_end_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_flashcards_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -44423,6 +53987,1037 @@ export interface operations {
             };
         };
     };
+    api_v1_api_learning_analytics_daily_metrics_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyLearningMetric"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningGoalCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["LearningGoalCreate"];
+                "multipart/form-data": components["schemas"]["LearningGoalCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoalCreate"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_predict_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["LearningGoal"];
+                "multipart/form-data": components["schemas"]["LearningGoal"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_goals_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedLearningGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedLearningGoal"];
+                "multipart/form-data": components["schemas"]["PatchedLearningGoal"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningGoal"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_insights_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningInsight"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_insights_bulk_read_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_insights_dismiss_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_insights_refresh_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_monthly_recap_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningPathList"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_archive_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                path_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningPath"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_estimate_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_generate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_progress_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_steps_complete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_steps_skip_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_paths_steps_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_sessions_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLearningSessionList"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningSessionCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["LearningSessionCreate"];
+                "multipart/form-data": components["schemas"]["LearningSessionCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningSessionCreate"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningSession"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_sessions_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_skills_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillTag"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_skills_profiles_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSkillProfile"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_analytics_skills_refresh_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_velocity_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_analytics_weekly_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalEntry"];
+                "multipart/form-data": components["schemas"]["JournalEntry"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_comments_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalComment"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_comments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalComment"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalComment"];
+                "multipart/form-data": components["schemas"]["JournalComment"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalComment"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_react_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalEntry"];
+                "multipart/form-data": components["schemas"]["JournalEntry"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedJournalEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedJournalEntry"];
+                "multipart/form-data": components["schemas"]["PatchedJournalEntry"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_today_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_entries_today_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_feed_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_prompt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_streak_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_templates_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalTemplate"][];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_templates_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JournalTemplate"];
+                "application/x-www-form-urlencoded": components["schemas"]["JournalTemplate"];
+                "multipart/form-data": components["schemas"]["JournalTemplate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalTemplate"];
+                };
+            };
+        };
+    };
+    api_v1_api_learning_journal_weekly_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_learning_journal_weekly_list_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReflection"][];
+                };
+            };
+        };
+    };
     api_v1_api_lessons_notes_retrieve: {
         parameters: {
             query?: never;
@@ -44509,6 +55104,661 @@ export interface operations {
             header?: never;
             path: {
                 lang_code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_analytics_mentee_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_analytics_mentor_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_analytics_program_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_feedback_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipFeedback"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_feedback_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipFeedback"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipFeedback"];
+                "multipart/form-data": components["schemas"]["MentorshipFeedback"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipFeedback"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_goals_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipGoal"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_goals_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipGoal"];
+                "multipart/form-data": components["schemas"]["MentorshipGoal"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipGoal"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_recommendations_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipMatch"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipMatch"];
+                "multipart/form-data": components["schemas"]["MentorshipMatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_matches_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMentorshipMatch"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMentorshipMatch"];
+                "multipart/form-data": components["schemas"]["PatchedMentorshipMatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipMatch"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MentorProfile"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorProfile"];
+                "multipart/form-data": components["schemas"]["MentorProfile"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_find_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_me_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_profile_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MentorProfile"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorProfile"];
+                "multipart/form-data": components["schemas"]["MentorProfile"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_mentors_profile_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMentorProfile"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMentorProfile"];
+                "multipart/form-data": components["schemas"]["PatchedMentorProfile"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorProfile"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_requests_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipRequest"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipRequest"];
+                "multipart/form-data": components["schemas"]["MentorshipRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipRequest"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_requests_respond_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_requests_incoming_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipRequest"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"][];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipSession"];
+                "multipart/form-data": components["schemas"]["MentorshipSession"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MentorshipSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["MentorshipSession"];
+                "multipart/form-data": components["schemas"]["MentorshipSession"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMentorshipSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMentorshipSession"];
+                "multipart/form-data": components["schemas"]["PatchedMentorshipSession"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MentorshipSession"];
+                };
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_complete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_mentorship_sessions_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
             };
             cookie?: never;
         };
@@ -45204,6 +56454,24 @@ export interface operations {
             };
         };
     };
+    api_v1_api_notifications_channel_preferences_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_notifications_channels_retrieve: {
         parameters: {
             query?: never;
@@ -45336,6 +56604,24 @@ export interface operations {
             };
         };
     };
+    api_v1_api_notifications_prefs_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_notifications_push_subscribe_create: {
         parameters: {
             query?: never;
@@ -45398,6 +56684,187 @@ export interface operations {
             header?: never;
             path: {
                 delivery_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_oauth_clients_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"][];
+                };
+            };
+        };
+    };
+    api_v1_api_oauth_clients_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OAuthClient"];
+                "application/x-www-form-urlencoded": components["schemas"]["OAuthClient"];
+                "multipart/form-data": components["schemas"]["OAuthClient"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_v1_api_oauth_clients_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_v1_api_oauth_clients_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OAuthClient"];
+                "application/x-www-form-urlencoded": components["schemas"]["OAuthClient"];
+                "multipart/form-data": components["schemas"]["OAuthClient"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_v1_api_oauth_clients_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_oauth_clients_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this o auth client. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedOAuthClient"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedOAuthClient"];
+                "multipart/form-data": components["schemas"]["PatchedOAuthClient"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthClient"];
+                };
+            };
+        };
+    };
+    api_v1_api_oauth_user_apps_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_oauth_user_apps_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
             cookie?: never;
         };
@@ -46275,6 +57742,111 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_plugins_retrieve_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_plugins_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_plugins_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_plugins_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_plugins_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plugin_name: string;
+                subpath: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -47925,6 +59497,24 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Lesson"][];
                 };
+            };
+        };
+    };
+    api_v1_api_progress_rewards_claim_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -51900,6 +63490,639 @@ export interface operations {
             };
         };
     };
+    api_v1_api_study_groups_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudyGroupCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudyGroupCreate"];
+                "multipart/form-data": components["schemas"]["StudyGroupCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroupCreate"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_activities_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedGroupActivityList"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_challenges_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupChallenge"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_challenges_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupChallenge"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupChallenge"];
+                "multipart/form-data": components["schemas"]["GroupChallenge"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupChallenge"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_challenges_join_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                challenge_id: number;
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_challenges_leaderboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                challenge_id: number;
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_goals_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupGoal"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_goals_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupGoal"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupGoal"];
+                "multipart/form-data": components["schemas"]["GroupGoal"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupGoal"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_invites_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_join_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_leaderboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_leave_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_members_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMembership"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_messages_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMessage"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_messages_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupMessage"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupMessage"];
+                "multipart/form-data": components["schemas"]["GroupMessage"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMessage"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_resources_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResource"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_resources_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupResource"];
+                "application/x-www-form-urlencoded": components["schemas"]["GroupResource"];
+                "multipart/form-data": components["schemas"]["GroupResource"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResource"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_resources_upvote_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+                resource_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudyGroup"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudyGroup"];
+                "multipart/form-data": components["schemas"]["StudyGroup"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedStudyGroup"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedStudyGroup"];
+                "multipart/form-data": components["schemas"]["PatchedStudyGroup"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyGroup"];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_discover_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_invites_accept_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_api_study_groups_invites_mine_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupInvite"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_messages_replies_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupMessage"][];
+                };
+            };
+        };
+    };
+    api_v1_api_study_groups_platform_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_api_uploads_create: {
         parameters: {
             query?: never;
@@ -52645,6 +64868,60 @@ export interface operations {
             };
         };
     };
+    api_v1_oauth_authorize_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_oauth_authorize_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_oauth_introspect_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_v1_oauth_oauth_authorize_retrieve: {
         parameters: {
             query?: never;
@@ -52718,6 +64995,42 @@ export interface operations {
         };
     };
     api_v1_oauth_oauth_token_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_oauth_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    api_v1_oauth_token_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -53321,6 +65634,60 @@ export interface operations {
             };
         };
     };
+    oauth_authorize_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    oauth_authorize_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    oauth_introspect_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     oauth_oauth_authorize_retrieve: {
         parameters: {
             query?: never;
@@ -53394,6 +65761,42 @@ export interface operations {
         };
     };
     oauth_oauth_token_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    oauth_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    oauth_token_create: {
         parameters: {
             query?: never;
             header?: never;

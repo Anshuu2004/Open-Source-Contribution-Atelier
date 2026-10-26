@@ -362,6 +362,7 @@ class LearningPathListSerializer(serializers.ModelSerializer):
             "total_steps",
             "completed_steps",
             "progress_pct",
+            "next_step",
             "priority_score",
             "xp_reward",
             "generated_at",

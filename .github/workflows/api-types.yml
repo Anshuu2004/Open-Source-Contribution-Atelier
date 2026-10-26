@@ -16,8 +16,9 @@ permissions:
 jobs:
   api-types:
     runs-on: ubuntu-latest
-    # Advisory until the committed src/types/api.d.ts has been regenerated once
-    # with this exact pipeline; then remove continue-on-error to make it blocking.
+    # src/types/api.d.ts was regenerated on Windows with Python 3.13. Keep this
+    # advisory until it has passed once on this Linux runner, then remove
+    # continue-on-error so it blocks stale types.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +35,11 @@ jobs:
         run: pip install -r requirements.txt
       - name: Regenerate API types from the Django schema
         working-directory: frontend
+        # Throwaway values: schema generation only imports settings, it never
+        # connects to a database or encrypts anything.
+        env:
+          SECRET_KEY: api-types-ci-placeholder-secret-key-not-used-for-anything-real
+          FIELD_ENCRYPTION_KEY: MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=
         run: npm run generate:api
       - name: Fail if the committed types are out of date
         run: |
