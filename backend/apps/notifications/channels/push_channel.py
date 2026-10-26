@@ -6,6 +6,7 @@ from pywebpush import WebPushException, webpush  # type: ignore
 
 from apps.notifications.channels.base import NotificationChannel
 from apps.notifications.models import PushSubscription
+from apps.notifications.vapid import DEFAULT_VAPID_ADMIN_EMAIL, build_vapid_claims
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,9 @@ class PushChannel(NotificationChannel):
             return True  # Completed successfully (0 active subscriptions)
 
         vapid_private_key = getattr(settings, "VAPID_PRIVATE_KEY", None)
-        vapid_admin_email = getattr(settings, "VAPID_ADMIN_EMAIL", "admin@atelier.dev")
+        vapid_admin_email = (
+            getattr(settings, "VAPID_ADMIN_EMAIL", None) or DEFAULT_VAPID_ADMIN_EMAIL
+        )
 
         title = payload.get("title", "Notification")
         message = payload.get("message", "")
@@ -53,7 +56,7 @@ class PushChannel(NotificationChannel):
                     },
                     data=push_payload,
                     vapid_private_key=vapid_private_key,
-                    vapid_claims={"sub": f"mailto:{vapid_admin_email}"},
+                    vapid_claims=build_vapid_claims(vapid_admin_email),
                 )
                 delivered_any = True
             except WebPushException as ex:
