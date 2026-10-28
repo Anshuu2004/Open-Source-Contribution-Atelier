@@ -6,6 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from pywebpush import WebPushException, webpush  # type: ignore
 
 from .models import PushSubscription
+from .vapid import build_vapid_claims
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ def send_web_push_notification(user_id, title, message, url=None):
                 },
                 data=payload,
                 vapid_private_key=vapid_private_key,
-                vapid_claims={"sub": vapid_admin_email},
+                vapid_claims=build_vapid_claims(vapid_admin_email),
             )
         except WebPushException as ex:
             # If the endpoint is no longer valid (e.g. 410 Gone, or 404 Not Found),
