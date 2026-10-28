@@ -14,6 +14,8 @@ Welcome to the permanent **Hall of Fame & Contributor Legacy** for **Open-Source
 
 | 1 | @SnehalKrushnaBandal | 🥉 Bronze Contributor ⚡ | 2 | 50 | 2026-10-28 |
 
+| 1 | @Blazehue | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-28 |
+
 ---
 
 ## 🌟 Historic Milestones & Seasonal Legacy
