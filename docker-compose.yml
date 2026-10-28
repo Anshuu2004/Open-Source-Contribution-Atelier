@@ -75,7 +75,7 @@ services:
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`)"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/')\" || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live/')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
