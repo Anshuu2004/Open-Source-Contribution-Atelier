@@ -156,13 +156,36 @@ Postgres may take a moment to initialize (especially on first run or after clear
 - If Redis dies later, the resilient layer switches to in-memory for that process (warning logged).
 - WebSocket connections still accept; clients may see `"degraded": true` and should poll HTTP for inbox updates.
 
-### Local override
+### Local development fallback & override
+
+Redis is **optional** for local development. When running locally outside of Docker (e.g. `python manage.py runserver`), the backend automatically detects that Redis is unavailable and falls back to in-memory mode:
+- **Channels**: `channels.layers.InMemoryChannelLayer`
+- **Cache**: `django.core.cache.backends.locmem.LocMemCache`
+- **Rate limiting**: `local` in-memory backend
+
+To skip auto-detection and silence the startup warning:
+
 ```bash
 # backend/.env
 FORCE_INMEMORY_CHANNEL_LAYER=1
 ```
 
-Restart the backend after changing this. Multi-worker fan-out still needs Redis in Docker/prod.
+Restart the backend after changing this.
+
+### Relevant Environment Variables
+
+| Variable | Default | Purpose |
+| :--- | :--- | :--- |
+| `REDIS_URL` | `redis://localhost:6379/0` (dev) / `redis://redis:6379/0` (Docker) | Target Redis connection string. |
+| `FORCE_INMEMORY_CHANNEL_LAYER` | Unset | Set to `1` (or `true`) to bypass the channel/cache Redis check and force `InMemoryChannelLayer` + `LocMemCache`. |
+| `RATE_LIMIT_BACKEND` | `redis` (only if `REDIS_URL` is set and reachable) / `local` | Backend for rate limiting. Defaults to `redis` only when `REDIS_URL` is set and Redis is reachable; otherwise `local`. Set this variable to override the default. |
+
+### Multi-worker limitations
+
+While single-process local development works without Redis, multi-worker architectures require Redis:
+- **Single Process Only**: `InMemoryChannelLayer` and `LocMemCache` operate within a single process. They cannot share messages or state across multiple worker processes.
+- **Docker Compose & Production**: In Docker Compose (where `backend` and `worker` run as separate containers) or production (with multi-worker WSGI/ASGI servers), WebSocket broadcasts from background workers or other processes cannot reach client connections without Redis.
+- For full local testing with Docker Compose, ensure the `redis` service is running.
 
 ### Verify Redis connectivity
 
@@ -184,7 +207,7 @@ A healthy Redis instance should respond with:
 PONG
 ```
 
-If Redis is unreachable, check that the Redis service is running and that `REDIS_URL` points to the correct host and portIn Docker Compose, the backend uses `redis://redis:6379/0`; for a local backend, `backend/.env.example` uses `redis://localhost:6379/0`.
+If Redis is unreachable, check that the Redis service is running and that `REDIS_URL` points to the correct host and port. In Docker Compose, the backend uses `redis://redis:6379/0`; for a local backend, `backend/.env.example` uses `redis://localhost:6379/0`. For standalone local development troubleshooting, see [`TROUBLESHOOTING_SETUP.md`](TROUBLESHOOTING_SETUP.md).
 
 ---
 
@@ -284,4 +307,5 @@ The backend reads `ALLOWED_HOSTS` from the environment (comma-separated). If it 
 ## Reference
 - `docker-compose.yml` (dev): root-level Compose configuration
 - `docker-compose.prod.yml` (prod): Compose configuration for production-style runs
+- [`TROUBLESHOOTING_SETUP.md`](TROUBLESHOOTING_SETUP.md): Local development troubleshooting FAQ (Windows & macOS)
 
