@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -156,6 +156,7 @@ export function ProfileSettingsForm({ onChange }: ProfileSettingsFormProps) {
   const { user, checkUser } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const saveInFlightRef = useRef(false);
   const [downloading, setDownloading] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [selectedCover, setSelectedCover] = useState<File | null>(null);
@@ -221,6 +222,9 @@ export function ProfileSettingsForm({ onChange }: ProfileSettingsFormProps) {
   }, [user, reset]);
 
   const onSubmit = async (data: ProfileFormValues) => {
+    // Async validation can queue two submissions before the button disables.
+    if (saveInFlightRef.current) return;
+    saveInFlightRef.current = true;
     setLoading(true);
 
     try {
@@ -278,6 +282,7 @@ export function ProfileSettingsForm({ onChange }: ProfileSettingsFormProps) {
 
       addToast(message, "error");
     } finally {
+      saveInFlightRef.current = false;
       setLoading(false);
     }
   };
