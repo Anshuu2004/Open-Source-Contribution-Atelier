@@ -172,8 +172,26 @@ class WebhookDelivery(models.Model):
         blank=True,
         help_text="When the next retry should be attempted.",
     )
+    dedupe_key = models.CharField(
+        max_length=128,
+        null=True,
+        blank=True,
+        help_text=(
+            "Optional caller supplied key for the logical event. Dispatching the "
+            "same key to the same endpoint twice creates only one delivery."
+        ),
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["endpoint", "dedupe_key"],
+                condition=models.Q(dedupe_key__isnull=False),
+                name="webhooks_unique_dedupe_key_per_endpoint",
+            )
+        ]
 
     def __str__(self):
         return f"Delivery {self.id} for {self.endpoint.target_url}"

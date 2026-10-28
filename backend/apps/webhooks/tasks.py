@@ -35,21 +35,46 @@ def generate_signature(payload, secret):
     return hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
 
 
-def dispatch_event(event_type, payload):
+def dispatch_event(event_type, payload, dedupe_key=None):
     """
     Finds all active webhooks subscribed to the given event_type
     and queues delivery tasks.
+
+    If ``dedupe_key`` is given, dispatching the same key to the same endpoint
+    again is a no-op, so a signal that fires twice for one event does not
+    send it twice.
     """
     endpoints = WebhookEndpoint.objects.filter(is_active=True)
     for endpoint in endpoints:
         if event_type in endpoint.events or "*" in endpoint.events:
-            delivery = WebhookDelivery.objects.create(
-                endpoint=endpoint,
-                event_type=event_type,
-                payload=payload,
-                status="pending",
-                attempt_count=0,
-            )
+            if dedupe_key:
+                delivery, created = WebhookDelivery.objects.get_or_create(
+                    endpoint=endpoint,
+                    dedupe_key=dedupe_key,
+                    defaults={
+                        "event_type": event_type,
+                        "payload": payload,
+                        "status": "pending",
+                        "attempt_count": 0,
+                    },
+                )
+            else:
+                delivery = WebhookDelivery.objects.create(
+                    endpoint=endpoint,
+                    event_type=event_type,
+                    payload=payload,
+                    status="pending",
+                    attempt_count=0,
+                )
+                created = True
+            if not created:
+                logger.info(
+                    "dispatch_event: %s with key %s already queued for endpoint %s, skipping.",
+                    event_type,
+                    dedupe_key,
+                    endpoint.id,
+                )
+                continue
             async_task(
                 "apps.webhooks.tasks.deliver_webhook",
                 delivery.id,
@@ -85,6 +110,22 @@ def deliver_webhook(delivery_id, attempt=1):
         logger.warning("deliver_webhook: delivery %s not found, skipping.", delivery_id)
         return
 
+    # Claim this attempt before sending. The queue is at-least-once, so the
+    # same task can run twice; only the run that moves attempt_count forward
+    # on a delivery that is still open gets to POST.
+    claimed = (
+        WebhookDelivery.objects.filter(id=delivery_id, attempt_count__lt=attempt)
+        .exclude(status__in=["success", "dead"])
+        .update(attempt_count=attempt)
+    )
+    if not claimed:
+        logger.info(
+            "deliver_webhook: delivery %s attempt %d already handled or finished, skipping.",
+            delivery_id,
+            attempt,
+        )
+        return
+
     endpoint = delivery.endpoint
     signature = generate_signature(delivery.payload, endpoint.secret)
 
@@ -93,6 +134,9 @@ def deliver_webhook(delivery_id, attempt=1):
         "X-Webhook-Signature": signature,
         "X-Webhook-Event": delivery.event_type,
         "X-Webhook-Attempt": str(attempt),
+        # Same value on every retry and replay of this delivery, so receivers
+        # can use it to drop duplicates.
+        "X-Webhook-Delivery-Id": str(delivery.id),
     }
 
     delivery.attempt_count = attempt
