@@ -20,8 +20,12 @@ export function useBookmarks() {
 
   const { data: bookmarks = [], isLoading } = useQuery<BookmarkEntry[]>({
     queryKey: ["bookmarks"],
+    // The OpenAPI schema has no response body for this endpoint, so the
+    // response type is the hand-written BookmarkEntry above.
     queryFn: () =>
-      fetchApi("/progress/bookmarks/", { suppressErrorToast: true }),
+      fetchApi<BookmarkEntry[]>("/progress/bookmarks/", {
+        suppressErrorToast: true,
+      }),
     staleTime: 1000 * 60 * 5,
   });
 

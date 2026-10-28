@@ -1,0 +1,54 @@
+name: API Types Freshness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/src/types/api.d.ts"
+      - "frontend/package.json"
+      - ".github/workflows/api-types.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api-types:
+    runs-on: ubuntu-latest
+    # src/types/api.d.ts was regenerated on Windows with Python 3.13. Keep this
+    # advisory until it has passed once on this Linux runner, then remove
+    # continue-on-error so it blocks stale types.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Install frontend dependencies
+        working-directory: frontend
+        # openapi-typescript needs typescript to be installed. `npm ci` is not
+        # used because package-lock.json is out of sync with package.json on main.
+        run: npm install --no-package-lock --ignore-scripts
+      - name: Regenerate API types from the Django schema
+        working-directory: frontend
+        # Throwaway values: schema generation only imports settings, it never
+        # connects to a database or encrypts anything.
+        env:
+          SECRET_KEY: api-types-ci-placeholder-secret-key-not-used-for-anything-real
+          FIELD_ENCRYPTION_KEY: MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=
+        run: npm run generate:api
+      - name: Fail if the committed types are out of date
+        run: |
+          git diff --exit-code -- frontend/src/types/api.d.ts || {
+            echo "::error::frontend/src/types/api.d.ts is stale. Run 'npm run generate:api' in frontend/ and commit the result."
+            exit 1
+          }

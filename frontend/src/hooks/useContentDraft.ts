@@ -36,6 +36,27 @@ export interface ModuleDraftData {
   lessons: LessonDraftData[];
 }
 
+/** Shape of the bundled public/content/curriculum.json fallback (hand-written). */
+interface CurriculumLesson {
+  title: string;
+  slug: string;
+  description?: string;
+  difficulty?: string;
+  estimatedMinutes?: number;
+  quizzes?: QuizDraftData[];
+}
+
+interface CurriculumModule {
+  id?: string;
+  title?: string;
+  description?: string;
+  lessons?: CurriculumLesson[];
+}
+
+interface CurriculumFile {
+  modules?: CurriculumModule[];
+}
+
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 export function useContentDraft(initialLessonId?: number) {
@@ -75,15 +96,15 @@ export function useContentDraft(initialLessonId?: number) {
           () => null,
         );
         if (currRes && currRes.ok) {
-          const currData = await currRes.json();
+          const currData: CurriculumFile = await currRes.json();
           const mappedModules: ModuleDraftData[] = (currData.modules || []).map(
-            (m: any, idx: number) => ({
+            (m, idx) => ({
               id: m.id ? idx + 1 : idx + 1,
               title: m.title || `Module ${idx + 1}`,
               slug: m.id || `module-${idx + 1}`,
               description: m.description || "",
               order: idx + 1,
-              lessons: (m.lessons || []).map((l: any, lIdx: number) => {
+              lessons: (m.lessons || []).map((l, lIdx) => {
                 const lesId = (idx + 1) * 100 + lIdx + 1;
                 const savedNote =
                   savedNotesMap[lesId] ||

@@ -1,7 +1,17 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useWebSocketManager as useWebSocket } from "./useWebSocketManager";
 import { useTypingIndicator } from "./useTypingIndicator";
-import { fetchApi } from "../lib/api";
+import { apiGet, type ApiGetResponse } from "../lib/api";
+
+type ChatHistoryResponse =
+  ApiGetResponse<"/api/chat/rooms/{room_id}/messages/">;
+/** Older deployments returned a bare array instead of the paginated object. */
+type ChatHistoryItem = ChatHistoryResponse["results"][number] & {
+  user_id?: number;
+  parent_id?: number | null;
+  parent?: number | null;
+  message?: string;
+};
 import {
   generateKeyPair,
   exportPublicKey,
@@ -121,12 +131,15 @@ export function useChat({ roomId, token, username }: UseChatOptions) {
 
     const fetchHistory = async () => {
       try {
-        const data = await fetchApi(
-          `/chat/rooms/${encodeURIComponent(roomId)}/messages/`,
+        const data: ChatHistoryResponse | ChatHistoryItem[] = await apiGet(
+          "/api/chat/rooms/{room_id}/messages/",
+          { pathParams: { room_id: roomId } },
         );
         if (!isMounted) return;
-        const rawList = Array.isArray(data) ? data : data?.results || [];
-        const formatted: ChatMessage[] = rawList.map((m: any) => ({
+        const rawList: ChatHistoryItem[] = Array.isArray(data)
+          ? data
+          : data?.results || [];
+        const formatted: ChatMessage[] = rawList.map((m) => ({
           id: m.id,
           parent_id: m.parent_id ?? m.parent ?? null,
           username: m.username || "",
