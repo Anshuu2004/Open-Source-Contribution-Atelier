@@ -12,6 +12,8 @@ Welcome to the permanent **Hall of Fame & Contributor Legacy** for **Open-Source
 
 | 1 | @S-Gijbile-19 | 🥈 Silver Contributor ⚡ | 4 | 100 | 2026-10-26 |
 
+| 1 | @SnehalKrushnaBandal | 🥉 Bronze Contributor  | 1 | 25 | 2026-10-28 |
+
 ---
 
 ## 🌟 Historic Milestones & Seasonal Legacy
