@@ -1,0 +1,75 @@
+name: Image Vulnerability Scan
+
+# Builds the image that is actually deployed (the root Dockerfile, which the
+# Hugging Face Space builds) and scans it with Trivy. Policy, exceptions and
+# false-positive handling: docs/ci/image-scanning.md
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "backend/requirements*.txt"
+      - "backend/pyproject.toml"
+      - ".trivyignore"
+      - "scripts/ci/trivy-summary.sh"
+      - "scripts/ci/check-trivyignore.sh"
+      - ".github/workflows/image-scan.yml"
+  push:
+    branches: [main]
+  schedule:
+    - cron: "15 3 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: image-scan-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_TAG: atelier-backend:scan
+  # Severities that fail the job. Anything else in the report (HIGH) is shown
+  # in the summary and as a warning annotation only. Keep in sync with
+  # docs/ci/image-scanning.md.
+  FAIL_SEVERITIES: CRITICAL
+
+jobs:
+  image-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check .trivyignore entries
+        run: bash scripts/ci/check-trivyignore.sh .trivyignore
+
+      - name: Build image from the deployment Dockerfile
+        run: docker build -f Dockerfile -t "$IMAGE_TAG" .
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE_TAG }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+          format: json
+          output: trivy-report.json
+          exit-code: "0"
+          timeout: 10m
+          hide-progress: true
+
+      - name: Summarize findings and apply severity policy
+        run: bash scripts/ci/trivy-summary.sh trivy-report.json
+
+      - name: Upload raw report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
+          if-no-files-found: ignore
+          retention-days: 14

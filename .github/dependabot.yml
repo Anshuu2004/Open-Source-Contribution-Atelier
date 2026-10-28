@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Keeps the action pins in .github/workflows up to date.
+  # See docs/ci/action-pinning.md for how these PRs should be reviewed.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "ci/cd"

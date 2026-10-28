@@ -9,7 +9,50 @@ export interface AdvancedSearchResult {
   relevance_score?: number;
   semantic_score?: number;
   tags?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+/**
+ * Raw item from GET /search/. The generated schema (SearchDocument) lags the
+ * real payload, which can also carry rank/headline/pk/summary, so this is a
+ * hand-written superset with every field optional.
+ */
+export interface RawSearchItem {
+  id?: string | number;
+  pk?: string | number;
+  title?: string;
+  headline?: string;
+  description?: string;
+  body?: string;
+  summary?: string;
+  content_type?: string;
+  type?: string;
+  rank?: number;
+  relevance_score?: number;
+  semantic_score?: number;
+  tags?: string[] | string;
+}
+
+export type RawSearchResponse =
+  RawSearchItem[] | { count?: number; results?: RawSearchItem[] };
+
+export interface SearchFilters {
+  type?: string;
+  category?: string;
+}
+
+/** Normalise the two response shapes (bare array or paginated object). */
+export function extractSearchResults(
+  data: RawSearchResponse | null | undefined,
+): {
+  items: RawSearchItem[];
+  count: number | undefined;
+} {
+  if (Array.isArray(data)) return { items: data, count: undefined };
+  return {
+    items: data?.results || [],
+    count: typeof data?.count === "number" ? data.count : undefined,
+  };
 }
 
 export interface UseAdvancedSearchResult {
@@ -22,7 +65,7 @@ export interface UseAdvancedSearchResult {
     average: number;
     high: number;
   };
-  search: (query: string, filters?: Record<string, any>) => Promise<void>;
+  search: (query: string, filters?: SearchFilters) => Promise<void>;
   clearSearch: () => void;
 }
 
@@ -52,7 +95,7 @@ export function useAdvancedSearch(): UseAdvancedSearchResult {
   }, []);
 
   const search = useCallback(
-    async (query: string, filters: Record<string, any> = {}) => {
+    async (query: string, filters: SearchFilters = {}) => {
       if (!query || query.trim().length < 2) {
         clearSearch();
         return;
@@ -76,16 +119,15 @@ export function useAdvancedSearch(): UseAdvancedSearchResult {
           params.append("category", filters.category);
         }
 
-        const data = await fetchApi(`/search/?${params.toString()}`, {
+        const data = (await fetchApi(`/search/?${params.toString()}`, {
           signal: abortControllerRef.current.signal,
-        });
+        })) as RawSearchResponse;
 
-        const rawResults: any[] = Array.isArray(data)
-          ? data
-          : data?.results || [];
+        const { items: rawResults, count: apiCount } =
+          extractSearchResults(data);
 
         const mappedResults: AdvancedSearchResult[] = rawResults.map(
-          (item: any, index: number) => {
+          (item, index) => {
             const score =
               typeof item.rank === "number"
                 ? item.rank
@@ -97,16 +139,14 @@ export function useAdvancedSearch(): UseAdvancedSearchResult {
               content_type: item.content_type || item.type || "lesson",
               relevance_score: score,
               semantic_score: item.semantic_score ?? undefined,
-              tags: item.tags || [],
+              tags: Array.isArray(item.tags) ? item.tags : [],
               ...item,
-            };
+            } as AdvancedSearchResult;
           },
         );
 
         setResults(mappedResults);
-        const count =
-          typeof data?.count === "number" ? data.count : mappedResults.length;
-        setTotal(count);
+        setTotal(apiCount ?? mappedResults.length);
 
         // Compute relevance stats
         if (mappedResults.length > 0) {
@@ -117,8 +157,9 @@ export function useAdvancedSearch(): UseAdvancedSearchResult {
         } else {
           setRelevanceScores({ average: 0, high: 0 });
         }
-      } catch (err: any) {
-        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
+      } catch (err: unknown) {
+        const e = err as { name?: string; code?: string } | null;
+        if (e?.name === "AbortError" || e?.code === "ERR_CANCELED") {
           return;
         }
         setError(err instanceof Error ? err : new Error(String(err)));

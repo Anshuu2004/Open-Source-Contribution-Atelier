@@ -67,9 +67,10 @@ def verify_signature(payload_body, secret_token, header_signature):
 Our event dispatch service utilizes Celery for asynchronous processing, ensuring reliable delivery without blocking the main application flow.
 - **Timeouts**: Webhook delivery requests will timeout after 10 seconds.
 - **Retries**: If a delivery fails (e.g., timeout, network error, or an HTTP 5xx response), it will be retried automatically using exponential backoff up to 3 times.
+- **Duplicate dispatches**: callers of `dispatch_event` can pass a `dedupe_key`. Dispatching the same key to the same endpoint again does not create a second delivery (the built-in lesson, badge, XP, issue and PR signals do this). A queued task that runs twice, or a retry that was already handled, is skipped instead of POSTing again.
 - **Failures**: Persistent failures can be reviewed via the Deliveries API (`/api/webhooks/deliveries/`), where the HTTP status code and response body snippet are logged.
 
 ## 6. Guidelines for Integrating Third-Party Services
-1. **Idempotency**: Webhooks may occasionally be delivered more than once. Ensure your event handlers are idempotent.
+1. **Idempotency**: Webhooks may occasionally be delivered more than once. Ensure your event handlers are idempotent. Every request carries an `X-Webhook-Delivery-Id` header. It is the same value on every retry and on a replay from the dead letter queue, so store it and ignore a request whose id you have already processed.
 2. **Response Time**: Respond to webhook requests quickly (with a `2xx` status code). Offload heavy processing to your own asynchronous queues to prevent timeouts.
 3. **Security**: Always validate the `X-Webhook-Signature` header to prevent spoofing attacks. Use HTTPS for your `target_url` to ensure payloads are encrypted in transit.

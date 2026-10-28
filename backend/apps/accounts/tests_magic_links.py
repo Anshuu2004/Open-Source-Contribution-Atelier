@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
@@ -5,6 +6,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
 from apps.accounts.models import MagicLinkToken
@@ -28,7 +30,7 @@ def test_user():
 class TestMagicLink:
     def test_magic_link_request_success(self, api_client, test_user):
         url = reverse("magic-link-request")
-        with patch("apps.accounts.tasks.send_magic_link_email_task.delay") as mock_task:
+        with patch("apps.accounts.views.async_task") as mock_task:
             response = api_client.post(url, {"email": test_user.email})
             assert response.status_code == status.HTTP_200_OK
             assert "magic login link has been sent" in response.data["message"]
@@ -39,7 +41,7 @@ class TestMagicLink:
 
     def test_magic_link_request_nonexistent_email(self, api_client):
         url = reverse("magic-link-request")
-        with patch("apps.accounts.tasks.send_magic_link_email_task.delay") as mock_task:
+        with patch("apps.accounts.views.async_task") as mock_task:
             response = api_client.post(url, {"email": "nobody@example.com"})
             assert response.status_code == status.HTTP_200_OK
             mock_task.assert_not_called()
@@ -78,10 +80,40 @@ class TestMagicLink:
 
     def test_magic_link_verify_expired_token(self, api_client, test_user):
         token = MagicLinkToken.objects.create(user=test_user)
+        MagicLinkToken.objects.filter(pk=token.pk).update(
+            created_at=timezone.now() - timedelta(minutes=16)
+        )
 
-        with patch("apps.accounts.models.MagicLinkToken.is_expired", return_value=True):
-            url = reverse("magic-link-verify")
-            response = api_client.post(url, {"token": str(token.token)})
+        url = reverse("magic-link-verify")
+        response = api_client.post(url, {"token": str(token.token)})
 
-            assert response.status_code == status.HTTP_400_BAD_REQUEST
-            assert response.data["error"] == "expired_token"
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["error"] == "expired_token"
+
+        token.refresh_from_db()
+        assert token.is_used == False
+
+    def test_is_expired_boundary(self, test_user):
+        token = MagicLinkToken.objects.create(user=test_user)
+        assert not token.is_expired()
+
+        MagicLinkToken.objects.filter(pk=token.pk).update(
+            created_at=timezone.now() - timedelta(minutes=14)
+        )
+        token.refresh_from_db()
+        assert not token.is_expired()
+
+        MagicLinkToken.objects.filter(pk=token.pk).update(
+            created_at=timezone.now() - timedelta(minutes=16)
+        )
+        token.refresh_from_db()
+        assert token.is_expired()
+
+    def test_is_expired_uses_timeout_setting(self, test_user, settings):
+        settings.MAGIC_LINK_TIMEOUT_MINUTES = 1
+        token = MagicLinkToken.objects.create(user=test_user)
+        MagicLinkToken.objects.filter(pk=token.pk).update(
+            created_at=timezone.now() - timedelta(minutes=2)
+        )
+        token.refresh_from_db()
+        assert token.is_expired()

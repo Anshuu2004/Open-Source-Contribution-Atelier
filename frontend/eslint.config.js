@@ -48,6 +48,14 @@ export default tseslint.config(
     },
   },
   {
+    // Hooks are where API responses get consumed; warn (not error) on `any`.
+    files: ["src/hooks/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
+  {
     files: ["**/setup.ts", "**/setup.unit.ts"],
     rules: {
       "no-restricted-syntax": "off",

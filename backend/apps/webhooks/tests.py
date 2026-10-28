@@ -7,8 +7,13 @@ import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
-from apps.webhooks.models import WebhookDelivery, WebhookEndpoint
-from apps.webhooks.tasks import deliver_webhook, dispatch_event, generate_signature
+from apps.webhooks.models import DeadLetterWebhook, WebhookDelivery, WebhookEndpoint
+from apps.webhooks.tasks import (
+    deliver_webhook,
+    dispatch_event,
+    generate_signature,
+    replay_delivery,
+)
 
 User = get_user_model()
 
@@ -184,6 +189,123 @@ class TestWebhookDelivery:
         delivery.refresh_from_db()
         assert delivery.status == "dead"
         mock_async_task.assert_not_called()
+
+
+@pytest.mark.django_db
+class TestWebhookIdempotency:
+    @patch("apps.webhooks.tasks.async_task")
+    def test_same_dedupe_key_creates_one_delivery(self, mock_async_task, endpoint):
+        dispatch_event("test.event", {"id": 1}, dedupe_key="test.event:1")
+        dispatch_event("test.event", {"id": 1}, dedupe_key="test.event:1")
+
+        assert WebhookDelivery.objects.count() == 1
+        mock_async_task.assert_called_once()
+
+    @patch("apps.webhooks.tasks.async_task")
+    def test_different_dedupe_keys_create_separate_deliveries(
+        self, mock_async_task, endpoint
+    ):
+        dispatch_event("test.event", {"id": 1}, dedupe_key="test.event:1")
+        dispatch_event("test.event", {"id": 2}, dedupe_key="test.event:2")
+
+        assert WebhookDelivery.objects.count() == 2
+        assert mock_async_task.call_count == 2
+
+    @patch("apps.webhooks.tasks.async_task")
+    def test_dedupe_key_is_scoped_per_endpoint(self, mock_async_task, user, endpoint):
+        other = WebhookEndpoint.objects.create(
+            user=user, target_url="https://example.org/hook", events=["test.event"]
+        )
+        dispatch_event("test.event", {"id": 1}, dedupe_key="test.event:1")
+
+        assert WebhookDelivery.objects.filter(endpoint=endpoint).count() == 1
+        assert WebhookDelivery.objects.filter(endpoint=other).count() == 1
+
+    @patch("apps.webhooks.tasks.async_task")
+    def test_no_dedupe_key_keeps_old_behaviour(self, mock_async_task, endpoint):
+        dispatch_event("test.event", {"id": 1})
+        dispatch_event("test.event", {"id": 1})
+
+        assert WebhookDelivery.objects.count() == 2
+        assert mock_async_task.call_count == 2
+
+    @patch("requests.post")
+    def test_delivery_id_header_is_sent(self, mock_post, endpoint):
+        mock_post.return_value = MagicMock(status_code=200, text="OK")
+        delivery = WebhookDelivery.objects.create(
+            endpoint=endpoint, event_type="test.event", payload={"foo": "bar"}
+        )
+        deliver_webhook(delivery.id)
+
+        headers = mock_post.call_args.kwargs["headers"]
+        assert headers["X-Webhook-Delivery-Id"] == str(delivery.id)
+
+    @patch("requests.post")
+    def test_duplicate_task_after_success_does_not_post_again(
+        self, mock_post, endpoint
+    ):
+        mock_post.return_value = MagicMock(status_code=200, text="OK")
+        delivery = WebhookDelivery.objects.create(
+            endpoint=endpoint, event_type="test.event", payload={"foo": "bar"}
+        )
+        deliver_webhook(delivery.id, attempt=1)
+        deliver_webhook(delivery.id, attempt=1)
+
+        assert mock_post.call_count == 1
+        delivery.refresh_from_db()
+        assert delivery.status == "success"
+
+    @patch("requests.post")
+    @patch("apps.webhooks.tasks.async_task")
+    def test_duplicate_retry_task_does_not_post_again(
+        self, mock_async_task, mock_post, endpoint
+    ):
+        mock_post.return_value = MagicMock(status_code=500, text="boom")
+        delivery = WebhookDelivery.objects.create(
+            endpoint=endpoint, event_type="test.event", payload={"foo": "bar"}
+        )
+        deliver_webhook(delivery.id, attempt=1)
+        # the queue hands the same attempt-1 task over a second time
+        deliver_webhook(delivery.id, attempt=1)
+
+        assert mock_post.call_count == 1
+        mock_async_task.assert_called_once()
+
+    @patch("requests.post")
+    def test_dead_delivery_is_not_sent(self, mock_post, endpoint):
+        delivery = WebhookDelivery.objects.create(
+            endpoint=endpoint,
+            event_type="test.event",
+            payload={"foo": "bar"},
+            status="dead",
+        )
+        deliver_webhook(delivery.id, attempt=2)
+
+        mock_post.assert_not_called()
+
+    @patch("requests.post")
+    @patch("apps.webhooks.tasks.async_task")
+    def test_replay_still_sends_with_same_delivery_id(
+        self, mock_async_task, mock_post, endpoint
+    ):
+        mock_post.return_value = MagicMock(status_code=200, text="OK")
+        delivery = WebhookDelivery.objects.create(
+            endpoint=endpoint,
+            event_type="test.event",
+            payload={"foo": "bar"},
+            status="dead",
+            attempt_count=5,
+        )
+        dlq = DeadLetterWebhook.objects.create(delivery=delivery, reason="HTTP 500")
+
+        replay_delivery(dlq.id)
+        deliver_webhook(delivery.id, attempt=1)
+
+        mock_post.assert_called_once()
+        headers = mock_post.call_args.kwargs["headers"]
+        assert headers["X-Webhook-Delivery-Id"] == str(delivery.id)
+        delivery.refresh_from_db()
+        assert delivery.status == "success"
 
 
 @pytest.mark.django_db

@@ -2,6 +2,16 @@ import { useState } from "react";
 import { fetchApi } from "../lib/api";
 import toast from "react-hot-toast";
 
+/** Hand-written: the billing checkout/portal responses are not in the OpenAPI schema. */
+interface RedirectResponse {
+  checkout_url?: string;
+  url?: string;
+}
+
+function errorMessage(err: unknown, fallback: string): string {
+  return (err instanceof Error && err.message) || fallback;
+}
+
 export function useStripeCheckout() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +20,7 @@ export function useStripeCheckout() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchApi("/billing/checkout/", {
+      const data = await fetchApi<RedirectResponse>("/billing/checkout/", {
         method: "POST",
         body: JSON.stringify({ plan_id: planId }),
       });
@@ -20,8 +30,8 @@ export function useStripeCheckout() {
       } else {
         throw new Error("No redirect URL returned from checkout endpoint");
       }
-    } catch (err: any) {
-      const msg = err.message || "Failed to initiate checkout session";
+    } catch (err: unknown) {
+      const msg = errorMessage(err, "Failed to initiate checkout session");
       setError(msg);
       toast.error(msg);
     } finally {
@@ -33,7 +43,7 @@ export function useStripeCheckout() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchApi("/billing/portal/", {
+      const data = await fetchApi<RedirectResponse>("/billing/portal/", {
         method: "POST",
       });
       if (data.url) {
@@ -41,8 +51,8 @@ export function useStripeCheckout() {
       } else {
         throw new Error("No redirect URL returned from portal endpoint");
       }
-    } catch (err: any) {
-      const msg = err.message || "Failed to open billing portal";
+    } catch (err: unknown) {
+      const msg = errorMessage(err, "Failed to open billing portal");
       setError(msg);
       toast.error(msg);
     } finally {

@@ -110,6 +110,7 @@ New contributors are welcome. Find a [`good first issue`](https://github.com/nan
 - [Architecture notes](docs/ARCHITECTURE.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Admin audit events](docs/AUDIT_EVENTS.md)
+- [Local setup FAQ](docs/TROUBLESHOOTING_SETUP.md)
 - [Contributor leaderboard](LEADERBOARD.md)
 
 ## License

@@ -26,7 +26,7 @@ export function AuthPageShell({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="h-screen max-h-screen w-full bg-[#FAF9F6] text-slate-900 dark:bg-[#0c0a09] dark:text-[#f0ebe2] transition-colors duration-300 relative overflow-hidden flex flex-col justify-between select-none">
+    <div className="min-h-screen w-full bg-[#FAF9F6] text-slate-900 dark:bg-[#0c0a09] dark:text-[#f0ebe2] transition-colors duration-300 relative overflow-x-hidden flex flex-col justify-between select-none">
       {/* Dynamic Background Mesh & Ambient Glow Blobs */}
       <div className="absolute inset-0 pointer-events-none opacity-25 dark:opacity-15 bg-[radial-gradient(#6366f1_1px,transparent_1px)] dark:bg-[radial-gradient(#818cf8_1px,transparent_1px)] [background-size:24px_24px] z-0" />
 
@@ -71,9 +71,9 @@ export function AuthPageShell({
         </div>
       </header>
 
-      {/* Main Content Area: Centered strictly non-scrollable */}
-      <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-1 flex-1 flex items-center justify-center relative z-10 min-h-0 overflow-hidden">
-        <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-12 items-center justify-center max-h-full">
+      {/* Main Content Area: Vertically centered; scrolls when content exceeds viewport */}
+      <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-1 flex-1 flex items-center justify-center relative z-10">
+        <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-12 items-center justify-center">
           {/* LEFT SIDE: Brand Features & Community Showcase */}
           <div className="flex-1 hidden lg:flex flex-col justify-center max-w-lg">
             <div className="inline-flex items-center gap-2 mb-3">

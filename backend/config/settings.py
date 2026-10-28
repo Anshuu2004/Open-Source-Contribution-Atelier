@@ -575,6 +575,12 @@ DISCORD_ANNOUNCEMENTS_ENABLED = (
     os.getenv("DISCORD_ANNOUNCEMENTS_ENABLED", "true").lower() == "true"
 )
 
+# ── Web Push (VAPID) ───────────────────────────────────────────────────────────
+# Blank/unset VAPID_PRIVATE_KEY keeps push mocked (see notifications.vapid).
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "").strip()
+VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "").strip()
+VAPID_ADMIN_EMAIL = os.getenv("VAPID_ADMIN_EMAIL", "").strip()
+
 # ── Email Configuration ────────────────────────────────────────────────────────
 # Default: console backend (prints emails to stdout) — safe for dev/CI.
 # Override EMAIL_BACKEND in production env with a real SMTP backend.
